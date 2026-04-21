@@ -144,8 +144,8 @@ export const Home: React.FC = () => {
             </p>
             <ul className="history-facts">
               <li>📍 Origen: Estados Unidos, 1910</li>
-              <li>🍩 Tamaño: Pequeñas y crujientes</li>
-              <li>🍫 Toppings: Chocolate, glaseado, chispas</li>
+              <li>🍩 Tamaño: Suaves y pequeñas</li>
+              <li>🍫 Coberturas: Chocolate Negro y Chocolate Blanco</li>
             </ul>
           </div>
           <div className="history-image">
