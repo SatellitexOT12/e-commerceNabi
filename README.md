@@ -196,20 +196,61 @@ VALUES ('+535845670', '+533495645');
 
 ---
 
-## 🌐 Despliegue
+### GitHub Actions (Despliegue Automático)
 
-### GitHub Pages
+El proyecto incluye un workflow de GitHub Actions que se activa automáticamente cada vez que haces `git push` a la rama `main`.
 
-El proyecto ya está configurado para GitHub Pages:
+**Flujo automático:**
+1. ✅ Clona el código
+2. ✅ Instala dependencias (`npm ci`)
+3. ✅ Construye la app (`npm run build`)
+4. ✅ Despliega a GitHub Pages
+
+#### Configuración de Secrets
+
+Ve a **Settings → Secrets and variables → Actions** en tu repositorio y agrega:
+
+| Nombre del Secret | Valor | Requerido |
+|---|---|---|
+| `SUPABASE_URL` | URL de tu proyecto Supabase | Sí |
+| `SUPABASE_ANON_KEY` | Clave anónima de Supabase | Sí |
+| `WHATSAPP_NUMBER_1` | Primer número WhatsApp (ej: +535845670) | No |
+| `WHATSAPP_NUMBER_2` | Segundo número WhatsApp (ej: +533495645) | No |
+
+**¿Dónde encontrar las credenciales de Supabase?**
+1. Ve a tu proyecto en Supabase
+2. Settings → API
+3. Copia `URL` y `anon public` key
+
+**Nota**: Los números de WhatsApp son opcionales. Si no se configuran, se usan los valores por defecto del código.
+
+#### Despliegue Manual (workflow_dispatch)
+
+También puedes disparar el despliegue manualmente:
+1. Ve a **Actions** en tu repo
+2. Selecciona workflow "Deploy to GitHub Pages"
+3. Click **Run workflow** → **Run workflow**
+
+---
+
+## 🚀 Despliegue
+
+### GitHub Actions (Automático)
+
+Cada `git push` a `main` despliega automáticamente a GitHub Pages.
 
 ```bash
-# Build y deploy
-npm run deploy
+git add .
+git commit -m "feat: nueva funcionalidad"
+git push origin main
+# ↓ Automáticamente se desplegará en ~2-3 minutos
 ```
 
-**Acceso**: https://satellitexot12.github.io/e-commerceNabi/
+**URL**: https://satellitexot12.github.io/e-commerceNabi/
 
-**Configuración manual**:
+### Manual (Alternativo)
+
+Si prefieres desplegar manualmente:
 1. Ve a Settings → Pages en tu repo
 2. Source: `Deploy from a branch`
 3. Branch: `gh-pages` / `/(root)`
