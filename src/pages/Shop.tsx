@@ -12,6 +12,7 @@ export const Shop: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [loading, setLoading] = useState(true)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
   const { addItem } = useCart()
 
   const categories = ['Crepes', 'Mini Donas', 'Combos de Crepes', 'Combos de Donas', 'Combos Mixtos']
@@ -62,7 +63,15 @@ export const Shop: React.FC = () => {
       </div>
 
       <div className="shop-container">
-        <aside className="shop-sidebar">
+        {/* Mobile Filter Toggle Button */}
+        <button 
+          className="mobile-filter-btn"
+          onClick={() => setShowMobileFilters(!showMobileFilters)}
+        >
+          {showMobileFilters ? '✕ Ocultar Filtros' : '☰ Mostrar Filtros'}
+        </button>
+
+        <aside className={`shop-sidebar ${showMobileFilters ? 'mobile-visible' : ''}`}>
           <div className="filter-section">
             <h3>Buscar</h3>
             <input

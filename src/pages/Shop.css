@@ -19,6 +19,27 @@
   gap: 2rem;
 }
 
+/* Mobile Filter Button */
+.mobile-filter-btn {
+  display: none;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: var(--accent-color);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.mobile-filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.2);
+}
+
 .shop-sidebar {
   display: flex;
   flex-direction: column;
@@ -45,6 +66,7 @@
   border-radius: 8px;
   font-family: 'Poppins', sans-serif;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .search-input:focus {
@@ -64,6 +86,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  text-align: left;
 }
 
 .category-btn:hover {
@@ -85,8 +108,8 @@
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1.5rem;
 }
 
 .loading, .no-products {
@@ -96,16 +119,76 @@
   font-size: 1.1rem;
 }
 
+/* Responsive */
+@media (max-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .shop-container {
-    grid-template-columns: 1fr;
+  .mobile-filter-btn {
+    display: block;
   }
 
   .shop-sidebar {
     display: none;
+    position: relative;
+    z-index: 100;
+  }
+
+  .shop-sidebar.mobile-visible {
+    display: flex;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--background-color);
+    padding: 1rem;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .shop-container {
+    grid-template-columns: 1fr;
+    margin: 1rem auto;
+    padding: 0;
   }
 
   .shop-header h1 {
     font-size: 1.8rem;
+  }
+
+  .shop-main {
+    padding: 1rem;
+    border-radius: 0;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .shop-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .mobile-filter-btn {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .shop-main {
+    padding: 0.75rem;
   }
 }
