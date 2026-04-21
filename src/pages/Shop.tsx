@@ -63,15 +63,30 @@ export const Shop: React.FC = () => {
       </div>
 
       <div className="shop-container">
-        {/* Mobile Filter Toggle Button */}
+        {/* Mobile Filter Toggle Button - Hidden when sidebar is open */}
         <button 
-          className="mobile-filter-btn"
-          onClick={() => setShowMobileFilters(!showMobileFilters)}
+          className={showMobileFilters ? "mobile-filter-btn hidden" : "mobile-filter-btn"}
+          onClick={() => setShowMobileFilters(true)}
         >
-          {showMobileFilters ? '✕ Ocultar Filtros' : '☰ Mostrar Filtros'}
+          ☰ Mostrar Filtros
         </button>
 
         <aside className={`shop-sidebar ${showMobileFilters ? 'mobile-visible' : ''}`}>
+          {/* Mobile close button inside sidebar */}
+          <button
+            className="sidebar-close-btn"
+            onClick={() => setShowMobileFilters(false)}
+          >
+            ✕
+          </button>
+          {/* Mobile close button inside sidebar */}
+          <button
+            className="sidebar-close-btn"
+            onClick={() => setShowMobileFilters(false)}
+          >
+            ✕
+          </button>
+
           <div className="filter-section">
             <h3>Buscar</h3>
             <input
