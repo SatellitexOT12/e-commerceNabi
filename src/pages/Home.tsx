@@ -75,7 +75,7 @@ export const Home: React.FC = () => {
                     </div>
                     <div className="carousel-info">
                       <h3>{product.nombre}</h3>
-                       <p className="carousel-price">{formatPrice(product.precio)}</p>
+                       <p className="carousel-price">${product.precio.toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
