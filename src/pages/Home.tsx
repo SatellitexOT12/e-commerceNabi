@@ -105,7 +105,7 @@ export const Home: React.FC = () => {
       <section className="history-section crepe-section" id="historia">
         <div className="history-content">
           <div className="history-image">
-            <img src="https://images.unsplash.com/photo-1519340333755-56e9c1d04579?w=600&h=400&fit=crop" alt="Crepes" />
+            <img src="https://vfomcuyjibpbkistjhpd.supabase.co/storage/v1/object/public/pics/HistoriaCrepes.webp?w=600&h=400&fit=crop" alt="Crepes" />
           </div>
           <div className="history-text">
             <span className="history-tag">Origen</span>
@@ -149,7 +149,7 @@ export const Home: React.FC = () => {
             </ul>
           </div>
           <div className="history-image">
-            <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop" alt="MiniDonas" />
+            <img src="https://vfomcuyjibpbkistjhpd.supabase.co/storage/v1/object/public/pics/HistoriaDonas.webp?w=600&h=400&fit=crop" alt="MiniDonas" />
           </div>
         </div>
       </section>
