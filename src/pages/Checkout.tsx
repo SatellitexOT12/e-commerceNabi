@@ -3,6 +3,7 @@ import { useCart } from '../contexts/CartContext'
 import { useForm } from 'react-hook-form'
 import { generateOrderMessage, sendToBothNumbers } from '../utils/whatsapp'
 import { saveOrder } from '../services/orders'
+import { formatPrice } from '../utils/formatPrice'
 import './Checkout.css'
 import toast from 'react-hot-toast'
 
@@ -108,26 +109,30 @@ export const Checkout: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
           <div className="order-summary">
             <h2>Resumen del Pedido</h2>
-            {state.items.map(item => (
-              <div key={item.product.id} className="summary-item">
-                <div className="item-info">
-                  <span>{item.product.nombre} x{item.quantity}</span>
-                  <span>${(item.product.precio * item.quantity).toFixed(2)}</span>
-                </div>
-                {item.agregos && item.agregos.length > 0 && (
-                  <div className="item-agregos">
-                    {item.agregos.map((agrego, idx) => (
-                      <span key={idx} className="agrego-item">
-                        + {agrego.nombre} {agrego.cantidad && agrego.cantidad > 1 ? `x${agrego.cantidad}` : ''} - ${(agrego.precio * (agrego.cantidad || 1)).toFixed(2)}
-                      </span>
-                    ))}
+            {state.items.map(item => {
+              const agregosPrice = item.agregos?.reduce((sum, agg) => sum + (agg.precio * (agg.cantidad || 1)), 0) || 0
+              const itemTotal = (item.product.precio * item.quantity) + agregosPrice
+              return (
+                <div key={item.product.id} className="summary-item">
+                  <div className="item-info">
+                    <span>{item.product.nombre} x{item.quantity}</span>
+                    <span>{formatPrice(item.product.precio * item.quantity)}</span>
                   </div>
-                )}
-              </div>
-            ))}
+                  {item.agregos && item.agregos.length > 0 && (
+                    <div className="item-agregos">
+                      {item.agregos.map((agrego, idx) => (
+                        <span key={idx} className="agrego-item">
+                          + {agrego.nombre} {agrego.cantidad && agrego.cantidad > 1 ? `x${agrego.cantidad}` : ''} - {formatPrice(agrego.precio * (agrego.cantidad || 1))}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
             <div className="summary-total">
               <strong>Total:</strong>
-              <strong>${state.total.toFixed(2)}</strong>
+              <strong>{formatPrice(state.total)}</strong>
             </div>
           </div>
         </div>

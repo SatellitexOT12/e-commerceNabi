@@ -27,11 +27,13 @@ export const generateOrderMessage = (order: any): string => {
   message += `Teléfono: ${order.cliente_telefono}\n\n`
   message += 'Productos:\n'
   order.productos.forEach((item: any, index: number) => {
-    message += `${index + 1}. ${item.product.nombre} x${item.quantity} - $${(item.product.precio * item.quantity).toFixed(2)}\n`
+    const price = (item.product.precio * item.quantity).toFixed(2)
+    message += `${index + 1}. ${item.product.nombre} x${item.quantity} - $${price}\n`
     if (item.agregos && item.agregos.length > 0) {
       item.agregos.forEach((agrego: any) => {
         const cantidad = agrego.cantidad || 1
-        message += `   + ${agrego.nombre} x${cantidad} - $${(agrego.precio * cantidad).toFixed(2)}\n`
+        const aggPrice = (agrego.precio * cantidad).toFixed(2)
+        message += `   + ${agrego.nombre} x${cantidad} - $${aggPrice}\n`
       })
     }
   })

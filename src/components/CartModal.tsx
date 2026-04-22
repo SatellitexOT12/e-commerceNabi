@@ -1,6 +1,7 @@
 import React from 'react'
 import { useCart } from '../contexts/CartContext'
 import { X, Plus, Minus } from 'lucide-react'
+import { formatPrice } from '../utils/formatPrice'
 import './CartModal.css'
 
 interface CartModalProps {
@@ -39,12 +40,12 @@ export const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose, onCheckou
                     <img src={item.product.imagen_url} alt={item.product.nombre} />
                     <div className="item-details">
                       <h4>{item.product.nombre}</h4>
-                      <p className="item-price">${item.product.precio.toFixed(2)}</p>
+                      <p className="item-price">{formatPrice(item.product.precio)}</p>
                       {item.agregos && item.agregos.length > 0 && (
                         <div className="item-agregos">
                           {item.agregos.map((agg, idx) => (
                             <p key={idx} className="agrego-text">
-                              + {agg.nombre} {agg.cantidad && agg.cantidad > 1 ? `x${agg.cantidad}` : ''}: ${(agg.precio * (agg.cantidad || 1)).toFixed(2)}
+                              + {agg.nombre} {agg.cantidad && agg.cantidad > 1 ? `x${agg.cantidad}` : ''}: {formatPrice(agg.precio * (agg.cantidad || 1))}
                             </p>
                           ))}
                         </div>
@@ -60,7 +61,7 @@ export const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose, onCheckou
                       </button>
                     </div>
                     <div className="item-subtotal">
-                      ${itemTotal.toFixed(2)}
+                      {formatPrice(itemTotal)}
                     </div>
                     <button className="remove-btn" onClick={() => removeItem(item.product.id)}>
                       <X size={18} />
@@ -73,7 +74,7 @@ export const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose, onCheckou
             <div className="cart-footer">
               <div className="cart-total">
                 <strong>Total:</strong>
-                <strong>${state.total.toFixed(2)}</strong>
+                <strong>{formatPrice(state.total)}</strong>
               </div>
               <button className="checkout-btn" onClick={onCheckout}>
                 Proceder al Pago

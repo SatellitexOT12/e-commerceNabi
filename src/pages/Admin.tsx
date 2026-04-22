@@ -5,6 +5,7 @@ import { getAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado } 
 import { getCurrentUser, signIn, signOut } from '../services/auth'
 import { useNavigate } from 'react-router-dom'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { formatPrice } from '../utils/formatPrice'
 import './Admin.css'
 import toast from 'react-hot-toast'
 
@@ -392,23 +393,23 @@ export const Admin: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {products.map(product => (
-                      <tr key={product.id}>
-                        <td><img src={product.imagen_url} alt={product.nombre} className="product-thumb" /></td>
-                        <td>{product.nombre}</td>
-                        <td>{product.categoria}</td>
-                        <td>${product.precio.toFixed(2)}</td>
-                        <td>
-                          <span className={`status-badge ${product.disponible ? 'available' : 'unavailable'}`}>
-                            {product.disponible ? 'Disponible' : 'No disponible'}
-                          </span>
-                        </td>
-                        <td>
-                          <button className="btn-edit" onClick={() => openEditModal(product)}>Editar</button>
-                          <button className="btn-delete" onClick={() => handleDelete(product.id)}>Eliminar</button>
-                        </td>
-                      </tr>
-                    ))}
+                     {products.map(product => (
+                       <tr key={product.id}>
+                         <td><img src={product.imagen_url} alt={product.nombre} className="product-thumb" /></td>
+                         <td>{product.nombre}</td>
+                         <td>{product.categoria}</td>
+                         <td>{formatPrice(product.precio)}</td>
+                         <td>
+                           <span className={`status-badge ${product.disponible ? 'available' : 'unavailable'}`}>
+                             {product.disponible ? 'Disponible' : 'No disponible'}
+                           </span>
+                         </td>
+                         <td>
+                           <button className="btn-edit" onClick={() => openEditModal(product)}>Editar</button>
+                           <button className="btn-delete" onClick={() => handleDelete(product.id)}>Eliminar</button>
+                         </td>
+                       </tr>
+                     ))}
                   </tbody>
                 </table>
               </div>
@@ -440,22 +441,22 @@ export const Admin: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {agregos.map(agregado => (
-                      <tr key={agregado.id}>
-                        <td>{agregado.nombre}</td>
-                        <td>{agregado.categoria}</td>
-                        <td>${agregado.precio.toFixed(2)}</td>
-                        <td>
-                          <span className={`status-badge ${agregado.disponible ? 'available' : 'unavailable'}`}>
-                            {agregado.disponible ? 'Disponible' : 'No disponible'}
-                          </span>
-                        </td>
-                        <td>
-                          <button className="btn-edit" onClick={() => openAgregosModal(agregado)}>Editar</button>
-                          <button className="btn-delete" onClick={() => handleDeleteAgrego(agregado.id)}>Eliminar</button>
-                        </td>
-                      </tr>
-                    ))}
+                     {agregos.map(agregado => (
+                       <tr key={agregado.id}>
+                         <td>{agregado.nombre}</td>
+                         <td>{agregado.categoria}</td>
+                         <td>{formatPrice(agregado.precio)}</td>
+                         <td>
+                           <span className={`status-badge ${agregado.disponible ? 'available' : 'unavailable'}`}>
+                             {agregado.disponible ? 'Disponible' : 'No disponible'}
+                           </span>
+                         </td>
+                         <td>
+                           <button className="btn-edit" onClick={() => openAgregosModal(agregado)}>Editar</button>
+                           <button className="btn-delete" onClick={() => handleDeleteAgrego(agregado.id)}>Eliminar</button>
+                         </td>
+                       </tr>
+                     ))}
                   </tbody>
                 </table>
               </div>
@@ -596,64 +597,64 @@ export const Admin: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {Object.values(dailySales).reverse().map((day: any, idx) => {
-                              const gb = day.total * 0.5
-                              return (
-                                <tr key={idx}>
-                                  <td>{day.fecha}</td>
-                                  <td>{day.miniDonas}</td>
-                                  <td>{day.crepes}</td>
-                                  <td>{day.miniDonas + day.crepes}</td>
-                                  <td>${day.total.toFixed(2)}</td>
-                                  <td>${(day.total * 0.5).toFixed(2)}</td>
-                                  <td>${(day.total * 0.5).toFixed(2)}</td>
-                                  <td>${gb.toFixed(2)}</td>
-                                  <td className="ahorro-cell">${(gb * 0.3).toFixed(2)}</td>
-                                  <td className="personal-cell">${(gb * 0.7).toFixed(2)}</td>
-                                </tr>
-                              )
-                            })}
+                             {Object.values(dailySales).reverse().map((day: any, idx) => {
+                               const gb = day.total * 0.5
+                               return (
+                                 <tr key={idx}>
+                                   <td>{day.fecha}</td>
+                                   <td>{day.miniDonas}</td>
+                                   <td>{day.crepes}</td>
+                                   <td>{day.miniDonas + day.crepes}</td>
+                                   <td>{formatPrice(day.total)}</td>
+                                   <td>{formatPrice(day.total * 0.5)}</td>
+                                   <td>{formatPrice(day.total * 0.5)}</td>
+                                   <td>{formatPrice(gb)}</td>
+                                   <td className="ahorro-cell">{formatPrice(gb * 0.3)}</td>
+                                   <td className="personal-cell">{formatPrice(gb * 0.7)}</td>
+                                 </tr>
+                               )
+                             })}
                           </tbody>
                         </table>
                       </div>
 
-                      <div className="finanzas-totales">
-                        <h3>Totales Acumulados</h3>
-                        <div className="totales-grid">
-                          <div className="total-item">
-                            <span className="total-label">Total Vendido</span>
-                            <span className="total-value">${totalVendidoAll.toFixed(2)}</span>
-                          </div>
-                          <div className="total-item">
-                            <span className="total-label">Mini Donas</span>
-                            <span className="total-value">{totalMiniDonas}</span>
-                          </div>
-                          <div className="total-item">
-                            <span className="total-label">Crepes</span>
-                            <span className="total-value">{totalCrepes}</span>
-                          </div>
-                          <div className="total-item">
-                            <span className="total-label">Reinversión</span>
-                            <span className="total-value">${reinversionAll.toFixed(2)}</span>
-                          </div>
-                          <div className="total-item">
-                            <span className="total-label">Fondo</span>
-                            <span className="total-value">${fondoAll.toFixed(2)}</span>
-                          </div>
-                          <div className="total-item highlight">
-                            <span className="total-label">Ganancia Bruta Total</span>
-                            <span className="total-value">${gananciaBrutaAll.toFixed(2)}</span>
-                          </div>
-                          <div className="total-item">
-                            <span className="total-label">Ahorro (30%)</span>
-                            <span className="total-value ahorro">${ahorroAll.toFixed(2)}</span>
-                          </div>
-                          <div className="total-item">
-                            <span className="total-label">Ganancia Personal (70%)</span>
-                            <span className="total-value personal">${gananciaPersonalAll.toFixed(2)}</span>
-                          </div>
-                        </div>
-                      </div>
+                       <div className="finanzas-totales">
+                         <h3>Totales Acumulados</h3>
+                         <div className="totales-grid">
+                           <div className="total-item">
+                             <span className="total-label">Total Vendido</span>
+                             <span className="total-value">{formatPrice(totalVendidoAll)}</span>
+                           </div>
+                           <div className="total-item">
+                             <span className="total-label">Mini Donas</span>
+                             <span className="total-value">{totalMiniDonas}</span>
+                           </div>
+                           <div className="total-item">
+                             <span className="total-label">Crepes</span>
+                             <span className="total-value">{totalCrepes}</span>
+                           </div>
+                           <div className="total-item">
+                             <span className="total-label">Reinversión</span>
+                             <span className="total-value">{formatPrice(reinversionAll)}</span>
+                           </div>
+                           <div className="total-item">
+                             <span className="total-label">Fondo</span>
+                             <span className="total-value">{formatPrice(fondoAll)}</span>
+                           </div>
+                           <div className="total-item highlight">
+                             <span className="total-label">Ganancia Bruta Total</span>
+                             <span className="total-value">{formatPrice(gananciaBrutaAll)}</span>
+                           </div>
+                           <div className="total-item">
+                             <span className="total-label">Ahorro (30%)</span>
+                             <span className="total-value ahorro">{formatPrice(ahorroAll)}</span>
+                           </div>
+                           <div className="total-item">
+                             <span className="total-label">Ganancia Personal (70%)</span>
+                             <span className="total-value personal">{formatPrice(gananciaPersonalAll)}</span>
+                           </div>
+                         </div>
+                       </div>
                     </>
                   )
                 })()}
@@ -685,40 +686,40 @@ export const Admin: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.map(order => (
-                      <tr key={order.id}>
-                        <td>{order.cliente_nombre}</td>
-                        <td>{order.cliente_telefono}</td>
-                        <td>${order.total.toFixed(2)}</td>
-                        <td>{new Date(order.fecha).toLocaleDateString()}</td>
-                        <td>
-                          <span className={`status ${order.estado === 'completado' ? 'completed' : ''}`}>
-                            {order.estado}
-                          </span>
-                        </td>
-                        <td>{order.productos.length} items</td>
-                        <td>
-                          {order.estado !== 'completado' && (
-                            <button 
-                              className="btn-complete"
-                              onClick={async () => {
-                                try {
-                                  await updateOrderStatus(order.id, 'completado')
-                                  const ordersData = await getOrders()
-                                  setOrders(ordersData)
-                                  toast.success('Pedido completado')
-                                } catch (error) {
-                                  console.error('Error completing order:', error)
-                                  toast.error('Error al completar pedido')
-                                }
-                              }}
-                            >
-                              ✓ Completar
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                     {orders.map(order => (
+                       <tr key={order.id}>
+                         <td>{order.cliente_nombre}</td>
+                         <td>{order.cliente_telefono}</td>
+                         <td>{formatPrice(order.total)}</td>
+                         <td>{new Date(order.fecha).toLocaleDateString()}</td>
+                         <td>
+                           <span className={`status ${order.estado === 'completado' ? 'completed' : ''}`}>
+                             {order.estado}
+                           </span>
+                         </td>
+                         <td>{order.productos.length} items</td>
+                         <td>
+                           {order.estado !== 'completado' && (
+                             <button 
+                               className="btn-complete"
+                               onClick={async () => {
+                                 try {
+                                   await updateOrderStatus(order.id, 'completado')
+                                   const ordersData = await getOrders()
+                                   setOrders(ordersData)
+                                   toast.success('Pedido completado')
+                                 } catch (error) {
+                                   console.error('Error completing order:', error)
+                                   toast.error('Error al completar pedido')
+                                 }
+                               }}
+                             >
+                               ✓ Completar
+                             </button>
+                           )}
+                         </td>
+                       </tr>
+                     ))}
                   </tbody>
                 </table>
               </div>

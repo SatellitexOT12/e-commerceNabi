@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import './ProductCard.css'
 import { Product, Agregado } from '../contexts/CartContext'
 import { getAgregos, getAgregosByCategory } from '../services/agregos'
+import { formatPrice } from '../utils/formatPrice'
 
 interface SelectedAgrego extends Agregado {
   cantidad: number
@@ -93,12 +94,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
             {agregos.map(agg => {
               const cantidad = selectedAgregos[agg.id] || 0
               return (
-                <div key={agg.id} className="agregos-item">
-                  <div className="agg-info">
-                    <span className="agg-nombre">{agg.nombre}</span>
-                    <span className="agg-precio">+${agg.precio.toFixed(2)} c/u</span>
-                  </div>
-                  <div className="agg-cantidad">
+                 <div key={agg.id} className="agregos-item">
+                   <div className="agg-info">
+                     <span className="agg-nombre">{agg.nombre}</span>
+                     <span className="agg-precio">+{formatPrice(agg.precio)} c/u</span>
+                   </div>
+                   <div className="agg-cantidad">
                     <button 
                       type="button"
                       className="qty-btn"
@@ -122,16 +123,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
           </div>
         )}
         
-        <div className="agregos-footer">
-          <span className="total-price">Total: ${totalPrice.toFixed(2)}</span>
-          <button 
-            className="add-btn" 
-            onClick={handleConfirm}
-            disabled={!product.disponible}
-          >
-            Agregar
-          </button>
-        </div>
+         <div className="agregos-footer">
+           <span className="total-price">Total: {formatPrice(totalPrice)}</span>
+           <button 
+             className="add-btn" 
+             onClick={handleConfirm}
+             disabled={!product.disponible}
+           >
+             Agregar
+           </button>
+         </div>
       </div>
     )
   }
@@ -146,7 +147,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         <p className="category">{product.categoria}</p>
         <p className="description">{product.descripcion}</p>
         <div className="product-footer">
-          <span className="price">${product.precio.toFixed(2)}</span>
+          <span className="price">{formatPrice(product.precio)}</span>
           <button 
             onClick={handleAdd} 
             className="add-btn"
