@@ -70,6 +70,7 @@ export const Admin: React.FC = () => {
   const [showAgregosSelector, setShowAgregosSelector] = useState(false)
   const [selectedAgregos, setSelectedAgregos] = useState<Record<string, number>>({})
   const [agregosForProduct, setAgregosForProduct] = useState<AgregadoDB[]>([])
+  const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -521,6 +522,15 @@ export const Admin: React.FC = () => {
       const agregosPrice = item.agregos?.reduce((a, agg) => a + (agg.precio * (agg.cantidad || 1)), 0) || 0
       return sum + basePrice + agregosPrice
     }, 0)
+  }
+
+  const renderProductSummary = (productos: any[]) => {
+    if (!productos || productos.length === 0) return 'Sin productos'
+    const summary = productos.slice(0, 2).map(item => `${item.product?.nombre || item.nombre} x${item.quantity}`).join(', ')
+    if (productos.length > 2) {
+      return `${summary} +${productos.length - 2} más`
+    }
+    return summary
   }
 
   return (
@@ -1102,6 +1112,7 @@ export const Admin: React.FC = () => {
                 <table>
                   <thead>
                     <tr>
+                      <th></th>
                       <th>Cliente</th>
                       <th>Teléfono</th>
                       <th>Total</th>
@@ -1113,45 +1124,84 @@ export const Admin: React.FC = () => {
                   </thead>
                   <tbody>
                      {orders.map(order => (
-                       <tr key={order.id}>
-                         <td>{order.cliente_nombre}</td>
-                         <td>{order.cliente_telefono}</td>
-                         <td>{formatPrice(order.total)}</td>
-                         <td>{new Date(order.fecha).toLocaleDateString()}</td>
-                         <td>
-                           <span className={`status ${order.estado === 'completado' ? 'completed' : ''}`}>
-                             {order.estado}
-                           </span>
-                         </td>
-                          <td>{order.productos.length} items</td>
-                          <td>
-                            {order.estado !== 'completado' && (
+                       <React.Fragment key={order.id}>
+                         <tr>
+                           <td>
+                             <button 
+                               className="expand-btn"
+                               onClick={() => setExpandedOrders(prev => ({ ...prev, [order.id]: !prev[order.id] }))}
+                               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', padding: '4px 8px' }}
+                             >
+                               {expandedOrders[order.id] ? '▼' : '▶'}
+                             </button>
+                           </td>
+                           <td>{order.cliente_nombre}</td>
+                           <td>{order.cliente_telefono}</td>
+                           <td>{formatPrice(order.total)}</td>
+                           <td>{new Date(order.fecha).toLocaleDateString()}</td>
+                           <td>
+                             <span className={`status ${order.estado === 'completado' ? 'completed' : ''}`}>
+                               {order.estado}
+                             </span>
+                           </td>
+                            <td>{renderProductSummary(order.productos)}</td>
+                            <td>
+                              {order.estado !== 'completado' && (
+                                <button 
+                                  className="btn-complete"
+                                  onClick={async () => {
+                                    try {
+                                      await updateOrderStatus(order.id, 'completado')
+                                      const ordersData = await getOrders()
+                                      setOrders(ordersData)
+                                      toast.success('Pedido completado')
+                                    } catch (error) {
+                                      console.error('Error completing order:', error)
+                                      toast.error('Error al completar pedido')
+                                    }
+                                  }}
+                                >
+                                  ✓ Completar
+                                </button>
+                              )}
                               <button 
-                                className="btn-complete"
-                                onClick={async () => {
-                                  try {
-                                    await updateOrderStatus(order.id, 'completado')
-                                    const ordersData = await getOrders()
-                                    setOrders(ordersData)
-                                    toast.success('Pedido completado')
-                                  } catch (error) {
-                                    console.error('Error completing order:', error)
-                                    toast.error('Error al completar pedido')
-                                  }
-                                }}
+                                className="btn-delete-order"
+                                onClick={() => handleDeleteOrder(order.id)}
+                                title="Eliminar pedido"
                               >
-                                ✓ Completar
+                                🗑️ Eliminar
                               </button>
-                            )}
-                            <button 
-                              className="btn-delete-order"
-                              onClick={() => handleDeleteOrder(order.id)}
-                              title="Eliminar pedido"
-                            >
-                              🗑️ Eliminar
-                            </button>
-                          </td>
-                       </tr>
+                            </td>
+                         </tr>
+                         {expandedOrders[order.id] && (
+                           <tr className="expanded-row">
+                             <td colSpan={8}>
+                               <div className="products-details">
+                                 <h4>Detalles de productos:</h4>
+                                 <div className="products-list">
+                                   {order.productos.map((item, idx) => (
+                                     <div key={idx} className="product-item-detail">
+                                       <div className="product-name">{item.product?.nombre || 'Producto'}</div>
+                                       <div className="product-qty">Cantidad: {item.quantity}</div>
+                                       <div className="product-price">{formatPrice((item.product?.precio || 0) * item.quantity)}</div>
+                                       {item.agregos && item.agregos.length > 0 && (
+                                         <div className="product-agregos">
+                                           <span className="agregos-label">+ Agregos:</span>
+                                           {item.agregos.map((ag, i) => (
+                                             <span key={i} className="agrego-detail">
+                                               {ag.nombre} x{ag.cantidad || 1}
+                                             </span>
+                                           ))}
+                                         </div>
+                                       )}
+                                     </div>
+                                   ))}
+                                 </div>
+                               </div>
+                             </td>
+                           </tr>
+                         )}
+                       </React.Fragment>
                      ))}
                   </tbody>
                 </table>

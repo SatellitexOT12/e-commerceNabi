@@ -5,7 +5,7 @@ export interface Order {
   cliente_nombre: string
   cliente_direccion: string
   cliente_telefono: string
-  productos: { product: any; quantity: number }[]
+  productos: { product: any; quantity: number; agregos?: any[] }[]
   total: number
   fecha: string
   estado: string
