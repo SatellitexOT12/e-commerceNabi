@@ -7,6 +7,7 @@ import { Home } from './pages/Home'
 import { Shop } from './pages/Shop'
 import { Checkout } from './pages/Checkout'
 import { Admin } from './pages/Admin'
+import { Blog } from './pages/Blog'
 import { CartModal } from './components/CartModal'
 import './App.css'
 
@@ -33,6 +34,7 @@ function AppContent() {
         <Route path="/shop" element={<Shop />} />
         <Route path="/checkout" element={<Checkout onBack={handleBack} />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/blog" element={<Blog />} />
       </Routes>
 
       <Toaster position="top-right" />

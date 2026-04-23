@@ -49,6 +49,7 @@ export const Header: React.FC<{ onCartClick: () => void }> = ({ onCartClick }) =
         <nav className={`nav-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <button onClick={() => { navigate('/'); closeMobileMenu() }} className="nav-link">Inicio</button>
           <button onClick={() => { navigate('/shop'); closeMobileMenu() }} className="nav-link">Productos</button>
+          <button onClick={() => { navigate('/blog'); closeMobileMenu() }} className="nav-link">Blog</button>
           <button onClick={() => { navigate('/'); setTimeout(() => document.getElementById('historia')?.scrollIntoView({ behavior: 'smooth' }), 100); closeMobileMenu() }} className="nav-link">Historia</button>
           <button onClick={() => { navigate('/'); setTimeout(() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' }), 100); closeMobileMenu() }} className="nav-link">Contactos</button>
           {user && (
