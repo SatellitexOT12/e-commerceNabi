@@ -112,116 +112,147 @@
 .carousel-section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 3rem 1rem;
+  padding: 4rem 2rem;
   text-align: center;
+  background: linear-gradient(180deg, transparent 0%, rgba(250, 235, 215, 0.3) 100%);
 }
 
 .carousel-section h2 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   color: var(--accent-color);
   margin: 0 0 0.5rem 0;
+  font-weight: 700;
 }
 
 .section-subtitle {
   color: #666;
-  font-size: 1rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+  font-weight: 500;
 }
 
 .carousel-container {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   position: relative;
   margin: 0 auto;
+  justify-content: center;
 }
 
 .carousel-wrapper {
   overflow: hidden;
   flex: 1;
+  max-width: 100%;
+  border-radius: 16px;
   -webkit-overflow-scrolling: touch;
 }
 
 .carousel-track {
   display: flex;
-  transition: transform 0.5s ease;
-  gap: 1rem;
+  transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+  gap: 1.5rem;
   scroll-snap-type: x mandatory;
 }
 
 .carousel-item {
   flex: 0 0 25%;
-  padding: 0.5rem;
+  padding: 0;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   scroll-snap-align: start;
   user-select: none;
+  display: flex;
+  flex-direction: column;
 }
 
 .carousel-item:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
 }
 
 .carousel-image {
   width: 100%;
-  height: 160px;
-  border-radius: 12px;
+  height: 200px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(93, 64, 55, 0.15);
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  position: relative;
+  flex-grow: 1;
+  transition: all 0.3s ease;
+}
+
+.carousel-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  z-index: 1;
 }
 
 .carousel-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.carousel-item:hover .carousel-image {
+  box-shadow: 0 12px 32px rgba(93, 64, 55, 0.25);
 }
 
 .carousel-item:hover .carousel-image img {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .carousel-info {
-  padding: 0.75rem 0.5rem;
+  padding: 1rem 0.75rem;
   text-align: center;
+  background: white;
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.08);
 }
 
 .carousel-info h3 {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--text-color);
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.5rem 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 600;
 }
 
 .carousel-price {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--accent-color);
   margin: 0;
 }
 
 .carousel-btn {
-  background: var(--accent-color);
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
   color: white;
   border: none;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 6px 20px rgba(93, 64, 55, 0.2);
 }
 
 .carousel-btn:hover {
-  background: var(--primary-color);
-  transform: scale(1.1);
+  transform: scale(1.15);
+  box-shadow: 0 8px 28px rgba(93, 64, 55, 0.3);
 }
 
 .carousel-btn:active {
@@ -231,16 +262,17 @@
 .carousel-dots {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
 }
 
 .carousel-dots .dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  border: none;
-  background: #ddd;
+  border: 2px solid var(--accent-color);
+  background: transparent;
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 0;
@@ -248,7 +280,8 @@
 
 .carousel-dots .dot.active {
   background: var(--accent-color);
-  transform: scale(1.2);
+  transform: scale(1.3);
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.2);
 }
 
 .carousel-empty, .carousel-loading {
@@ -259,16 +292,56 @@
 
 /* ============ RESPONSIVE CAROUSEL ============ */
 
-/* Tablets */
+/* Laptops - 1024px and up */
+@media (min-width: 1025px) {
+  .carousel-item {
+    flex: 0 0 25%;
+  }
+  
+  .carousel-image {
+    height: 220px;
+  }
+}
+
+/* Tablets - 768px to 1024px */
 @media (max-width: 1024px) {
+  .carousel-section {
+    padding: 3.5rem 1.5rem;
+  }
+  
+  .carousel-section h2 {
+    font-size: 2rem;
+  }
+  
+  .carousel-container {
+    gap: 0.75rem;
+  }
+  
+  .carousel-track {
+    gap: 1.2rem;
+  }
+  
   .carousel-item {
     flex: 0 0 33.333%;
   }
   
   .carousel-image {
-    height: 150px;
+    height: 180px;
   }
   
+  .carousel-info h3 {
+    font-size: 0.95rem;
+  }
+  
+  .carousel-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1.25rem;
+  }
+}
+
+/* Mobile - 768px and below */
+@media (max-width: 768px) {
   .carousel-section {
     padding: 2.5rem 1rem;
   }
@@ -276,36 +349,103 @@
   .carousel-section h2 {
     font-size: 1.75rem;
   }
-}
-
-/* Mobile - 768px */
-@media (max-width: 768px) {
-  .carousel-section {
-    padding: 2rem 1rem;
-  }
-  
-  .carousel-section h2 {
-    font-size: 1.5rem;
-  }
   
   .section-subtitle {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .carousel-container {
+    gap: 0.5rem;
+  }
+  
+  .carousel-track {
+    gap: 1rem;
   }
   
   .carousel-item {
     flex: 0 0 50%;
+    padding: 0;
   }
   
   .carousel-image {
-    height: 140px;
+    height: 150px;
+    border-radius: 12px;
+  }
+  
+  .carousel-info {
+    padding: 0.75rem;
+    border-radius: 0 0 12px 12px;
+  }
+  
+  .carousel-info h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .carousel-price {
+    font-size: 1.1rem;
+  }
+  
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+  
+  .carousel-dots {
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .carousel-dots .dot {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* Small Mobile - 480px and below */
+@media (max-width: 480px) {
+  .carousel-section {
+    padding: 2rem 0.75rem;
+  }
+  
+  .carousel-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .section-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .carousel-container {
+    gap: 0.3rem;
+  }
+  
+  .carousel-track {
+    gap: 0.75rem;
+  }
+  
+  .carousel-item {
+    flex: 0 0 50%;
+    padding: 0;
+  }
+  
+  .carousel-image {
+    height: 130px;
+    border-radius: 10px;
   }
   
   .carousel-info {
     padding: 0.5rem;
+    border-radius: 0 0 10px 10px;
   }
   
   .carousel-info h3 {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    margin-bottom: 0.2rem;
   }
   
   .carousel-price {
@@ -315,67 +455,18 @@
   .carousel-btn {
     width: 36px;
     height: 36px;
-    font-size: 1.1rem;
-    padding: 0;
+    font-size: 1rem;
+  }
+  
+  .carousel-dots {
+    gap: 0.4rem;
+    margin-top: 1.25rem;
   }
   
   .carousel-dots .dot {
     width: 8px;
     height: 8px;
-  }
-}
-
-/* Small Mobile - 480px */
-@media (max-width: 480px) {
-  .carousel-section {
-    padding: 1.5rem 0.5rem;
-  }
-  
-  .carousel-section h2 {
-    font-size: 1.3rem;
-  }
-  
-  .carousel-item {
-    flex: 0 0 50%;
-    padding: 0.25rem;
-  }
-  
-  .carousel-image {
-    height: 120px;
-    border-radius: 10px;
-  }
-  
-  .carousel-info {
-    padding: 0.5rem 0.25rem;
-  }
-  
-  .carousel-info h3 {
-    font-size: 0.8rem;
-    margin-bottom: 0.2rem;
-  }
-  
-  .carousel-price {
-    font-size: 0.95rem;
-  }
-  
-  .carousel-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-  }
-  
-  /* Ocultar botones en móvil muy pequeño y usar swipe */
-  .carousel-btn {
-    display: none;
-  }
-  
-  .carousel-dots {
-    margin-top: 1rem;
-  }
-  
-  .carousel-dots .dot {
-    width: 6px;
-    height: 6px;
+    border-width: 1.5px;
   }
 }
 
