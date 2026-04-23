@@ -12,15 +12,10 @@ Tienda virtual de crepes y mini donas artesanales, desarrollada con React, TypeS
 - [Tecnologías](#tecnologías)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Instalación](#instalación)
-- [Configuración](#configuración)
 - [Despliegue](#despliegue)
 - [Panel Administrativo](#panel-administrativo)
 - [Funcionalidades por Página](#funcionalidades-por-página)
-- [API y Servicios](#api-y-servicios)
-- [Base de Datos](#base-de-datos)
 - [Scripts Útiles](#scripts-útiles)
-- [Solución de Problemas](#solución-de-problemas)
-
 ---
 
 ## ✨ Características
