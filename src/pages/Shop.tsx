@@ -56,6 +56,11 @@ export const Shop: React.FC = () => {
     toast.success(`${product.nombre} agregado al carrito`)
   }
 
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category)
+    setShowMobileFilters(false)
+  }
+
   return (
     <div className="shop">
       <div className="shop-header">
@@ -79,13 +84,6 @@ export const Shop: React.FC = () => {
           >
             ✕
           </button>
-          {/* Mobile close button inside sidebar */}
-          <button
-            className="sidebar-close-btn"
-            onClick={() => setShowMobileFilters(false)}
-          >
-            ✕
-          </button>
 
           <div className="filter-section">
             <h3>Buscar</h3>
@@ -102,7 +100,7 @@ export const Shop: React.FC = () => {
             <h3>Categorías</h3>
             <button
               className={`category-btn ${selectedCategory === '' ? 'active' : ''}`}
-              onClick={() => setSelectedCategory('')}
+              onClick={() => handleCategorySelect('')}
             >
               Todos
             </button>
@@ -110,7 +108,7 @@ export const Shop: React.FC = () => {
               <button
                 key={cat}
                 className={`category-btn ${selectedCategory === cat ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => handleCategorySelect(cat)}
               >
                 {cat}
               </button>
