@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getProducts, Product } from '../services/products'
+import { getBlogPosts, BlogPost } from '../services/blog'
 import { Logo } from '../components/Logo'
 import './Home.css'
 
@@ -10,6 +11,8 @@ export const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loading, setLoading] = useState(true)
   const [itemsPerView, setItemsPerView] = useState(4)
+  const [latestPost, setLatestPost] = useState<BlogPost | null>(null)
+  const [loadingPost, setLoadingPost] = useState(true)
 
   // Detectar items por vista basado en el ancho de la pantalla
   useEffect(() => {
@@ -43,6 +46,22 @@ export const Home: React.FC = () => {
       }
     }
     fetchProducts()
+  }, [])
+
+  useEffect(() => {
+    const fetchLatestPost = async () => {
+      try {
+        const posts = await getBlogPosts()
+        if (posts.length > 0) {
+          setLatestPost(posts[0])
+        }
+      } catch (error) {
+        console.error('Error fetching latest post:', error)
+      } finally {
+        setLoadingPost(false)
+      }
+    }
+    fetchLatestPost()
   }, [])
 
   const totalSlides = Math.ceil(products.length / itemsPerView)
@@ -130,6 +149,42 @@ export const Home: React.FC = () => {
           ))}
         </div>
       </section>
+
+      {!loadingPost && latestPost && (
+        <section className="latest-blog-section">
+          <div className="latest-blog-container">
+            <div className="latest-blog-header">
+              <span className="latest-blog-tag">Última Publicación</span>
+              <h2>Desde Nuestro Blog</h2>
+              <p className="section-subtitle">Mantente al día con las novedades de MiniNabi</p>
+            </div>
+            <div className="latest-blog-card">
+              <div className="latest-blog-image">
+                <img src={latestPost.image_url} alt={latestPost.title} />
+              </div>
+              <div className="latest-blog-content">
+                <div className="latest-blog-meta">
+                  <span className="blog-date">
+                    {new Date(latestPost.created_at).toLocaleDateString('es-ES', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </span>
+                </div>
+                <h3 className="latest-blog-title">{latestPost.title}</h3>
+                <p className="latest-blog-description">{latestPost.description}</p>
+                <button
+                  className="latest-blog-btn"
+                  onClick={() => navigate(`/blog/`)}
+                >
+                  Leer más
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="history-section crepe-section" id="historia">
         <div className="history-content">
