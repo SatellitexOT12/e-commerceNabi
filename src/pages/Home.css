@@ -6,7 +6,7 @@
 /* Hero Section */
 .hero {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-  padding: 6rem 2rem;
+  padding: 4rem 2rem;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -17,18 +17,26 @@
   z-index: 2;
 }
 
+.hero-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  margin-top: -0.5rem;
+  animation: fadeInUp 0.8s ease;
+}
+
 .hero-content h1 {
-  font-size: 4rem;
-  margin: 0 0 1rem 0;
+  font-size: 3.5rem;
+  margin: 0 0 0.8rem 0;
   color: var(--accent-color);
   text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
   animation: fadeInUp 0.8s ease;
 }
 
 .hero-content p {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: var(--text-color);
-  margin: 0 0 2rem 0;
+  margin: 0 0 1.5rem 0;
   animation: fadeInUp 0.8s ease 0.2s both;
 }
 

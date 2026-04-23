@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getProducts, Product } from '../services/products'
+import { Logo } from '../components/Logo'
 import './Home.css'
 
 export const Home: React.FC = () => {
@@ -68,7 +69,10 @@ export const Home: React.FC = () => {
     <div className="home">
       <section className="hero" id="inicio">
         <div className="hero-content">
-          <h1>🍰 MiniNabi</h1>
+          <div className="hero-logo">
+            <Logo size="large" />
+          </div>
+          <h1>MiniNabi</h1>
           <p>Los mejores dulces artesanales, directamente a tu puerta</p>
           <button className="cta-btn" onClick={() => navigate('/shop')}>
             Ver Catálogo
