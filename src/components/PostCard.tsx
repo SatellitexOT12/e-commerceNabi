@@ -92,7 +92,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLikeChange }) => {
   }
 
   const handleShare = async () => {
-    const postUrl = `${window.location.origin}/#/blog/${post.id}`
+    const postUrl = `${window.location.origin}/#/blog/`
     if (navigator.share) {
       try {
         await navigator.share({
