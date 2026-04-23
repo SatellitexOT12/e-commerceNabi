@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { getOrders, saveOrder, updateOrderStatus, deleteOrder, Order } from '../services/orders'
 import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products'
-import { getAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado as AgregadoDB } from '../services/agregos'
+import { getAgregos, getAllAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado as AgregadoDB } from '../services/agregos'
 import { Product } from '../contexts/CartContext'
 import { getCurrentUser, signIn, signOut } from '../services/auth'
 import { useNavigate } from 'react-router-dom'
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { formatPrice } from '../utils/formatPrice'
+import { getAgregosConEnvaseAuto } from '../utils/envaseCalculator'
 import './Admin.css'
 import toast from 'react-hot-toast'
 
@@ -14,6 +15,7 @@ export const Admin: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [agregos, setAgregos] = useState<AgregadoDB[]>([])
+  const [allAgregos, setAllAgregos] = useState<AgregadoDB[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'agregos' | 'finanzas'>('products')
   const [showModal, setShowModal] = useState(false)
@@ -83,6 +85,9 @@ const [manualOrder, setManualOrder] = useState({
       setOrders(ordersData)
       setProducts(productsData)
       setAgregos(agregosData)
+      // Also load all agregos (including unavailable) for envase calculations
+      const allData = await getAllAgregos()
+      setAllAgregos(allData)
     } catch (error) {
       console.error('Error fetching data:', error)
       toast.error('Error al cargar los datos')
@@ -376,24 +381,32 @@ const [manualOrder, setManualOrder] = useState({
 
   const addProductToManualOrder = (product: Product) => {
     const needsAgregos = product.categoria === 'Crepes' || product.categoria === 'Combos de Crepes' || product.categoria === 'Combos Mixtos' || product.categoria?.includes('Crepe')
-    
+
     if (needsAgregos) {
       setSelectedProductForAgregos(product)
       setSelectedAgregos({})
       fetchAgregosForProduct(product)
       setShowAgregosSelector(true)
-    } else {
-      setManualOrder(prev => ({
-        ...prev,
-        items: [...prev.items, { product, quantity: 1 }]
-      }))
-      setShowProductSelector(false)
-    }
+     } else {
+       // For Mini Donas, auto-add Envase based on all agregos
+       const agregosBase: AgregadoConCantidad[] = []
+       const agregosFinales = getAgregosConEnvaseAuto(product, 1, agregosBase, allAgregos) as AgregadoConCantidad[]
+
+       setManualOrder(prev => ({
+         ...prev,
+         items: [...prev.items, { 
+           product, 
+           quantity: 1, 
+           agregos: agregosFinales.length > 0 ? agregosFinales : undefined 
+         }]
+       }))
+       setShowProductSelector(false)
+     }
   }
 
   const fetchAgregosForProduct = async (product: Product) => {
     try {
-      // Fetch all agregos
+      // Only fetch available agregos for UI selection
       const data = await getAgregos()
       setAgregosForProduct(data)
     } catch (error) {
@@ -403,17 +416,20 @@ const [manualOrder, setManualOrder] = useState({
 
   const confirmAddProductWithAgregos = () => {
     if (!selectedProductForAgregos) return
-    
+
     const agregosList: AgregadoConCantidad[] = Object.entries(selectedAgregos).map(([id, cantidad]) => {
       const agg = agregosForProduct.find(a => a.id === id)!
       return { ...agg, cantidad } as AgregadoConCantidad
     })
 
-    setManualOrder(prev => ({
-      ...prev,
-      items: [...prev.items, { product: selectedProductForAgregos, quantity: 1, agregos: agregosList }]
-    }))
-    
+     // Agregar envase automáticamente si aplica
+     const agregosFinales = getAgregosConEnvaseAuto(selectedProductForAgregos, 1, agregosList, allAgregos) as AgregadoConCantidad[]
+
+     setManualOrder(prev => ({
+       ...prev,
+       items: [...prev.items, { product: selectedProductForAgregos, quantity: 1, agregos: agregosFinales }]
+     }))
+
     setSelectedProductForAgregos(null)
     setSelectedAgregos({})
     setShowAgregosSelector(false)
@@ -426,16 +442,27 @@ const [manualOrder, setManualOrder] = useState({
     }))
   }
 
-  const updateManualItemQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
+  const updateManualItemQuantity = (productId: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
       removeManualItem(productId)
       return
     }
+
     setManualOrder(prev => ({
       ...prev,
-      items: prev.items.map(item => 
-        item.product.id === productId ? { ...item, quantity } : item
-      )
+      items: prev.items.map(item => {
+        if (item.product.id !== productId) return item
+
+         // Recalcular envases automáticos si es Mini Donas o Crepes
+         const agregosBase = item.agregos?.filter(agg => agg.nombre.toLowerCase() !== 'envase') || []
+         const agregosConEnvase = getAgregosConEnvaseAuto(item.product, newQuantity, agregosBase, allAgregos) as AgregadoConCantidad[]
+
+         return {
+           ...item,
+           quantity: newQuantity,
+           agregos: agregosConEnvase
+         }
+      })
     }))
   }
 

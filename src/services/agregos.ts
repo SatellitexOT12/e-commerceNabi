@@ -16,6 +16,12 @@ export const getAgregos = async (): Promise<Agregado[]> => {
   return data || []
 }
 
+export const getAllAgregos = async (): Promise<Agregado[]> => {
+  const { data, error } = await supabase.from('agregos').select('*')
+  if (error) throw error
+  return data || []
+}
+
 export const getAgregosByCategory = async (categoria: string): Promise<Agregado[]> => {
   const { data, error } = await supabase.from('agregos').select('*').eq('categoria', categoria).eq('disponible', true)
   if (error) throw error

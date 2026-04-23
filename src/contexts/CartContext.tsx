@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import { getAllAgregos } from '../services/agregos'
+import { calcularEnvasesNecesarios, filtrarEnvases } from '../utils/envaseCalculator'
 
 export interface Product {
   id: string
@@ -21,6 +23,17 @@ export interface Agregado {
   fondo?: number
 }
 
+// Local type for internal DB agrego representation (includes categoria and disponible)
+interface AgregadoDB {
+  id: string
+  nombre: string
+  precio: number
+  categoria: string
+  disponible: boolean
+  reinversion?: number
+  fondo?: number
+}
+
 export interface CartItem {
   product: Product
   quantity: number
@@ -30,6 +43,7 @@ export interface CartItem {
 interface CartState {
   items: CartItem[]
   total: number
+  allAgregos: AgregadoDB[]
 }
 
 type CartAction =
@@ -38,6 +52,7 @@ type CartAction =
   | { type: 'UPDATE_QUANTITY'; productId: string; quantity: number }
   | { type: 'CLEAR_CART' }
   | { type: 'LOAD_CART'; items: CartItem[] }
+  | { type: 'SET_AGREGOS'; agregos: AgregadoDB[] }
 
 const calculateTotal = (items: CartItem[]): number => {
   return items.reduce((sum, item) => {
@@ -47,28 +62,74 @@ const calculateTotal = (items: CartItem[]): number => {
   }, 0)
 }
 
+const ajustarEnvases = (product: Product, cantidad: number, agregosActuales: Agregado[], todosAgregos: AgregadoDB[]): Agregado[] => {
+  const envasesNecesarios = calcularEnvasesNecesarios(product, cantidad)
+  if (envasesNecesarios === 0) return agregosActuales
+
+  const envaseDB = filtrarEnvases(todosAgregos)
+  if (!envaseDB) return agregosActuales
+
+  // Remove any existing envase from current list to avoid duplicates
+  const agregosSinEnvase = agregosActuales.filter(a => a.id !== envaseDB.id)
+
+  // Add envase with calculated quantity
+  const envaseAgrego: Agregado = {
+    id: envaseDB.id,
+    nombre: envaseDB.nombre,
+    precio: envaseDB.precio,
+    cantidad: envasesNecesarios,
+    reinversion: envaseDB.reinversion,
+    fondo: envaseDB.fondo
+  }
+
+  return [...agregosSinEnvase, envaseAgrego]
+}
+
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const newItems = [...state.items, { product: action.product, quantity: 1, agregos: action.agregos || [] }]
-      return { items: newItems, total: calculateTotal(newItems) }
+      const agregosAjustados = ajustarEnvases(action.product, 1, action.agregos || [], state.allAgregos)
+      const newItems = [...state.items, { product: action.product, quantity: 1, agregos: agregosAjustados }]
+      return { ...state, items: newItems, total: calculateTotal(newItems) }
     }
     case 'REMOVE_ITEM': {
       const newItems = state.items.filter(item => item.product.id !== action.productId)
-      return { items: newItems, total: calculateTotal(newItems) }
+      return { ...state, items: newItems, total: calculateTotal(newItems) }
     }
     case 'UPDATE_QUANTITY': {
-      const newItems = state.items.map(item =>
-        item.product.id === action.productId
-          ? { ...item, quantity: action.quantity }
-          : item
-      ).filter(item => item.quantity > 0)
-      return { items: newItems, total: calculateTotal(newItems) }
+      const newItems = state.items.map(item => {
+        if (item.product.id !== action.productId) return item
+
+        const newCantidad = action.quantity
+        const agregosAjustados = ajustarEnvases(item.product, newCantidad, item.agregos || [], state.allAgregos)
+
+        return { ...item, quantity: newCantidad, agregos: agregosAjustados }
+      }).filter(item => item.quantity > 0)
+      return { ...state, items: newItems, total: calculateTotal(newItems) }
     }
     case 'CLEAR_CART':
-      return { items: [], total: 0 }
-    case 'LOAD_CART':
-      return { items: action.items, total: calculateTotal(action.items) }
+      return { ...state, items: [], total: 0 }
+    case 'LOAD_CART': {
+      // When loading cart from storage, we should recalc envases for each item
+      const itemsConEnvases = action.items.map(item => ({
+        ...item,
+        agregos: ajustarEnvases(item.product, item.quantity, item.agregos || [], state.allAgregos)
+      }))
+      return { ...state, items: itemsConEnvases, total: calculateTotal(itemsConEnvases) }
+    }
+    case 'SET_AGREGOS': {
+      // Recalcular envases para todos los items existentes
+      const newItems = state.items.map(item => ({
+        ...item,
+        agregos: ajustarEnvases(item.product, item.quantity, item.agregos || [], action.agregos)
+      }))
+      return { 
+        ...state, 
+        allAgregos: action.agregos, 
+        items: newItems, 
+        total: calculateTotal(newItems) 
+      }
+    }
     default:
       return state
   }
@@ -89,7 +150,19 @@ export const useCart = () => {
 }
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, { items: [], total: 0 })
+  const [state, dispatch] = useReducer(cartReducer, { items: [], total: 0, allAgregos: [] })
+
+  useEffect(() => {
+    const fetchAgregos = async () => {
+      try {
+        const data = await getAllAgregos()
+        dispatch({ type: 'SET_AGREGOS', agregos: data })
+      } catch (error) {
+        console.error('Error fetching agregos for cart:', error)
+      }
+    }
+    fetchAgregos()
+  }, [])
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart')

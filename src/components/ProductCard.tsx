@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import './ProductCard.css'
 import { Product, Agregado } from '../contexts/CartContext'
-import { getAgregos, getAgregosByCategory } from '../services/agregos'
+import { getAgregos } from '../services/agregos'
 import { formatPrice } from '../utils/formatPrice'
 
 interface SelectedAgrego extends Agregado {
@@ -56,6 +56,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
     if (needsAgregos) {
       setShowAgregos(true)
     } else {
+      // For products like Mini Donas, no manual agrego selection, just pass undefined
       onAddToCart(product)
     }
   }
