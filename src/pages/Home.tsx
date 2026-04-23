@@ -91,7 +91,7 @@ export const Home: React.FC = () => {
           <div className="hero-logo">
             <Logo size="large" />
           </div>
-          <h1>MiniNabi</h1>
+          <h1>Mini Nabi</h1>
           <p>Los mejores dulces artesanales, directamente a tu puerta</p>
           <button className="cta-btn" onClick={() => navigate('/shop')}>
             Ver Catálogo

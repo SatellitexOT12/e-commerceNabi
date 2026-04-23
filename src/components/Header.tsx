@@ -35,7 +35,7 @@ export const Header: React.FC<{ onCartClick: () => void }> = ({ onCartClick }) =
       <div className="header-container">
         <div className="logo" onClick={() => { navigate('/'); closeMobileMenu() }}>
           <span className="logo-emoji">🍩</span>
-          <h1>MiniNabi</h1>
+          <h1>Mini Nabi</h1>
         </div>
         
         <button 
