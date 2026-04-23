@@ -7,7 +7,7 @@ import { getCurrentUser, signIn, signOut } from '../services/auth'
 import { useNavigate } from 'react-router-dom'
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { formatPrice } from '../utils/formatPrice'
-import { getAgregosConEnvaseAuto } from '../utils/envaseCalculator'
+import { getAgregosConEnvaseAuto, calcularEnvasesNecesarios } from '../utils/envaseCalculator'
 import './Admin.css'
 import toast from 'react-hot-toast'
 
@@ -50,16 +50,21 @@ export const Admin: React.FC = () => {
     fondo: ''
   })
   const [editingAgrego, setEditingAgrego] = useState<AgregadoDB | null>(null)
-  const [showAgregosModal, setShowAgregosModal] = useState(false)
-  const [showManualOrder, setShowManualOrder] = useState(false)
-type AgregadoConCantidad = AgregadoDB & { cantidad?: number }
+   const [showAgregosModal, setShowAgregosModal] = useState(false)
+   const [showManualOrder, setShowManualOrder] = useState(false)
+   type AgregadoConCantidad = AgregadoDB & { cantidad?: number }
 
-const [manualOrder, setManualOrder] = useState({
-  cliente_nombre: '',
-  cliente_telefono: '',
-  items: [] as { product: Product; quantity: number; agregos?: AgregadoConCantidad[] }[],
-  total: 0
-})
+   const [manualOrder, setManualOrder] = useState({
+     cliente_nombre: '',
+     cliente_telefono: '',
+     items: [] as { 
+       product: Product; 
+       quantity: number; 
+       agregos?: AgregadoConCantidad[]; 
+       incluirEnvase?: boolean 
+     }[],
+     total: 0
+   })
   const [showProductSelector, setShowProductSelector] = useState(false)
   const [selectedProductForAgregos, setSelectedProductForAgregos] = useState<Product | null>(null)
   const [showAgregosSelector, setShowAgregosSelector] = useState(false)
@@ -382,26 +387,32 @@ const [manualOrder, setManualOrder] = useState({
   const addProductToManualOrder = (product: Product) => {
     const needsAgregos = product.categoria === 'Crepes' || product.categoria === 'Combos de Crepes' || product.categoria === 'Combos Mixtos' || product.categoria?.includes('Crepe')
 
+    // Check if product qualifies for automatic envase (Mini Donas or Crepes)
+    const calificaParaEnvase = product.categoria === 'Mini Donas' || product.categoria === 'Crepes'
+
     if (needsAgregos) {
       setSelectedProductForAgregos(product)
       setSelectedAgregos({})
       fetchAgregosForProduct(product)
       setShowAgregosSelector(true)
-     } else {
-       // For Mini Donas, auto-add Envase based on all agregos
-       const agregosBase: AgregadoConCantidad[] = []
-       const agregosFinales = getAgregosConEnvaseAuto(product, 1, agregosBase, allAgregos) as AgregadoConCantidad[]
+    } else {
+      // For Mini Donas and other products, auto-add Envase based on all agregos
+      const agregosBase: AgregadoConCantidad[] = []
+      const agregosFinales = calificaParaEnvase 
+        ? getAgregosConEnvaseAuto(product, 1, agregosBase, allAgregos) as AgregadoConCantidad[]
+        : []
 
-       setManualOrder(prev => ({
-         ...prev,
-         items: [...prev.items, { 
-           product, 
-           quantity: 1, 
-           agregos: agregosFinales.length > 0 ? agregosFinales : undefined 
-         }]
-       }))
-       setShowProductSelector(false)
-     }
+      setManualOrder(prev => ({
+        ...prev,
+        items: [...prev.items, { 
+          product, 
+          quantity: 1, 
+          agregos: agregosFinales.length > 0 ? agregosFinales : undefined,
+          incluirEnvase: calificaParaEnvase // Default true for products that qualify
+        }]
+      }))
+      setShowProductSelector(false)
+    }
   }
 
   const fetchAgregosForProduct = async (product: Product) => {
@@ -422,13 +433,24 @@ const [manualOrder, setManualOrder] = useState({
       return { ...agg, cantidad } as AgregadoConCantidad
     })
 
-     // Agregar envase automáticamente si aplica
-     const agregosFinales = getAgregosConEnvaseAuto(selectedProductForAgregos, 1, agregosList, allAgregos) as AgregadoConCantidad[]
+    // Determine if this product qualifies for automatic envase
+    const calificaParaEnvase = selectedProductForAgregos.categoria === 'Mini Donas' || selectedProductForAgregos.categoria === 'Crepes'
 
-     setManualOrder(prev => ({
-       ...prev,
-       items: [...prev.items, { product: selectedProductForAgregos, quantity: 1, agregos: agregosFinales }]
-     }))
+    // Agregar envase automáticamente si aplica y está habilitado
+    let agregosFinales = agregosList
+    if (calificaParaEnvase) {
+      agregosFinales = getAgregosConEnvaseAuto(selectedProductForAgregos, 1, agregosList, allAgregos) as AgregadoConCantidad[]
+    }
+
+    setManualOrder(prev => ({
+      ...prev,
+      items: [...prev.items, { 
+        product: selectedProductForAgregos, 
+        quantity: 1, 
+        agregos: agregosFinales,
+        incluirEnvase: calificaParaEnvase // Default true for qualifying products
+      }]
+    }))
 
     setSelectedProductForAgregos(null)
     setSelectedAgregos({})
@@ -442,26 +464,53 @@ const [manualOrder, setManualOrder] = useState({
     }))
   }
 
-  const updateManualItemQuantity = (productId: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeManualItem(productId)
-      return
-    }
-
-    setManualOrder(prev => ({
-      ...prev,
-      items: prev.items.map(item => {
-        if (item.product.id !== productId) return item
-
-         // Recalcular envases automáticos si es Mini Donas o Crepes
-         const agregosBase = item.agregos?.filter(agg => agg.nombre.toLowerCase() !== 'envase') || []
-         const agregosConEnvase = getAgregosConEnvaseAuto(item.product, newQuantity, agregosBase, allAgregos) as AgregadoConCantidad[]
-
+   const updateManualItemQuantity = (productId: string, newQuantity: number) => {
+     if (newQuantity <= 0) {
+       removeManualItem(productId)
+       return
+     }
+ 
+     setManualOrder(prev => ({
+       ...prev,
+       items: prev.items.map(item => {
+         if (item.product.id !== productId) return item
+ 
+         // Solo recalcular envase si el flag incluirEnvase está activo
+         let agregosConEnvase = item.agregos
+         if (item.incluirEnvase !== false) {
+           const agregosBase = item.agregos?.filter(agg => agg.nombre.toLowerCase() !== 'envase') || []
+           agregosConEnvase = getAgregosConEnvaseAuto(item.product, newQuantity, agregosBase, allAgregos) as AgregadoConCantidad[]
+         }
+ 
          return {
            ...item,
            quantity: newQuantity,
            agregos: agregosConEnvase
          }
+       })
+     }))
+   }
+ 
+   const toggleEnvase = (productId: string) => {
+    setManualOrder(prev => ({
+      ...prev,
+      items: prev.items.map(item => {
+        if (item.product.id !== productId) return item
+
+        const currentlyIncluye = item.incluirEnvase || false
+        const newIncluir = !currentlyIncluye
+
+        if (!newIncluir) {
+          // Quitar el envase
+          const agregosSinEnvase = item.agregos?.filter(agg => agg.nombre.toLowerCase() !== 'envase') || []
+          return { ...item, incluirEnvase: false, agregos: agregosSinEnvase }
+        } else {
+          // Añadir el envase con la cantidad necesaria
+          const envasesNecesarios = calcularEnvasesNecesarios(item.product, item.quantity)
+          const agregosBase = item.agregos?.filter(agg => agg.nombre.toLowerCase() !== 'envase') || []
+          const agregosConEnvase = getAgregosConEnvaseAuto(item.product, item.quantity, agregosBase, allAgregos) as AgregadoConCantidad[]
+          return { ...item, incluirEnvase: true, agregos: agregosConEnvase }
+        }
       })
     }))
   }
@@ -629,58 +678,71 @@ const [manualOrder, setManualOrder] = useState({
                       </button>
                     </div>
 
-                    {manualOrder.items.length === 0 ? (
-                      <p className="no-items">No hay productos agregados</p>
-                    ) : (
-                      <div className="manual-items-list">
-                        {manualOrder.items.map((item, idx) => (
-                          <div key={`${item.product.id}-${idx}`} className="manual-item">
-                            <div className="item-info">
-                              <span>{item.product.nombre} x{item.quantity}</span>
-                              <span>{formatPrice(item.product.precio * item.quantity)}</span>
-                            </div>
-                            {item.agregos && item.agregos.length > 0 && (
-                              <div className="item-agregos">
-                                {item.agregos.map((ag, i) => (
-                                  <span key={i} className="agrego-tag">
-                                    + {ag.nombre} x{ag.cantidad || 1} ({formatPrice(ag.precio * (ag.cantidad || 1))})
-                                  </span>
-                                ))}
+                      {manualOrder.items.length === 0 ? (
+                        <p className="no-items">No hay productos agregados</p>
+                      ) : (
+                        <div className="manual-items-list">
+                          {manualOrder.items.map((item, idx) => {
+                            const calificaParaEnvase = item.product.categoria === 'Mini Donas' || item.product.categoria === 'Crepes'
+                            return (
+                              <div key={`${item.product.id}-${idx}`} className="manual-item">
+                                <div className="item-info">
+                                  <span>{item.product.nombre} x{item.quantity}</span>
+                                  <span>{formatPrice(item.product.precio * item.quantity)}</span>
+                                </div>
+                                {item.agregos && item.agregos.length > 0 && (
+                                  <div className="item-agregos">
+                                    {item.agregos.map((ag, i) => (
+                                      <span key={i} className="agrego-tag">
+                                        + {ag.nombre} x{ag.cantidad || 1} ({formatPrice(ag.precio * (ag.cantidad || 1))})
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                <div className="item-actions">
+                                  <div className="item-quantity">
+                                    <button 
+                                      type="button"
+                                      className="qty-btn"
+                                      onClick={() => updateManualItemQuantity(item.product.id, item.quantity - 1)}
+                                    >
+                                      -
+                                    </button>
+                                    <span>{item.quantity}</span>
+                                    <button 
+                                      type="button"
+                                      className="qty-btn"
+                                      onClick={() => updateManualItemQuantity(item.product.id, item.quantity + 1)}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                  {calificaParaEnvase && (
+                                    <label className="envase-checkbox">
+                                      <input
+                                        type="checkbox"
+                                        checked={item.incluirEnvase !== false}
+                                        onChange={() => toggleEnvase(item.product.id)}
+                                      />
+                                      Envase
+                                    </label>
+                                  )}
+                                  <button 
+                                    type="button" 
+                                    className="btn-remove-item"
+                                    onClick={() => removeManualItem(item.product.id)}
+                                  >
+                                    ×
+                                  </button>
+                                </div>
                               </div>
-                            )}
-                            <div className="item-actions">
-                              <div className="item-quantity">
-                                <button 
-                                  type="button"
-                                  className="qty-btn"
-                                  onClick={() => updateManualItemQuantity(item.product.id, item.quantity - 1)}
-                                >
-                                  -
-                                </button>
-                                <span>{item.quantity}</span>
-                                <button 
-                                  type="button"
-                                  className="qty-btn"
-                                  onClick={() => updateManualItemQuantity(item.product.id, item.quantity + 1)}
-                                >
-                                  +
-                                </button>
-                              </div>
-                              <button 
-                                type="button" 
-                                className="btn-remove-item"
-                                onClick={() => removeManualItem(item.product.id)}
-                              >
-                                ×
-                              </button>
-                            </div>
+                            )
+                           })}
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                        )}
+                   </div>
 
-                  <div className="form-group">
+                  <div>
                     <label>Total Calculado ($)</label>
                     <input 
                       type="number" 
