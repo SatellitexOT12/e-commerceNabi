@@ -6,7 +6,7 @@ interface LogoProps {
 }
 
 export const Logo: React.FC<LogoProps> = ({ size = 'medium', className = '' }) => {
-  const logoUrl = 'https://vfomcuyjibpbkistjhpd.supabase.co/storage/v1/object/public/pics/LogoMiniNabi.png'
+  const logoUrl = 'https://vfomcuyjibpbkistjhpd.supabase.co/storage/v1/object/public/pics/LogoMN.webp'
 
   const sizeMap = {
     small: {
