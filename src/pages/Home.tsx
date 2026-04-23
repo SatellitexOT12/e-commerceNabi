@@ -8,6 +8,27 @@ export const Home: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [itemsPerView, setItemsPerView] = useState(4)
+
+  // Detectar items por vista basado en el ancho de la pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth
+      if (width < 480) {
+        setItemsPerView(2)
+      } else if (width < 768) {
+        setItemsPerView(2)
+      } else if (width < 1024) {
+        setItemsPerView(3)
+      } else {
+        setItemsPerView(4)
+      }
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -23,21 +44,25 @@ export const Home: React.FC = () => {
     fetchProducts()
   }, [])
 
+  const totalSlides = Math.ceil(products.length / itemsPerView)
+
   useEffect(() => {
-    if (products.length <= 4) return
+    if (products.length <= itemsPerView) return
     const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % Math.ceil(products.length / 4))
+      setCurrentSlide(prev => (prev + 1) % totalSlides)
     }, 5000)
     return () => clearInterval(interval)
-  }, [products.length])
+  }, [products.length, itemsPerView, totalSlides])
 
   const nextSlide = () => {
-    setCurrentSlide(prev => (prev + 1) % Math.ceil(products.length / 4))
+    setCurrentSlide(prev => (prev + 1) % totalSlides)
   }
 
   const prevSlide = () => {
-    setCurrentSlide(prev => (prev - 1 + Math.ceil(products.length / 4)) % Math.ceil(products.length / 4))
+    setCurrentSlide(prev => (prev - 1 + totalSlides) % totalSlides)
   }
+
+  const translatePercentage = (100 / itemsPerView) * currentSlide
 
   return (
     <div className="home">
@@ -66,7 +91,7 @@ export const Home: React.FC = () => {
             <div className="carousel-wrapper">
               <div 
                 className="carousel-track"
-                style={{ transform: `translateX(-${currentSlide * 25}%)` }}
+                style={{ transform: `translateX(-${translatePercentage}%)` }}
               >
                 {products.map(product => (
                   <div key={product.id} className="carousel-item" onClick={() => navigate('/shop')}>
@@ -92,7 +117,7 @@ export const Home: React.FC = () => {
         )}
         
         <div className="carousel-dots">
-          {Array.from({ length: Math.ceil(products.length / 4) }).map((_, index) => (
+          {Array.from({ length: totalSlides }).map((_, index) => (
             <button
               key={index}
               className={`dot ${index === currentSlide ? 'active' : ''}`}
