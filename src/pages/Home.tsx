@@ -16,9 +16,9 @@ export const Home: React.FC = () => {
     const handleResize = () => {
       const width = window.innerWidth
       if (width < 480) {
-        setItemsPerView(2)
+        setItemsPerView(4)
       } else if (width < 768) {
-        setItemsPerView(2)
+        setItemsPerView(4)
       } else if (width < 1024) {
         setItemsPerView(3)
       } else {
