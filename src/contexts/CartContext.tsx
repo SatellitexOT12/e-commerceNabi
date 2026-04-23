@@ -8,6 +8,8 @@ export interface Product {
   categoria: string
   imagen_url: string
   disponible: boolean
+  reinversion?: number
+  fondo?: number
 }
 
 export interface Agregado {
@@ -15,6 +17,8 @@ export interface Agregado {
   nombre: string
   precio: number
   cantidad?: number
+  reinversion?: number
+  fondo?: number
 }
 
 export interface CartItem {

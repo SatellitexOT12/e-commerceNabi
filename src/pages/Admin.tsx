@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { getOrders, saveOrder, updateOrderStatus, Order } from '../services/orders'
-import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage, Product } from '../services/products'
-import { getAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado } from '../services/agregos'
+import { getOrders, saveOrder, updateOrderStatus, deleteOrder, Order } from '../services/orders'
+import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products'
+import { getAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado as AgregadoDB } from '../services/agregos'
+import { Product } from '../contexts/CartContext'
 import { getCurrentUser, signIn, signOut } from '../services/auth'
 import { useNavigate } from 'react-router-dom'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { formatPrice } from '../utils/formatPrice'
 import './Admin.css'
 import toast from 'react-hot-toast'
@@ -12,7 +13,7 @@ import toast from 'react-hot-toast'
 export const Admin: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [products, setProducts] = useState<Product[]>([])
-  const [agregos, setAgregos] = useState<Agregado[]>([])
+  const [agregos, setAgregos] = useState<AgregadoDB[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'agregos' | 'finanzas'>('products')
   const [showModal, setShowModal] = useState(false)
@@ -33,25 +34,35 @@ export const Admin: React.FC = () => {
     precio: '',
     categoria: '',
     imagen_url: '',
-    disponible: 'true'
+    disponible: 'true',
+    reinversion: '',
+    fondo: ''
   })
 
   const [agregosFormData, setAgregosFormData] = useState({
     nombre: '',
     precio: '',
     categoria: 'Cremes',
-    disponible: 'true'
+    disponible: 'true',
+    reinversion: '',
+    fondo: ''
   })
-  const [editingAgrego, setEditingAgrego] = useState<Agregado | null>(null)
+  const [editingAgrego, setEditingAgrego] = useState<AgregadoDB | null>(null)
   const [showAgregosModal, setShowAgregosModal] = useState(false)
   const [showManualOrder, setShowManualOrder] = useState(false)
-  const [manualOrder, setManualOrder] = useState({
-    cliente_nombre: '',
-    cliente_telefono: '',
-    mini_donas: '',
-    crepes: '',
-    total: ''
-  })
+type AgregadoConCantidad = AgregadoDB & { cantidad?: number }
+
+const [manualOrder, setManualOrder] = useState({
+  cliente_nombre: '',
+  cliente_telefono: '',
+  items: [] as { product: Product; quantity: number; agregos?: AgregadoConCantidad[] }[],
+  total: 0
+})
+  const [showProductSelector, setShowProductSelector] = useState(false)
+  const [selectedProductForAgregos, setSelectedProductForAgregos] = useState<Product | null>(null)
+  const [showAgregosSelector, setShowAgregosSelector] = useState(false)
+  const [selectedAgregos, setSelectedAgregos] = useState<Record<string, number>>({})
+  const [agregosForProduct, setAgregosForProduct] = useState<AgregadoDB[]>([])
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -151,7 +162,7 @@ export const Admin: React.FC = () => {
   }
 
   const resetForm = () => {
-    setFormData({ nombre: '', descripcion: '', precio: '', categoria: '', imagen_url: '', disponible: 'true' })
+    setFormData({ nombre: '', descripcion: '', precio: '', categoria: '', imagen_url: '', disponible: 'true', reinversion: '', fondo: '' })
     setEditingProduct(null)
     setImageFile(null)
     setImagePreview('')
@@ -170,7 +181,9 @@ export const Admin: React.FC = () => {
       precio: product.precio.toString(),
       categoria: product.categoria,
       imagen_url: product.imagen_url,
-      disponible: product.disponible.toString()
+      disponible: product.disponible.toString(),
+      reinversion: product.reinversion?.toString() || '',
+      fondo: product.fondo?.toString() || ''
     })
     setImagePreview(product.imagen_url)
     setImageFile(null)
@@ -212,7 +225,9 @@ export const Admin: React.FC = () => {
         precio: parseFloat(formData.precio),
         categoria: formData.categoria,
         imagen_url,
-        disponible: formData.disponible === 'true'
+        disponible: formData.disponible === 'true',
+        reinversion: parseFloat(formData.reinversion) || 0,
+        fondo: parseFloat(formData.fondo) || 0
       }
 
       if (editingProduct) {
@@ -248,19 +263,34 @@ export const Admin: React.FC = () => {
     }
   }
 
+  const handleDeleteAgrego = async (id: string) => {
+    if (!confirm('¿Estás seguro de eliminar este agregado?')) return
+    try {
+      await deleteAgregado(id)
+      toast.success('Agregado eliminado')
+      const agregosData = await getAgregos()
+      setAgregos(agregosData)
+    } catch (error) {
+      console.error('Error deleting agregado:', error)
+      toast.error('Error al eliminar el agregado')
+    }
+  }
+
   const resetAgregosForm = () => {
-    setAgregosFormData({ nombre: '', precio: '', categoria: 'Cremes', disponible: 'true' })
+    setAgregosFormData({ nombre: '', precio: '', categoria: 'Cremes', disponible: 'true', reinversion: '', fondo: '' })
     setEditingAgrego(null)
   }
 
-  const openAgregosModal = (agregado?: Agregado) => {
+  const openAgregosModal = (agregado?: AgregadoDB) => {
     if (agregado) {
       setEditingAgrego(agregado)
       setAgregosFormData({
         nombre: agregado.nombre,
         precio: agregado.precio.toString(),
         categoria: agregado.categoria,
-        disponible: agregado.disponible.toString()
+        disponible: agregado.disponible.toString(),
+        reinversion: agregado.reinversion?.toString() || '',
+        fondo: agregado.fondo?.toString() || ''
       })
     } else {
       resetAgregosForm()
@@ -275,7 +305,9 @@ export const Admin: React.FC = () => {
         nombre: agregosFormData.nombre,
         precio: parseFloat(agregosFormData.precio),
         categoria: agregosFormData.categoria,
-        disponible: agregosFormData.disponible === 'true'
+        disponible: agregosFormData.disponible === 'true',
+        reinversion: parseFloat(agregosFormData.reinversion) || 0,
+        fondo: parseFloat(agregosFormData.fondo) || 0
       }
 
       if (editingAgrego) {
@@ -296,45 +328,34 @@ export const Admin: React.FC = () => {
     }
   }
 
-  const handleDeleteAgrego = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este agregado?')) return
-    try {
-      await deleteAgregado(id)
-      toast.success('Agregado eliminado')
-      const agregosData = await getAgregos()
-      setAgregos(agregosData)
-    } catch (error) {
-      console.error('Error deleting agregado:', error)
-      toast.error('Error al eliminar el agregado')
-    }
-  }
+   const handleDeleteOrder = async (id: string) => {
+     if (!confirm('¿Estás seguro de eliminar este pedido?')) return
+     try {
+       await deleteOrder(id)
+       toast.success('Pedido eliminado')
+       const ordersData = await getOrders()
+       setOrders(ordersData)
+     } catch (error) {
+       console.error('Error deleting order:', error)
+       toast.error('Error al eliminar el pedido')
+     }
+   }
 
   const saveManualOrder = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const miniDonasQty = parseInt(manualOrder.mini_donas) || 0
-      const crepesQty = parseInt(manualOrder.crepes) || 0
-      const total = parseFloat(manualOrder.total) || 0
-      
-      const productos = []
-      if (miniDonasQty > 0) {
-        productos.push({ 
-          product: { id: 'manual-minidonas', nombre: 'Mini Donas (Manual)', categoria: 'Mini Donas' }, 
-          quantity: miniDonasQty 
-        })
+      if (manualOrder.items.length === 0) {
+        toast.error('Agrega al menos un producto')
+        return
       }
-      if (crepesQty > 0) {
-        productos.push({ 
-          product: { id: 'manual-crepes', nombre: 'Crepes (Manual)', categoria: 'Crepes' }, 
-          quantity: crepesQty 
-        })
-      }
+
+      const total = calculateManualTotal()
 
       const orderData = {
         cliente_nombre: manualOrder.cliente_nombre || 'Venta Manual',
         cliente_telefono: manualOrder.cliente_telefono || '',
         cliente_direccion: '',
-        productos,
+        productos: manualOrder.items,
         total,
         estado: 'completado'
       }
@@ -345,12 +366,85 @@ export const Admin: React.FC = () => {
       const ordersData = await getOrders()
       setOrders(ordersData)
       
-      setManualOrder({ cliente_nombre: '', cliente_telefono: '', mini_donas: '', crepes: '', total: '' })
+      setManualOrder({ cliente_nombre: '', cliente_telefono: '', items: [], total: 0 })
       setShowManualOrder(false)
     } catch (error) {
       console.error('Error saving manual order:', error)
       toast.error('Error al registrar la venta')
     }
+  }
+
+  const addProductToManualOrder = (product: Product) => {
+    const needsAgregos = product.categoria === 'Crepes' || product.categoria === 'Combos de Crepes' || product.categoria === 'Combos Mixtos' || product.categoria?.includes('Crepe')
+    
+    if (needsAgregos) {
+      setSelectedProductForAgregos(product)
+      setSelectedAgregos({})
+      fetchAgregosForProduct(product)
+      setShowAgregosSelector(true)
+    } else {
+      setManualOrder(prev => ({
+        ...prev,
+        items: [...prev.items, { product, quantity: 1 }]
+      }))
+      setShowProductSelector(false)
+    }
+  }
+
+  const fetchAgregosForProduct = async (product: Product) => {
+    try {
+      // Fetch all agregos
+      const data = await getAgregos()
+      setAgregosForProduct(data)
+    } catch (error) {
+      console.error('Error fetching agregos:', error)
+    }
+  }
+
+  const confirmAddProductWithAgregos = () => {
+    if (!selectedProductForAgregos) return
+    
+    const agregosList: AgregadoConCantidad[] = Object.entries(selectedAgregos).map(([id, cantidad]) => {
+      const agg = agregosForProduct.find(a => a.id === id)!
+      return { ...agg, cantidad } as AgregadoConCantidad
+    })
+
+    setManualOrder(prev => ({
+      ...prev,
+      items: [...prev.items, { product: selectedProductForAgregos, quantity: 1, agregos: agregosList }]
+    }))
+    
+    setSelectedProductForAgregos(null)
+    setSelectedAgregos({})
+    setShowAgregosSelector(false)
+  }
+
+  const removeManualItem = (productId: string) => {
+    setManualOrder(prev => ({
+      ...prev,
+      items: prev.items.filter(item => item.product.id !== productId)
+    }))
+  }
+
+  const updateManualItemQuantity = (productId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeManualItem(productId)
+      return
+    }
+    setManualOrder(prev => ({
+      ...prev,
+      items: prev.items.map(item => 
+        item.product.id === productId ? { ...item, quantity } : item
+      )
+    }))
+  }
+
+  const calculateManualTotal = () => {
+    return manualOrder.items.reduce((sum, item) => {
+      const basePrice = item.product.precio * item.quantity
+      const agregosPrice = item.agregos?.reduce((a, agg) => a + (agg.precio * (agg.cantidad || 1)), 0) || 0
+      return sum + basePrice + agregosPrice
+    }, 0)
   }
 
   return (
@@ -495,42 +589,204 @@ export const Admin: React.FC = () => {
                       />
                     </div>
                   </div>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Cantidad Mini Donas</label>
-                      <input 
-                        type="number" 
-                        placeholder="0"
-                        value={manualOrder.mini_donas}
-                        onChange={e => setManualOrder({ ...manualOrder, mini_donas: e.target.value })}
-                      />
+
+                  <div className="manual-items-section">
+                    <div className="section-header">
+                      <h4>Productos</h4>
+                      <button 
+                        type="button" 
+                        className="btn-add-item"
+                        onClick={() => setShowProductSelector(true)}
+                      >
+                        + Agregar Producto
+                      </button>
                     </div>
-                    <div className="form-group">
-                      <label>Cantidad Crepes</label>
-                      <input 
-                        type="number" 
-                        placeholder="0"
-                        value={manualOrder.crepes}
-                        onChange={e => setManualOrder({ ...manualOrder, crepes: e.target.value })}
-                      />
-                    </div>
+
+                    {manualOrder.items.length === 0 ? (
+                      <p className="no-items">No hay productos agregados</p>
+                    ) : (
+                      <div className="manual-items-list">
+                        {manualOrder.items.map((item, idx) => (
+                          <div key={`${item.product.id}-${idx}`} className="manual-item">
+                            <div className="item-info">
+                              <span>{item.product.nombre} x{item.quantity}</span>
+                              <span>{formatPrice(item.product.precio * item.quantity)}</span>
+                            </div>
+                            {item.agregos && item.agregos.length > 0 && (
+                              <div className="item-agregos">
+                                {item.agregos.map((ag, i) => (
+                                  <span key={i} className="agrego-tag">
+                                    + {ag.nombre} x{ag.cantidad || 1} ({formatPrice(ag.precio * (ag.cantidad || 1))})
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <div className="item-actions">
+                              <div className="item-quantity">
+                                <button 
+                                  type="button"
+                                  className="qty-btn"
+                                  onClick={() => updateManualItemQuantity(item.product.id, item.quantity - 1)}
+                                >
+                                  -
+                                </button>
+                                <span>{item.quantity}</span>
+                                <button 
+                                  type="button"
+                                  className="qty-btn"
+                                  onClick={() => updateManualItemQuantity(item.product.id, item.quantity + 1)}
+                                >
+                                  +
+                                </button>
+                              </div>
+                              <button 
+                                type="button" 
+                                className="btn-remove-item"
+                                onClick={() => removeManualItem(item.product.id)}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
+
                   <div className="form-group">
-                    <label>Total ($)</label>
+                    <label>Total Calculado ($)</label>
                     <input 
                       type="number" 
                       step="0.01"
-                      placeholder="0.00"
-                      value={manualOrder.total}
-                      onChange={e => setManualOrder({ ...manualOrder, total: e.target.value })}
-                      required
+                      value={calculateManualTotal().toFixed(2)}
+                      readOnly
+                      className="total-display"
                     />
                   </div>
+
                   <div className="modal-actions">
                     <button type="submit" className="btn-primary">Guardar Venta</button>
                     <button type="button" className="btn-secondary" onClick={() => setShowManualOrder(false)}>Cancelar</button>
                   </div>
                 </form>
+              </div>
+            )}
+
+            {showProductSelector && (
+              <div className="modal-overlay" onClick={() => setShowProductSelector(false)}>
+                <div className="modal product-selector-modal" onClick={e => e.stopPropagation()}>
+                  <h3>Seleccionar Producto</h3>
+                  {loading ? (
+                    <div className="loading">Cargando productos...</div>
+                  ) : products.length === 0 ? (
+                    <div className="no-data">No hay productos disponibles</div>
+                  ) : (
+                    <div className="products-grid-selector">
+                      {products.filter(p => p.disponible).map(product => (
+                        <div 
+                          key={product.id} 
+                          className="product-selector-card"
+                          onClick={() => addProductToManualOrder(product)}
+                        >
+                          <img src={product.imagen_url} alt={product.nombre} />
+                          <h4>{product.nombre}</h4>
+                          <p className="price">{formatPrice(product.precio)}</p>
+                          {product.reinversion !== undefined && product.fondo !== undefined && (
+                            <p className="costs">
+                              Reinversión: {formatPrice(product.reinversion)} | Fondo: {formatPrice(product.fondo)}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <button 
+                    type="button" 
+                    className="btn-secondary close-selector"
+                    onClick={() => setShowProductSelector(false)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {showAgregosSelector && selectedProductForAgregos && (
+              <div className="modal-overlay" onClick={() => setShowAgregosSelector(false)}>
+                <div className="modal agregos-selector-modal" onClick={e => e.stopPropagation()}>
+                  <h3>Selecciona agregos para {selectedProductForAgregos.nombre}</h3>
+                  
+                  {agregosForProduct.length === 0 ? (
+                    <p className="no-agregos">No hay agregos disponibles</p>
+                  ) : (
+                    <div className="agregos-list-selector">
+                      {agregosForProduct.map(agg => {
+                        const cantidad = selectedAgregos[agg.id] || 0
+                        return (
+                          <div key={agg.id} className="agrego-selector-item">
+                            <div className="agrego-info">
+                              <span className="agrego-nombre">{agg.nombre}</span>
+                              <span className="agrego-precio">+{formatPrice(agg.precio)} c/u</span>
+                            </div>
+                            <div className="agrego-cantidad">
+                              <button 
+                                type="button"
+                                className="qty-btn"
+                                onClick={() => {
+                                  setSelectedAgregos(prev => {
+                                    const current = prev[agg.id] || 0
+                                    const newQty = Math.max(0, current - 1)
+                                    if (newQty === 0) {
+                                      const { [agg.id]: _, ...rest } = prev
+                                      return rest
+                                    }
+                                    return { ...prev, [agg.id]: newQty }
+                                  })
+                                }}
+                              >
+                                -
+                              </button>
+                              <span className="qty-value">{cantidad}</span>
+                              <button 
+                                type="button"
+                                className="qty-btn"
+                                onClick={() => {
+                                  setSelectedAgregos(prev => ({
+                                    ...prev,
+                                    [agg.id]: (prev[agg.id] || 0) + 1
+                                  }))
+                                }}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  <div className="modal-actions">
+                    <button 
+                      type="button" 
+                      className="btn-secondary"
+                      onClick={() => {
+                        setShowAgregosSelector(false)
+                        setSelectedProductForAgregos(null)
+                        setSelectedAgregos({})
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn-primary"
+                      onClick={confirmAddProductWithAgregos}
+                    >
+                      Confirmar
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
             
@@ -541,30 +797,101 @@ export const Admin: React.FC = () => {
             ) : (
               <>
                 {(() => {
-                  // Calculate daily sales for chart
+                  // Initialize daily aggregation
                   const dailySales: any = {}
+                  let totalVendidoAll = 0
+                  let reinversionAll = 0
+                  let fondoAll = 0
+                  let gananciaBrutaAll = 0
+
+                  // Track product quantities for pie chart
+                  const productQuantities: Record<string, { nombre: string; cantidad: number; color: string }> = {}
+
+                  // Helper function for product colors
+                  function getProductColor(categoria: string): string {
+                    const colors: Record<string, string> = {
+                      'Mini Donas': '#ff6b6b',
+                      'Combos de Donas': '#ee5a5a',
+                      'Crepes': '#4ecdc4',
+                      'Combos de Crepes': '#45b7af',
+                      'Combos Mixtos': '#9b59b6',
+                      'Bebidas': '#3498db',
+                      'Postres': '#f39c12'
+                    }
+                    return colors[categoria || ''] || '#95a5a6'
+                  }
+
+                  // Track product quantities for pie chart
                   orders.forEach(order => {
                     const fecha = new Date(order.fecha).toLocaleDateString('es-ES')
                     if (!dailySales[fecha]) {
-                      dailySales[fecha] = { fecha, total: 0, miniDonas: 0, crepes: 0 }
+                      dailySales[fecha] = { fecha, total: 0, reinversion: 0, fondo: 0, gananciaBruta: 0 }
                     }
                     dailySales[fecha].total += order.total || 0
-                    const miniDonas = order.productos?.filter((p: any) => p.product?.categoria === 'Mini Donas' || p.product?.categoria === 'Combos de Donas').reduce((s: number, p: any) => s + (p.quantity || 1), 0) || 0
-                    const crepes = order.productos?.filter((p: any) => p.product?.categoria === 'Crepes' || p.product?.categoria === 'Combos de Crepes').reduce((s: number, p: any) => s + (p.quantity || 1), 0) || 0
-                    dailySales[fecha].miniDonas += miniDonas
-                    dailySales[fecha].crepes += crepes
+                    totalVendidoAll += order.total || 0
+
+                    // Process each product in the order
+                    order.productos?.forEach((item: any) => {
+                      const product = item.product
+                      const quantity = item.quantity || 1
+
+                      // Track product quantities
+                      if (product?.id && product?.nombre) {
+                        if (!productQuantities[product.id]) {
+                          productQuantities[product.id] = { 
+                            nombre: product.nombre, 
+                            cantidad: 0, 
+                            color: getProductColor(product.categoria) 
+                          }
+                        }
+                        productQuantities[product.id].cantidad += quantity
+                      }
+
+                      // Calculate reinversion and fondo from product
+                      const productReinversion = (product?.reinversion || 0) * quantity
+                      const productFondo = (product?.fondo || 0) * quantity
+
+                      dailySales[fecha].reinversion += productReinversion
+                      dailySales[fecha].fondo += productFondo
+                      reinversionAll += productReinversion
+                      fondoAll += productFondo
+
+                      // Calculate gross profit for this product line
+                      const productGananciaBruta = (product?.precio || 0) * quantity - productReinversion - productFondo
+                      dailySales[fecha].gananciaBruta += productGananciaBruta
+                      gananciaBrutaAll += productGananciaBruta
+
+                      // Process agregos if present
+                      if (item.agregos && Array.isArray(item.agregos)) {
+                        item.agregos.forEach((agrego: any) => {
+                          const agregoQty = agrego.cantidad || 1
+
+                          const agregoReinversion = (agrego?.reinversion || 0) * agregoQty
+                          const agregoFondo = (agrego?.fondo || 0) * agregoQty
+
+                          dailySales[fecha].reinversion += agregoReinversion
+                          dailySales[fecha].fondo += agregoFondo
+                          reinversionAll += agregoReinversion
+                          fondoAll += agregoFondo
+
+                          const agregoGananciaBruta = (agrego?.precio || 0) * agregoQty - agregoReinversion - agregoFondo
+                          dailySales[fecha].gananciaBruta += agregoGananciaBruta
+                          gananciaBrutaAll += agregoGananciaBruta
+                        })
+                      }
+                    })
                   })
-                  
-                  const chartData = Object.values(dailySales).reverse()
-                  const totalVendidoAll = orders.reduce((sum, o) => sum + (o.total || 0), 0)
-                  const totalMiniDonas = orders.reduce((sum, order) => sum + (order.productos?.filter((p: any) => p.product?.categoria === 'Mini Donas' || p.product?.categoria === 'Combos de Donas').reduce((s: number, p: any) => s + (p.quantity || 1), 0) || 0), 0)
-                  const totalCrepes = orders.reduce((sum, order) => sum + (order.productos?.filter((p: any) => p.product?.categoria === 'Crepes' || p.product?.categoria === 'Combos de Crepes').reduce((s: number, p: any) => s + (p.quantity || 1), 0) || 0), 0)
-                  const reinversionAll = totalVendidoAll * 0.5
-                  const fondoAll = totalVendidoAll * 0.5
-                  const gananciaBrutaAll = totalVendidoAll - reinversionAll
+
+                   // Convert product quantities to array for pie chart
+                   const pieData = Object.values(productQuantities)
+                     .filter(p => p.cantidad > 0)
+                     .sort((a, b) => b.cantidad - a.cantidad)
+                     .slice(0, 10) // Top 10 products
+
+                   const chartData = Object.values(dailySales).reverse()
                   const ahorroAll = gananciaBrutaAll * 0.3
                   const gananciaPersonalAll = gananciaBrutaAll * 0.7
-                  
+
                   return (
                     <>
                       <div className="chart-container">
@@ -585,9 +912,6 @@ export const Admin: React.FC = () => {
                           <thead>
                             <tr>
                               <th>Fecha</th>
-                              <th>Mini Donas</th>
-                              <th>Crepes</th>
-                              <th>Cantidad</th>
                               <th>Total</th>
                               <th>Reinversión</th>
                               <th>Fondo</th>
@@ -597,64 +921,77 @@ export const Admin: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                             {Object.values(dailySales).reverse().map((day: any, idx) => {
-                               const gb = day.total * 0.5
-                               return (
-                                 <tr key={idx}>
-                                   <td>{day.fecha}</td>
-                                   <td>{day.miniDonas}</td>
-                                   <td>{day.crepes}</td>
-                                   <td>{day.miniDonas + day.crepes}</td>
-                                   <td>{formatPrice(day.total)}</td>
-                                   <td>{formatPrice(day.total * 0.5)}</td>
-                                   <td>{formatPrice(day.total * 0.5)}</td>
-                                   <td>{formatPrice(gb)}</td>
-                                   <td className="ahorro-cell">{formatPrice(gb * 0.3)}</td>
-                                   <td className="personal-cell">{formatPrice(gb * 0.7)}</td>
-                                 </tr>
-                               )
-                             })}
+                            {Object.values(dailySales).reverse().map((day: any, idx) => (
+                              <tr key={idx}>
+                                <td>{day.fecha}</td>
+                                <td>{formatPrice(day.total)}</td>
+                                <td>{formatPrice(day.reinversion)}</td>
+                                <td>{formatPrice(day.fondo)}</td>
+                                <td>{formatPrice(day.gananciaBruta)}</td>
+                                <td className="ahorro-cell">{formatPrice(day.gananciaBruta * 0.3)}</td>
+                                <td className="personal-cell">{formatPrice(day.gananciaBruta * 0.7)}</td>
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
 
-                       <div className="finanzas-totales">
-                         <h3>Totales Acumulados</h3>
-                         <div className="totales-grid">
-                           <div className="total-item">
-                             <span className="total-label">Total Vendido</span>
-                             <span className="total-value">{formatPrice(totalVendidoAll)}</span>
-                           </div>
-                           <div className="total-item">
-                             <span className="total-label">Mini Donas</span>
-                             <span className="total-value">{totalMiniDonas}</span>
-                           </div>
-                           <div className="total-item">
-                             <span className="total-label">Crepes</span>
-                             <span className="total-value">{totalCrepes}</span>
-                           </div>
-                           <div className="total-item">
-                             <span className="total-label">Reinversión</span>
-                             <span className="total-value">{formatPrice(reinversionAll)}</span>
-                           </div>
-                           <div className="total-item">
-                             <span className="total-label">Fondo</span>
-                             <span className="total-value">{formatPrice(fondoAll)}</span>
-                           </div>
-                           <div className="total-item highlight">
-                             <span className="total-label">Ganancia Bruta Total</span>
-                             <span className="total-value">{formatPrice(gananciaBrutaAll)}</span>
-                           </div>
-                           <div className="total-item">
-                             <span className="total-label">Ahorro (30%)</span>
-                             <span className="total-value ahorro">{formatPrice(ahorroAll)}</span>
-                           </div>
-                           <div className="total-item">
-                             <span className="total-label">Ganancia Personal (70%)</span>
-                             <span className="total-value personal">{formatPrice(gananciaPersonalAll)}</span>
-                           </div>
-                         </div>
-                       </div>
+                      <div className="finanzas-totales">
+                        <h3>Totales Acumulados</h3>
+                        <div className="totales-grid">
+                          <div className="total-item">
+                            <span className="total-label">Total Vendido</span>
+                            <span className="total-value">{formatPrice(totalVendidoAll)}</span>
+                          </div>
+                          <div className="total-item">
+                            <span className="total-label">Reinversión</span>
+                            <span className="total-value">{formatPrice(reinversionAll)}</span>
+                          </div>
+                          <div className="total-item">
+                            <span className="total-label">Fondo</span>
+                            <span className="total-value">{formatPrice(fondoAll)}</span>
+                          </div>
+                          <div className="total-item highlight">
+                            <span className="total-label">Ganancia Bruta Total</span>
+                            <span className="total-value">{formatPrice(gananciaBrutaAll)}</span>
+                          </div>
+                          <div className="total-item">
+                            <span className="total-label">Ahorro (30%)</span>
+                            <span className="total-value ahorro">{formatPrice(ahorroAll)}</span>
+                          </div>
+                          <div className="total-item">
+                            <span className="total-label">Ganancia Personal (70%)</span>
+                            <span className="total-value personal">{formatPrice(gananciaPersonalAll)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {pieData.length > 0 && (
+                        <div className="product-pie-chart">
+                          <h3>Productos Más Vendidos</h3>
+                          <ResponsiveContainer width="100%" height={350}>
+                            <PieChart>
+                              <Pie
+                                data={pieData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ percent, payload }) => `${payload.nombre}: ${payload.cantidad} (${(percent * 100).toFixed(0)}%)`}
+                                outerRadius={100}
+                                fill="#8884d8"
+                                dataKey="cantidad"
+                                nameKey="nombre"
+                              >
+                                {pieData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                              </Pie>
+                              <Tooltip formatter={(value: number) => [`${value} unidades`, 'Cantidad']} />
+                              <Legend />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
                     </>
                   )
                 })()}
@@ -697,27 +1034,34 @@ export const Admin: React.FC = () => {
                              {order.estado}
                            </span>
                          </td>
-                         <td>{order.productos.length} items</td>
-                         <td>
-                           {order.estado !== 'completado' && (
-                             <button 
-                               className="btn-complete"
-                               onClick={async () => {
-                                 try {
-                                   await updateOrderStatus(order.id, 'completado')
-                                   const ordersData = await getOrders()
-                                   setOrders(ordersData)
-                                   toast.success('Pedido completado')
-                                 } catch (error) {
-                                   console.error('Error completing order:', error)
-                                   toast.error('Error al completar pedido')
-                                 }
-                               }}
-                             >
-                               ✓ Completar
-                             </button>
-                           )}
-                         </td>
+                          <td>{order.productos.length} items</td>
+                          <td>
+                            {order.estado !== 'completado' && (
+                              <button 
+                                className="btn-complete"
+                                onClick={async () => {
+                                  try {
+                                    await updateOrderStatus(order.id, 'completado')
+                                    const ordersData = await getOrders()
+                                    setOrders(ordersData)
+                                    toast.success('Pedido completado')
+                                  } catch (error) {
+                                    console.error('Error completing order:', error)
+                                    toast.error('Error al completar pedido')
+                                  }
+                                }}
+                              >
+                                ✓ Completar
+                              </button>
+                            )}
+                            <button 
+                              className="btn-delete-order"
+                              onClick={() => handleDeleteOrder(order.id)}
+                              title="Eliminar pedido"
+                            >
+                              🗑️ Eliminar
+                            </button>
+                          </td>
                        </tr>
                      ))}
                   </tbody>
@@ -789,13 +1133,33 @@ export const Admin: React.FC = () => {
                     </>
                   )}
                 </div>
-                <div className="form-group">
-                  <label>Disponible</label>
-                  <select value={formData.disponible} onChange={e => setFormData({ ...formData, disponible: e.target.value })}>
-                    <option value="true">Sí</option>
-                    <option value="false">No</option>
-                  </select>
-                </div>
+                 <div className="form-group">
+                   <label>Disponible</label>
+                   <select value={formData.disponible} onChange={e => setFormData({ ...formData, disponible: e.target.value })}>
+                     <option value="true">Sí</option>
+                     <option value="false">No</option>
+                   </select>
+                 </div>
+                 <div className="form-group">
+                   <label>Reinversión (por unidad)</label>
+                   <input 
+                     type="number" 
+                     step="0.01" 
+                     placeholder="0.00"
+                     value={formData.reinversion}
+                     onChange={e => setFormData({ ...formData, reinversion: e.target.value })}
+                   />
+                 </div>
+                 <div className="form-group">
+                   <label>Fondo (por unidad)</label>
+                   <input 
+                     type="number" 
+                     step="0.01" 
+                     placeholder="0.00"
+                     value={formData.fondo}
+                     onChange={e => setFormData({ ...formData, fondo: e.target.value })}
+                   />
+                 </div>
                 <div className="modal-actions">
                   <button type="submit" className="btn-primary" disabled={saving}>
                     {saving ? 'Guardando...' : editingProduct ? 'Actualizar' : 'Crear'}
@@ -829,13 +1193,33 @@ export const Admin: React.FC = () => {
                     <option value="Otros">Otros</option>
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>Disponible</label>
-                  <select value={agregosFormData.disponible} onChange={e => setAgregosFormData({ ...agregosFormData, disponible: e.target.value })}>
-                    <option value="true">Sí</option>
-                    <option value="false">No</option>
-                  </select>
-                </div>
+                 <div className="form-group">
+                   <label>Disponible</label>
+                   <select value={agregosFormData.disponible} onChange={e => setAgregosFormData({ ...agregosFormData, disponible: e.target.value })}>
+                     <option value="true">Sí</option>
+                     <option value="false">No</option>
+                   </select>
+                 </div>
+                 <div className="form-group">
+                   <label>Reinversión (por unidad)</label>
+                   <input 
+                     type="number" 
+                     step="0.01" 
+                     placeholder="0.00"
+                     value={agregosFormData.reinversion}
+                     onChange={e => setAgregosFormData({ ...agregosFormData, reinversion: e.target.value })}
+                   />
+                 </div>
+                 <div className="form-group">
+                   <label>Fondo (por unidad)</label>
+                   <input 
+                     type="number" 
+                     step="0.01" 
+                     placeholder="0.00"
+                     value={agregosFormData.fondo}
+                     onChange={e => setAgregosFormData({ ...agregosFormData, fondo: e.target.value })}
+                   />
+                 </div>
                 <div className="modal-actions">
                   <button type="submit" className="btn-primary">
                     {editingAgrego ? 'Actualizar' : 'Crear'}

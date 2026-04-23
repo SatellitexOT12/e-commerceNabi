@@ -27,3 +27,8 @@ export const updateOrderStatus = async (id: string, estado: string): Promise<voi
   const { error } = await supabase.from('orders').update({ estado }).eq('id', id)
   if (error) throw error
 }
+
+export const deleteOrder = async (id: string): Promise<void> => {
+  const { error } = await supabase.from('orders').delete().eq('id', id)
+  if (error) throw error
+}

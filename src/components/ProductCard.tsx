@@ -19,7 +19,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
   const [showAgregos, setShowAgregos] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const needsAgregos = product.categoria === 'Crepes' || product.categoria === 'Combos de Crepes' || product.categoria?.includes('Crepe')
+  const needsAgregos = product.categoria === 'Crepes' || product.categoria === 'Combos de Crepes' || product.categoria === 'Combos Mixtos' || product.categoria?.includes('Crepe')
 
   useEffect(() => {
     const fetchAgregos = async () => {

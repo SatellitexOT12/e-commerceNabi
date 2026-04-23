@@ -6,6 +6,8 @@ export interface Agregado {
   precio: number
   categoria: string
   disponible: boolean
+  reinversion?: number
+  fondo?: number
 }
 
 export const getAgregos = async (): Promise<Agregado[]> => {
