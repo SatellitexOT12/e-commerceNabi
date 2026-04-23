@@ -2,7 +2,7 @@
 
 Tienda virtual de crepes y mini donas artesanales, desarrollada con React, TypeScript, Vite y Supabase.
 
-🔗 **URL**: https://satellitexot12.github.io/e-commerceNabi/
+🔗 **URL**: https://satellitexot12.github.io/e-commerceNabi/#/
 
 ---
 
