@@ -11,6 +11,7 @@ interface CheckoutFormData {
   nombre: string
   direccion: string
   telefono: string
+  fecha_entrega: string
 }
 
 export const Checkout: React.FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -34,7 +35,8 @@ export const Checkout: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         cliente_telefono: '+53' + data.telefono,
         productos: state.items,
         total: state.total,
-        estado: 'pendiente'
+        estado: 'pendiente',
+        fecha_entrega: data.fecha_entrega
       }
 
       await saveOrder(order)
@@ -100,6 +102,16 @@ export const Checkout: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 />
               </div>
               {errors.telefono && <span className="error">{errors.telefono.message}</span>}
+            </div>
+
+            <div className="form-group">
+              <label>Fecha de Entrega *</label>
+              <input
+                type="date"
+                {...register('fecha_entrega', { required: 'La fecha de entrega es requerida' })}
+                min={new Date().toISOString().split('T')[0]}
+              />
+              {errors.fecha_entrega && <span className="error">{errors.fecha_entrega.message}</span>}
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>

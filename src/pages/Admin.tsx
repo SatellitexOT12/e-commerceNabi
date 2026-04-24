@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { getOrders, saveOrder, updateOrderStatus, deleteOrder, Order } from '../services/orders'
+import { getOrders, saveOrder, updateOrderStatus, deleteOrder, updateOrderDeliveryDate, Order } from '../services/orders'
 import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products'
 import { getAgregos, getAllAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado as AgregadoDB } from '../services/agregos'
 import { Product } from '../contexts/CartContext'
@@ -57,6 +57,7 @@ export const Admin: React.FC = () => {
    const [manualOrder, setManualOrder] = useState({
      cliente_nombre: '',
      cliente_telefono: '',
+     fecha_entrega: '',
      items: [] as { 
        product: Product; 
        quantity: number; 
@@ -71,6 +72,7 @@ export const Admin: React.FC = () => {
   const [selectedAgregos, setSelectedAgregos] = useState<Record<string, number>>({})
   const [agregosForProduct, setAgregosForProduct] = useState<AgregadoDB[]>([])
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({})
+  const [editingDeliveryDate, setEditingDeliveryDate] = useState<{ orderId: string; date: string } | null>(null)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -360,6 +362,11 @@ export const Admin: React.FC = () => {
         return
       }
 
+      if (!manualOrder.fecha_entrega) {
+        toast.error('Selecciona una fecha de entrega')
+        return
+      }
+
       const total = calculateManualTotal()
 
       const orderData = {
@@ -368,7 +375,8 @@ export const Admin: React.FC = () => {
         cliente_direccion: '',
         productos: manualOrder.items,
         total,
-        estado: 'pendiente'
+        estado: 'pendiente',
+        fecha_entrega: manualOrder.fecha_entrega
       }
 
       await saveOrder(orderData)
@@ -377,7 +385,7 @@ export const Admin: React.FC = () => {
       const ordersData = await getOrders()
       setOrders(ordersData)
       
-      setManualOrder({ cliente_nombre: '', cliente_telefono: '', items: [], total: 0 })
+      setManualOrder({ cliente_nombre: '', cliente_telefono: '', fecha_entrega: '', items: [], total: 0 })
       setShowManualOrder(false)
     } catch (error) {
       console.error('Error saving manual order:', error)
@@ -522,6 +530,20 @@ export const Admin: React.FC = () => {
       const agregosPrice = item.agregos?.reduce((a, agg) => a + (agg.precio * (agg.cantidad || 1)), 0) || 0
       return sum + basePrice + agregosPrice
     }, 0)
+  }
+
+  const handleSaveDeliveryDate = async () => {
+    if (!editingDeliveryDate) return
+    try {
+      await updateOrderDeliveryDate(editingDeliveryDate.orderId, editingDeliveryDate.date)
+      const ordersData = await getOrders()
+      setOrders(ordersData)
+      toast.success('Fecha de entrega actualizada')
+      setEditingDeliveryDate(null)
+    } catch (error) {
+      console.error('Error updating delivery date:', error)
+      toast.error('Error al actualizar la fecha')
+    }
   }
 
   const renderProductSummary = (productos: any[]) => {
@@ -672,6 +694,16 @@ export const Admin: React.FC = () => {
                         placeholder="Número de teléfono"
                         value={manualOrder.cliente_telefono}
                         onChange={e => setManualOrder({ ...manualOrder, cliente_telefono: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Fecha de Entrega *</label>
+                      <input 
+                        type="date" 
+                        value={manualOrder.fecha_entrega}
+                        onChange={e => setManualOrder({ ...manualOrder, fecha_entrega: e.target.value })}
+                        min={new Date().toISOString().split('T')[0]}
+                        required
                       />
                     </div>
                   </div>
@@ -1116,7 +1148,8 @@ export const Admin: React.FC = () => {
                       <th>Cliente</th>
                       <th>Teléfono</th>
                       <th>Total</th>
-                      <th>Fecha</th>
+                      <th>Fecha Pedido</th>
+                      <th>Fecha Entrega</th>
                       <th>Estado</th>
                       <th>Productos</th>
                       <th>Acción</th>
@@ -1139,6 +1172,7 @@ export const Admin: React.FC = () => {
                            <td>{order.cliente_telefono}</td>
                            <td>{formatPrice(order.total)}</td>
                            <td>{new Date(order.fecha).toLocaleDateString()}</td>
+                           <td>{order.fecha_entrega ? new Date(order.fecha_entrega).toLocaleDateString() : '-'}</td>
                            <td>
                              <span className={`status ${order.estado === 'completado' ? 'completed' : ''}`}>
                                {order.estado}
@@ -1146,6 +1180,13 @@ export const Admin: React.FC = () => {
                            </td>
                             <td>{renderProductSummary(order.productos)}</td>
                             <td>
+                              <button 
+                                className="btn-edit-date"
+                                onClick={() => setEditingDeliveryDate({ orderId: order.id, date: order.fecha_entrega || '' })}
+                                title="Editar fecha de entrega"
+                              >
+                                📅 Fecha
+                              </button>
                               {order.estado !== 'completado' && (
                                 <button 
                                   className="btn-complete"
@@ -1205,6 +1246,39 @@ export const Admin: React.FC = () => {
                      ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {editingDeliveryDate && (
+              <div className="modal-overlay" onClick={() => setEditingDeliveryDate(null)}>
+                <div className="modal edit-delivery-modal" onClick={e => e.stopPropagation()}>
+                  <h3>Editar Fecha de Entrega</h3>
+                  <div className="form-group">
+                    <label>Fecha de Entrega</label>
+                    <input
+                      type="date"
+                      value={editingDeliveryDate.date}
+                      onChange={(e) => setEditingDeliveryDate({ ...editingDeliveryDate, date: e.target.value })}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  <div className="modal-actions">
+                    <button 
+                      type="button" 
+                      className="btn-primary"
+                      onClick={handleSaveDeliveryDate}
+                    >
+                      Guardar
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn-secondary"
+                      onClick={() => setEditingDeliveryDate(null)}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
