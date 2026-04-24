@@ -3,8 +3,10 @@ import { Product } from '../contexts/CartContext'
 
 export type { Product }
 
-export const getProducts = async (): Promise<Product[]> => {
-  const { data, error } = await supabase.from('products').select('*')
+export const getProducts = async (limit?: number): Promise<Product[]> => {
+  let query = supabase.from('products').select('*')
+  if (limit) query = query.limit(limit)
+  const { data, error } = await query
   if (error) throw error
   return data || []
 }
