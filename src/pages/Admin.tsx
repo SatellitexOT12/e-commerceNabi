@@ -368,7 +368,7 @@ export const Admin: React.FC = () => {
         cliente_direccion: '',
         productos: manualOrder.items,
         total,
-        estado: 'completado'
+        estado: 'pendiente'
       }
 
       await saveOrder(orderData)
@@ -921,7 +921,7 @@ export const Admin: React.FC = () => {
                   }
 
                   // Track product quantities for pie chart
-                  orders.forEach(order => {
+                  orders.filter(order => order.estado === 'completado').forEach(order => {
                     const fecha = new Date(order.fecha).toLocaleDateString('es-ES')
                     if (!dailySales[fecha]) {
                       dailySales[fecha] = { fecha, total: 0, reinversion: 0, fondo: 0, gananciaBruta: 0 }
