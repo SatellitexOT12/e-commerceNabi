@@ -1172,7 +1172,7 @@ export const Admin: React.FC = () => {
                            <td>{order.cliente_telefono}</td>
                            <td>{formatPrice(order.total)}</td>
                            <td>{new Date(order.fecha).toLocaleDateString()}</td>
-                           <td>{order.fecha_entrega ? new Date(order.fecha_entrega).toLocaleDateString() : '-'}</td>
+                           <td>{order.fecha_entrega ? new Date(order.fecha_entrega).toLocaleDateString('es-CU', { timeZone: 'UTC' }) : '-'}</td>
                            <td>
                              <span className={`status ${order.estado === 'completado' ? 'completed' : ''}`}>
                                {order.estado}
