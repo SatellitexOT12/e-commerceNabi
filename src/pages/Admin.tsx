@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getOrders, saveOrder, updateOrderStatus, deleteOrder, updateOrderDeliveryDate, Order } from '../services/orders'
 import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products'
 import { getAgregos, getAllAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado as AgregadoDB } from '../services/agregos'
+import { getFinanzas, updateFinanzas, addToFinanzas, Finanzas } from '../services/finanzas'
 import { Product } from '../contexts/CartContext'
 import { getCurrentUser, signIn, signOut } from '../services/auth'
 import { useNavigate } from 'react-router-dom'
@@ -73,6 +74,9 @@ export const Admin: React.FC = () => {
   const [agregosForProduct, setAgregosForProduct] = useState<AgregadoDB[]>([])
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({})
   const [editingDeliveryDate, setEditingDeliveryDate] = useState<{ orderId: string; date: string } | null>(null)
+  const [finanzasData, setFinanzasData] = useState<Finanzas | null>(null)
+  const [editingFinanzas, setEditingFinanzas] = useState(false)
+  const [finanzasForm, setFinanzasForm] = useState({ reinversion: 0, fondo: 0, ahorro: 0, ganancia_personal: 0 })
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -89,10 +93,19 @@ export const Admin: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const [ordersData, productsData, agregosData] = await Promise.all([getOrders(), getProducts(), getAgregos()])
+      const [ordersData, productsData, agregosData, finanzas] = await Promise.all([getOrders(), getProducts(), getAgregos(), getFinanzas()])
       setOrders(ordersData)
       setProducts(productsData)
       setAgregos(agregosData)
+      setFinanzasData(finanzas)
+      if (finanzas) {
+        setFinanzasForm({
+          reinversion: finanzas.reinversion,
+          fondo: finanzas.fondo,
+          ahorro: finanzas.ahorro,
+          ganancia_personal: finanzas.ganancia_personal
+        })
+      }
       // Also load all agregos (including unavailable) for envase calculations
       const allData = await getAllAgregos()
       setAllAgregos(allData)
@@ -1097,6 +1110,106 @@ export const Admin: React.FC = () => {
                         </div>
                       </div>
 
+                      <div className="finanzas-control">
+                        <div className="finanzas-header">
+                          <h3>Control de Finanzas</h3>
+                          <button 
+                            className={`btn-edit ${editingFinanzas ? 'btn-cancel' : ''}`}
+                            onClick={() => {
+                              if (editingFinanzas) {
+                                // Restaurar datos originales
+                                if (finanzasData) {
+                                  setFinanzasForm({
+                                    reinversion: finanzasData.reinversion,
+                                    fondo: finanzasData.fondo,
+                                    ahorro: finanzasData.ahorro,
+                                    ganancia_personal: finanzasData.ganancia_personal
+                                  })
+                                }
+                              }
+                              setEditingFinanzas(!editingFinanzas)
+                            }}
+                          >
+                            {editingFinanzas ? 'Cancelar' : 'Editar'}
+                          </button>
+                        </div>
+
+                        {editingFinanzas ? (
+                          <form className="finanzas-edit-form" onSubmit={async (e) => {
+                            e.preventDefault()
+                            try {
+                              await updateFinanzas(finanzasForm)
+                              const finanzas = await getFinanzas()
+                              setFinanzasData(finanzas)
+                              setEditingFinanzas(false)
+                              toast.success('Finanzas actualizadas')
+                            } catch (error) {
+                              console.error('Error updating finanzas:', error)
+                              toast.error('Error al actualizar finanzas')
+                            }
+                          }}>
+                            <div className="form-row">
+                              <div className="form-group">
+                                <label>Reinversión ($)</label>
+                                <input 
+                                  type="number"
+                                  step="0.01"
+                                  value={finanzasForm.reinversion}
+                                  onChange={(e) => setFinanzasForm({...finanzasForm, reinversion: parseFloat(e.target.value) || 0})}
+                                />
+                              </div>
+                              <div className="form-group">
+                                <label>Fondo ($)</label>
+                                <input 
+                                  type="number"
+                                  step="0.01"
+                                  value={finanzasForm.fondo}
+                                  onChange={(e) => setFinanzasForm({...finanzasForm, fondo: parseFloat(e.target.value) || 0})}
+                                />
+                              </div>
+                              <div className="form-group">
+                                <label>Ahorro ($)</label>
+                                <input 
+                                  type="number"
+                                  step="0.01"
+                                  value={finanzasForm.ahorro}
+                                  onChange={(e) => setFinanzasForm({...finanzasForm, ahorro: parseFloat(e.target.value) || 0})}
+                                />
+                              </div>
+                              <div className="form-group">
+                                <label>Ganancia Personal ($)</label>
+                                <input 
+                                  type="number"
+                                  step="0.01"
+                                  value={finanzasForm.ganancia_personal}
+                                  onChange={(e) => setFinanzasForm({...finanzasForm, ganancia_personal: parseFloat(e.target.value) || 0})}
+                                />
+                              </div>
+                            </div>
+                            <button type="submit" className="btn-save">Guardar Cambios</button>
+                          </form>
+                        ) : (
+                          <div className="finanzas-display">
+                            <div className="finanzas-item">
+                              <span className="finanzas-label">Reinversión</span>
+                              <span className="finanzas-value">{formatPrice(finanzasForm.reinversion)}</span>
+                            </div>
+                            <div className="finanzas-item">
+                              <span className="finanzas-label">Fondo</span>
+                              <span className="finanzas-value">{formatPrice(finanzasForm.fondo)}</span>
+                            </div>
+                            <div className="finanzas-item">
+                              <span className="finanzas-label">Ahorro</span>
+                              <span className="finanzas-value">{formatPrice(finanzasForm.ahorro)}</span>
+                            </div>
+                            <div className="finanzas-item">
+                              <span className="finanzas-label">Ganancia Personal</span>
+                              <span className="finanzas-value">{formatPrice(finanzasForm.ganancia_personal)}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       {pieData.length > 0 && (
                         <div className="product-pie-chart">
                           <h3>Productos Más Vendidos</h3>
@@ -1193,8 +1306,19 @@ export const Admin: React.FC = () => {
                                   onClick={async () => {
                                     try {
                                       await updateOrderStatus(order.id, 'completado')
+                                      await addToFinanzas(order)
                                       const ordersData = await getOrders()
+                                      const finanzas = await getFinanzas()
                                       setOrders(ordersData)
+                                      setFinanzasData(finanzas)
+                                      if (finanzas) {
+                                        setFinanzasForm({
+                                          reinversion: finanzas.reinversion,
+                                          fondo: finanzas.fondo,
+                                          ahorro: finanzas.ahorro,
+                                          ganancia_personal: finanzas.ganancia_personal
+                                        })
+                                      }
                                       toast.success('Pedido completado')
                                     } catch (error) {
                                       console.error('Error completing order:', error)

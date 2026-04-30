@@ -1004,6 +1004,141 @@
   border: 2px solid transparent;
 }
 
+/* Estilos para Control de Finanzas */
+.finanzas-control {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-top: 2rem;
+}
+
+.finanzas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.finanzas-header h3 {
+  margin: 0;
+  color: var(--accent-color);
+  font-size: 1.25rem;
+}
+
+.btn-edit {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.btn-edit.btn-cancel {
+  background: #ff6b6b;
+}
+
+.btn-edit.btn-cancel:hover {
+  background: #ee5a52;
+}
+
+.finanzas-edit-form {
+  background: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.finanzas-edit-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.finanzas-edit-form .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.finanzas-edit-form .form-group label {
+  font-weight: 600;
+  color: var(--accent-color);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.finanzas-edit-form .form-group input {
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.finanzas-edit-form .form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(93, 64, 55, 0.1);
+}
+
+.finanzas-edit-form .btn-save {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.finanzas-edit-form .btn-save:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.finanzas-display {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.finanzas-item {
+  background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  border-left: 4px solid var(--primary-color);
+}
+
+.finanzas-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+
+.finanzas-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
 .product-selector-card:hover {
   border-color: var(--primary-color);
   transform: translateY(-2px);
