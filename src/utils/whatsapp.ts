@@ -38,6 +38,9 @@ export const generateOrderMessage = (order: any): string => {
     }
   })
   message += `\nTotal: $${order.total.toFixed(2)}\n`
+  if (order.detalles && order.detalles.trim()) {
+    message += `\n📝 Detalles: ${order.detalles}\n`
+  }
   message += `Fecha: ${new Date().toLocaleString()}\n`
   return message
 }

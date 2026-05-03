@@ -10,6 +10,7 @@ export interface Order {
   fecha: string
   fecha_entrega?: string
   estado: string
+  detalles?: string
 }
 
 export const saveOrder = async (order: Omit<Order, 'id' | 'fecha'>) => {

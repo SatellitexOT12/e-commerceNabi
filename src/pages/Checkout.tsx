@@ -12,6 +12,7 @@ interface CheckoutFormData {
   direccion: string
   telefono: string
   fecha_entrega: string
+  detalles?: string
 }
 
 export const Checkout: React.FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -36,7 +37,8 @@ export const Checkout: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         productos: state.items,
         total: state.total,
         estado: 'pendiente',
-        fecha_entrega: data.fecha_entrega
+        fecha_entrega: data.fecha_entrega,
+        detalles: data.detalles || ''
       }
 
       await saveOrder(order)
@@ -112,6 +114,15 @@ export const Checkout: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 min={new Date().toISOString().split('T')[0]}
               />
               {errors.fecha_entrega && <span className="error">{errors.fecha_entrega.message}</span>}
+            </div>
+
+            <div className="form-group">
+              <label>Detalles o Notas del Encargo</label>
+              <textarea
+                {...register('detalles')}
+                placeholder="Ejemplo: Sin azúcar, extra crema, etc."
+                rows={4}
+              />
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
