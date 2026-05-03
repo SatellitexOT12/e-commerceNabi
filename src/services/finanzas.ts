@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { addGananciaToSocia } from './socias'
 
 export interface Finanzas {
   id: string
@@ -99,6 +100,16 @@ export const addToFinanzas = async (order: any) => {
   // Distribuir la ganancia bruta: 30% ahorro, 70% ganancia personal
   const ahorro = orderGananciaBruta * 0.3
   const ganancia_personal = orderGananciaBruta * 0.7
+
+  // Dividir la ganancia personal 50/50 entre Gabriela y Lorena
+  const ganancia_por_socia = ganancia_personal / 2
+
+  try {
+    await addGananciaToSocia('Gabriela', ganancia_por_socia)
+    await addGananciaToSocia('Lorena', ganancia_por_socia)
+  } catch (error) {
+    console.error('Error distributing to socias:', error)
+  }
 
   return updateFinanzas({
     reinversion: Math.round((existing.reinversion + orderReinversion) * 100) / 100,

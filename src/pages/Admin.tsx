@@ -3,6 +3,7 @@ import { getOrders, saveOrder, updateOrderStatus, deleteOrder, updateOrderDelive
 import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products'
 import { getAgregos, getAllAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado as AgregadoDB } from '../services/agregos'
 import { getFinanzas, updateFinanzas, addToFinanzas, Finanzas } from '../services/finanzas'
+import { getAllSocias, retiroDineroSocia, getRetirosSocia, initializeSocias, Socia, RetiroSocia } from '../services/socias'
 import { Product } from '../contexts/CartContext'
 import { getCurrentUser, signIn, signOut } from '../services/auth'
 import { useNavigate } from 'react-router-dom'
@@ -77,6 +78,20 @@ export const Admin: React.FC = () => {
   const [finanzasData, setFinanzasData] = useState<Finanzas | null>(null)
   const [editingFinanzas, setEditingFinanzas] = useState(false)
   const [finanzasForm, setFinanzasForm] = useState({ reinversion: 0, fondo: 0, ahorro: 0, ganancia_personal: 0 })
+  
+  // Socias states
+  const [socias, setSocias] = useState<Socia[]>([])
+  const [retirosSocias, setRetirosSocias] = useState<RetiroSocia[]>([])
+  const [showRetiroModal, setShowRetiroModal] = useState<string | null>(null)
+  const [retiroAmount, setRetiroAmount] = useState('')
+  const [retiroConcepto, setRetiroConcepto] = useState('')
+  
+  // Pagination states
+  const [productsPage, setProductsPage] = useState(1)
+  const [agregosPage, setAgregosPage] = useState(1)
+  const [ordersPage, setOrdersPage] = useState(1)
+  const [finanzasPage, setFinanzasPage] = useState(1)
+  const ITEMS_PER_PAGE = 10
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -93,11 +108,24 @@ export const Admin: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const [ordersData, productsData, agregosData, finanzas] = await Promise.all([getOrders(), getProducts(), getAgregos(), getFinanzas()])
+      await initializeSocias()
+      const [ordersData, productsData, agregosData, finanzas, sociasData, retiros] = await Promise.all([
+        getOrders(),
+        getProducts(),
+        getAgregos(),
+        getFinanzas(),
+        getAllSocias(),
+        getRetirosSocia('Gabriela').then(async (retiros) => {
+          const retiros_lorena = await getRetirosSocia('Lorena')
+          return [...retiros, ...retiros_lorena]
+        })
+      ])
       setOrders(ordersData)
       setProducts(productsData)
       setAgregos(agregosData)
       setFinanzasData(finanzas)
+      setSocias(sociasData)
+      setRetirosSocias(retiros)
       if (finanzas) {
         setFinanzasForm({
           reinversion: finanzas.reinversion,
@@ -559,6 +587,33 @@ export const Admin: React.FC = () => {
     }
   }
 
+  const handleRetiroSocia = async (nombreSocia: string) => {
+    if (!retiroAmount || isNaN(parseFloat(retiroAmount))) {
+      toast.error('Ingresa un monto válido')
+      return
+    }
+
+    try {
+      await retiroDineroSocia(nombreSocia, parseFloat(retiroAmount), retiroConcepto || undefined)
+      
+      const sociasData = await getAllSocias()
+      const retiros = await Promise.all([
+        getRetirosSocia('Gabriela'),
+        getRetirosSocia('Lorena')
+      ])
+      setSocias(sociasData)
+      setRetirosSocias([...retiros[0], ...retiros[1]].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()))
+      
+      setShowRetiroModal(null)
+      setRetiroAmount('')
+      setRetiroConcepto('')
+      toast.success(`Retiro registrado para ${nombreSocia}`)
+    } catch (error: any) {
+      console.error('Error en retiro:', error)
+      toast.error(error.message || 'Error al registrar el retiro')
+    }
+  }
+
   const renderProductSummary = (productos: any[]) => {
     if (!productos || productos.length === 0) return 'Sin productos'
     const summary = productos.slice(0, 2).map(item => `${item.product?.nombre || item.nombre} x${item.quantity}`).join(', ')
@@ -566,6 +621,40 @@ export const Admin: React.FC = () => {
       return `${summary} +${productos.length - 2} más`
     }
     return summary
+  }
+
+  // Pagination helper function
+  const getPaginatedData = (data: any[], page: number) => {
+    const startIndex = (page - 1) * ITEMS_PER_PAGE
+    const endIndex = startIndex + ITEMS_PER_PAGE
+    return data.slice(startIndex, endIndex)
+  }
+
+  const getTotalPages = (dataLength: number) => {
+    return Math.ceil(dataLength / ITEMS_PER_PAGE)
+  }
+
+  const renderPaginationControls = (currentPage: number, totalPages: number, onPageChange: (page: number) => void) => {
+    if (totalPages <= 1) return null
+    return (
+      <div className="pagination-controls">
+        <button 
+          onClick={() => onPageChange(currentPage - 1)} 
+          disabled={currentPage === 1}
+          className="btn-pagination"
+        >
+          ← Anterior
+        </button>
+        <span className="pagination-info">Página {currentPage} de {totalPages}</span>
+        <button 
+          onClick={() => onPageChange(currentPage + 1)} 
+          disabled={currentPage === totalPages}
+          className="btn-pagination"
+        >
+          Siguiente →
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -608,7 +697,7 @@ export const Admin: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                     {products.map(product => (
+                     {getPaginatedData(products, productsPage).map(product => (
                        <tr key={product.id}>
                          <td><img src={product.imagen_url} alt={product.nombre} className="product-thumb" /></td>
                          <td>{product.nombre}</td>
@@ -627,6 +716,7 @@ export const Admin: React.FC = () => {
                      ))}
                   </tbody>
                 </table>
+                {renderPaginationControls(productsPage, getTotalPages(products.length), setProductsPage)}
               </div>
             )}
           </div>
@@ -656,7 +746,7 @@ export const Admin: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                     {agregos.map(agregado => (
+                     {getPaginatedData(agregos, agregosPage).map(agregado => (
                        <tr key={agregado.id}>
                          <td>{agregado.nombre}</td>
                          <td>{agregado.categoria}</td>
@@ -674,6 +764,7 @@ export const Admin: React.FC = () => {
                      ))}
                   </tbody>
                 </table>
+                {renderPaginationControls(agregosPage, getTotalPages(agregos.length), setAgregosPage)}
               </div>
             )}
           </div>
@@ -1035,6 +1126,9 @@ export const Admin: React.FC = () => {
                    const chartData = Object.values(dailySales).reverse()
                   const ahorroAll = gananciaBrutaAll * 0.3
                   const gananciaPersonalAll = gananciaBrutaAll * 0.7
+                  const dailySalesArray = Object.values(dailySales).reverse()
+                  const paginatedDailySales = getPaginatedData(dailySalesArray, finanzasPage)
+                  const finanzasTotalPages = getTotalPages(dailySalesArray.length)
 
                   return (
                     <>
@@ -1065,7 +1159,7 @@ export const Admin: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {Object.values(dailySales).reverse().map((day: any, idx) => (
+                            {paginatedDailySales.map((day: any, idx) => (
                               <tr key={idx}>
                                 <td>{day.fecha}</td>
                                 <td>{formatPrice(day.total)}</td>
@@ -1078,6 +1172,7 @@ export const Admin: React.FC = () => {
                             ))}
                           </tbody>
                         </table>
+                        {renderPaginationControls(finanzasPage, finanzasTotalPages, setFinanzasPage)}
                       </div>
 
                       <div className="finanzas-totales">
@@ -1210,6 +1305,104 @@ export const Admin: React.FC = () => {
                         )}
                       </div>
 
+                      <div className="socias-section">
+                        <div className="section-header">
+                          <h3>Ganancias de Socias</h3>
+                        </div>
+                        <div className="socias-container">
+                          {socias.map(socia => (
+                            <div key={socia.id} className="socia-card">
+                              <div className="socia-header">
+                                <h4>{socia.nombre}</h4>
+                              </div>
+                              <div className="socia-stats">
+                                <div className="stat-item">
+                                  <span className="stat-label">Ganancia Total</span>
+                                  <span className="stat-value">{formatPrice(socia.ganancia_total)}</span>
+                                </div>
+                                <div className="stat-item">
+                                  <span className="stat-label">Retirado</span>
+                                  <span className="stat-value retrado">{formatPrice(socia.ganancia_retirada)}</span>
+                                </div>
+                                <div className="stat-item">
+                                  <span className="stat-label">Disponible</span>
+                                  <span className="stat-value disponible">{formatPrice(socia.ganancia_disponible)}</span>
+                                </div>
+                              </div>
+                              <button 
+                                className="btn-retiro"
+                                onClick={() => setShowRetiroModal(socia.nombre)}
+                              >
+                                💰 Registrar Retiro
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {showRetiroModal && (
+                          <div className="modal-overlay" onClick={() => setShowRetiroModal(null)}>
+                            <div className="modal retiro-modal" onClick={e => e.stopPropagation()}>
+                              <h3>Retiro de {showRetiroModal}</h3>
+                              <form onSubmit={(e) => {
+                                e.preventDefault()
+                                handleRetiroSocia(showRetiroModal)
+                              }}>
+                                <div className="form-group">
+                                  <label>Monto a Retirar ($)</label>
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={retiroAmount}
+                                    onChange={(e) => setRetiroAmount(e.target.value)}
+                                    placeholder="0.00"
+                                    required
+                                  />
+                                </div>
+                                <div className="form-group">
+                                  <label>Concepto (opcional)</label>
+                                  <input 
+                                    type="text"
+                                    value={retiroConcepto}
+                                    onChange={(e) => setRetiroConcepto(e.target.value)}
+                                    placeholder="Ej: Gasto personal, inversión, etc"
+                                  />
+                                </div>
+                                <div className="modal-actions">
+                                  <button type="submit" className="btn-primary">Registrar Retiro</button>
+                                  <button 
+                                    type="button" 
+                                    className="btn-secondary"
+                                    onClick={() => setShowRetiroModal(null)}
+                                  >
+                                    Cancelar
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        )}
+
+                        {retirosSocias.length > 0 && (
+                          <div className="retiros-history">
+                            <h4>Historial de Retiros</h4>
+                            <div className="retiros-list">
+                              {retirosSocias.slice(0, 10).map((retiro, idx) => (
+                                <div key={idx} className="retiro-item">
+                                  <div className="retiro-info">
+                                    <span className="retiro-socia">{retiro.socia_nombre}</span>
+                                    <span className="retiro-concepto">{retiro.concepto}</span>
+                                  </div>
+                                  <div className="retiro-meta">
+                                    <span className="retiro-monto">{formatPrice(retiro.monto)}</span>
+                                    <span className="retiro-fecha">{new Date(retiro.fecha).toLocaleDateString()}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       {pieData.length > 0 && (
                         <div className="product-pie-chart">
                           <h3>Productos Más Vendidos</h3>
@@ -1220,7 +1413,6 @@ export const Admin: React.FC = () => {
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                label={({ percent, payload }) => `${payload.nombre}: ${payload.cantidad} (${(percent * 100).toFixed(0)}%)`}
                                 outerRadius={100}
                                 fill="#8884d8"
                                 dataKey="cantidad"
@@ -1230,7 +1422,13 @@ export const Admin: React.FC = () => {
                                   <Cell key={`cell-${index}`} fill={entry.color} />
                                 ))}
                               </Pie>
-                              <Tooltip formatter={(value: number) => [`${value} unidades`, 'Cantidad']} />
+                              <Tooltip 
+                                formatter={(value: number) => [`${value} unidades`, 'Cantidad']}
+                                labelFormatter={(name: string) => {
+                                  const product = pieData.find(p => p.nombre === name)
+                                  return product ? product.nombre : name
+                                }}
+                              />
                               <Legend />
                             </PieChart>
                           </ResponsiveContainer>
@@ -1269,7 +1467,7 @@ export const Admin: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                     {orders.map(order => (
+                     {getPaginatedData(orders, ordersPage).map(order => (
                        <React.Fragment key={order.id}>
                          <tr>
                            <td>
@@ -1370,6 +1568,7 @@ export const Admin: React.FC = () => {
                      ))}
                   </tbody>
                 </table>
+                {renderPaginationControls(ordersPage, getTotalPages(orders.length), setOrdersPage)}
               </div>
             )}
 
