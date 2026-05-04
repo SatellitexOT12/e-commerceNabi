@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { getFinanzas, updateFinanzas } from './finanzas'
 
 export interface Socia {
   id: string
@@ -129,6 +130,19 @@ export const retiroDineroSocia = async (
       updated_at: new Date().toISOString()
     })
     .eq('id', socia.id)
+
+  // Descontar de la ganancia personal en finanzas
+  try {
+    const finanzas = await getFinanzas()
+    if (finanzas) {
+      const nuevaGanancia = Math.max(0, finanzas.ganancia_personal - monto)
+      await updateFinanzas({
+        ganancia_personal: Math.round(nuevaGanancia * 100) / 100
+      })
+    }
+  } catch (error) {
+    console.error('Error updating finanzas:', error)
+  }
 
   return retiroData
 }
