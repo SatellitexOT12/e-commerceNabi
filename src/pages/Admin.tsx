@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { formatPrice } from '../utils/formatPrice'
 import { getAgregosConEnvaseAuto, calcularEnvasesNecesarios } from '../utils/envaseCalculator'
+import * as XLSX from 'xlsx'
 import './Admin.css'
 import toast from 'react-hot-toast'
 
@@ -75,6 +76,7 @@ export const Admin: React.FC = () => {
   const [agregosForProduct, setAgregosForProduct] = useState<AgregadoDB[]>([])
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({})
   const [editingDeliveryDate, setEditingDeliveryDate] = useState<{ orderId: string; date: string } | null>(null)
+  const [expandedDailySalesDay, setExpandedDailySalesDay] = useState<string | null>(null)
   const [finanzasData, setFinanzasData] = useState<Finanzas | null>(null)
   const [editingFinanzas, setEditingFinanzas] = useState(false)
   const [finanzasForm, setFinanzasForm] = useState({ reinversion: 0, fondo: 0, ahorro: 0, ganancia_personal: 0 })
@@ -634,6 +636,169 @@ export const Admin: React.FC = () => {
     return Math.ceil(dataLength / ITEMS_PER_PAGE)
   }
 
+  const exportarVentasDiariosExcel = () => {
+    if (orders.length === 0) {
+      toast.error('No hay ventas para exportar')
+      return
+    }
+
+    try {
+      // Preparar datos
+      const dailySales: any = {}
+      const excelData: any[] = []
+
+      // Agrupar ventas por día
+      orders.filter(order => order.estado === 'completado').forEach(order => {
+        const fecha = new Date(order.fecha).toLocaleDateString('es-ES')
+        if (!dailySales[fecha]) {
+          dailySales[fecha] = { 
+            fecha, 
+            total: 0, 
+            reinversion: 0, 
+            fondo: 0, 
+            gananciaBruta: 0,
+            ordenes: []
+          }
+        }
+        dailySales[fecha].total += order.total || 0
+        dailySales[fecha].ordenes.push(order)
+
+        // Calcular reinversión y fondo
+        order.productos?.forEach((item: any) => {
+          const product = item.product
+          const quantity = item.quantity || 1
+          const productReinversion = (product?.reinversion || 0) * quantity
+          const productFondo = (product?.fondo || 0) * quantity
+          
+          dailySales[fecha].reinversion += productReinversion
+          dailySales[fecha].fondo += productFondo
+        })
+        
+        dailySales[fecha].gananciaBruta = dailySales[fecha].total - dailySales[fecha].reinversion - dailySales[fecha].fondo
+      })
+
+      // Crear cabecera principal
+      excelData.push({
+        'Fecha': 'RESUMEN DIARIO DE VENTAS',
+        'Total': '',
+        'Reinversión': '',
+        'Fondo': '',
+        'Ganancia Bruta': '',
+        'Ahorro (30%)': '',
+        'Ganancia Personal (70%)': ''
+      })
+      excelData.push({}) // Fila vacía
+
+      // Agregar datos de cada día
+      Object.values(dailySales).reverse().forEach((day: any) => {
+        const ahorro = day.gananciaBruta * 0.3
+        const gananciaPersonal = day.gananciaBruta * 0.7
+
+        excelData.push({
+          'Fecha': day.fecha,
+          'Total': day.total,
+          'Reinversión': day.reinversion,
+          'Fondo': day.fondo,
+          'Ganancia Bruta': day.gananciaBruta,
+          'Ahorro (30%)': ahorro,
+          'Ganancia Personal (70%)': gananciaPersonal
+        })
+
+        // Agregar detalles de cada orden del día
+        day.ordenes.forEach((order: any) => {
+          excelData.push({
+            'Fecha': `  Orden - ${order.cliente_nombre}`,
+            'Total': order.total,
+            'Reinversión': '',
+            'Fondo': '',
+            'Ganancia Bruta': '',
+            'Ahorro (30%)': '',
+            'Ganancia Personal (70%)': ''
+          })
+
+          // Agregar detalle de productos
+          order.productos?.forEach((item: any) => {
+            const product = item.product
+            const quantity = item.quantity || 1
+            const productReinversion = (product?.reinversion || 0) * quantity
+            const productFondo = (product?.fondo || 0) * quantity
+            const productGananciaBruta = (product?.precio || 0) * quantity - productReinversion - productFondo
+
+            excelData.push({
+              'Fecha': `    ${product?.nombre} x${quantity}`,
+              'Total': (product?.precio || 0) * quantity,
+              'Reinversión': productReinversion,
+              'Fondo': productFondo,
+              'Ganancia Bruta': productGananciaBruta,
+              'Ahorro (30%)': '',
+              'Ganancia Personal (70%)': ''
+            })
+
+            // Agregar agregos si hay
+            if (item.agregos && item.agregos.length > 0) {
+              item.agregos.forEach((agrego: any) => {
+                const agregoQty = agrego.cantidad || 1
+                const agregoReinversion = (agrego?.reinversion || 0) * agregoQty
+                const agregoFondo = (agrego?.fondo || 0) * agregoQty
+                excelData.push({
+                  'Fecha': `      + ${agrego.nombre} x${agregoQty}`,
+                  'Total': (agrego?.precio || 0) * agregoQty,
+                  'Reinversión': agregoReinversion,
+                  'Fondo': agregoFondo,
+                  'Ganancia Bruta': 0,
+                  'Ahorro (30%)': '',
+                  'Ganancia Personal (70%)': ''
+                })
+              })
+            }
+
+            // Agregar envase si aplica
+            if (item.incluirEnvase) {
+              excelData.push({
+                'Fecha': `      + Envase x${quantity}`,
+                'Total': 0,
+                'Reinversión': 0,
+                'Fondo': 0,
+                'Ganancia Bruta': 0,
+                'Ahorro (30%)': '',
+                'Ganancia Personal (70%)': ''
+              })
+            }
+          })
+        })
+
+        excelData.push({}) // Fila vacía entre días
+      })
+
+      // Crear worksheet
+      const ws = XLSX.utils.json_to_sheet(excelData)
+      
+      // Ajustar ancho de columnas
+      ws['!cols'] = [
+        { wch: 20 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 18 },
+        { wch: 15 },
+        { wch: 18 }
+      ]
+
+      // Crear workbook
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Ventas Diarias')
+
+      // Descargar archivo
+      const fecha = new Date().toLocaleDateString('es-ES').replace(/\//g, '-')
+      XLSX.writeFile(wb, `Ventas_Diarias_${fecha}.xlsx`)
+      
+      toast.success('Archivo exportado exitosamente')
+    } catch (error) {
+      console.error('Error al exportar:', error)
+      toast.error('Error al exportar el archivo')
+    }
+  }
+
   const renderPaginationControls = (currentPage: number, totalPages: number, onPageChange: (page: number) => void) => {
     if (totalPages <= 1) return null
     return (
@@ -1146,6 +1311,16 @@ export const Admin: React.FC = () => {
                       </div>
 
                       <div className="finanzas-table">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                          <h3>Ventas Diarias</h3>
+                          <button 
+                            className="btn-primary"
+                            onClick={exportarVentasDiariosExcel}
+                            title="Descargar tabla de ventas diarias en Excel"
+                          >
+                            📥 Descargar Excel
+                          </button>
+                        </div>
                         <table>
                           <thead>
                             <tr>
@@ -1159,17 +1334,145 @@ export const Admin: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {paginatedDailySales.map((day: any, idx) => (
-                              <tr key={idx}>
-                                <td>{day.fecha}</td>
-                                <td>{formatPrice(day.total)}</td>
-                                <td>{formatPrice(day.reinversion)}</td>
-                                <td>{formatPrice(day.fondo)}</td>
-                                <td>{formatPrice(day.gananciaBruta)}</td>
-                                <td className="ahorro-cell">{formatPrice(day.gananciaBruta * 0.3)}</td>
-                                <td className="personal-cell">{formatPrice(day.gananciaBruta * 0.7)}</td>
-                              </tr>
-                            ))}
+                            {paginatedDailySales.map((day: any, idx) => {
+                              const isExpanded = expandedDailySalesDay === day.fecha
+                              const dayOrders = orders.filter(order => {
+                                const orderDate = new Date(order.fecha).toLocaleDateString('es-ES')
+                                return orderDate === day.fecha && order.estado === 'completado'
+                              })
+                              return (
+                                <React.Fragment key={idx}>
+                                  <tr 
+                                    onClick={() => setExpandedDailySalesDay(isExpanded ? null : day.fecha)}
+                                    style={{ cursor: 'pointer', backgroundColor: isExpanded ? '#f5f5f5' : 'transparent' }}
+                                  >
+                                    <td style={{ fontWeight: isExpanded ? 'bold' : 'normal' }}>{day.fecha} {isExpanded ? '▼' : '▶'}</td>
+                                    <td>{formatPrice(day.total)}</td>
+                                    <td>{formatPrice(day.reinversion)}</td>
+                                    <td>{formatPrice(day.fondo)}</td>
+                                    <td>{formatPrice(day.gananciaBruta)}</td>
+                                    <td className="ahorro-cell">{formatPrice(day.gananciaBruta * 0.3)}</td>
+                                    <td className="personal-cell">{formatPrice(day.gananciaBruta * 0.7)}</td>
+                                  </tr>
+                                  {isExpanded && (
+                                    <tr>
+                                      <td colSpan={7} style={{ padding: '0' }}>
+                                        <div style={{ padding: '15px', backgroundColor: '#fafafa', borderTop: '1px solid #ddd' }}>
+                                          <h4 style={{ marginTop: 0, marginBottom: '10px' }}>Ventas de {day.fecha}:</h4>
+                                          {dayOrders.length > 0 ? (
+                                            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                              {dayOrders.map((order) => (
+                                                <div 
+                                                  key={order.id} 
+                                                  style={{ 
+                                                    marginBottom: '12px', 
+                                                    padding: '10px', 
+                                                    backgroundColor: '#fff', 
+                                                    border: '1px solid #e0e0e0',
+                                                    borderRadius: '4px'
+                                                  }}
+                                                >
+                                                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                    <div>
+                                                      <strong>{order.cliente_nombre}</strong> | {order.cliente_telefono}
+                                                    </div>
+                                                    <div style={{ color: '#666' }}>
+                                                      Total: <strong>{formatPrice(order.total)}</strong>
+                                                    </div>
+                                                  </div>
+                                                  <div style={{ fontSize: '12px', marginBottom: '8px' }}>
+                                                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
+                                                      <thead>
+                                                        <tr style={{ backgroundColor: '#f0f0f0' }}>
+                                                          <th style={{ padding: '4px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Producto</th>
+                                                          <th style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>Cant.</th>
+                                                          <th style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>Reinv.</th>
+                                                          <th style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>Fondo</th>
+                                                          <th style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>Gan. Bruta</th>
+                                                        </tr>
+                                                      </thead>
+                                                      <tbody>
+                                                        {order.productos?.map((item: any, pidx: number) => {
+                                                          const product = item.product
+                                                          const quantity = item.quantity || 1
+                                                          const productReinversion = (product?.reinversion || 0) * quantity
+                                                          const productFondo = (product?.fondo || 0) * quantity
+                                                          const productGananciaBruta = (product?.precio || 0) * quantity - productReinversion - productFondo
+                                                          return (
+                                                            <React.Fragment key={pidx}>
+                                                              <tr>
+                                                                <td style={{ padding: '4px', borderBottom: '1px solid #f0f0f0' }}>{product?.nombre}</td>
+                                                                <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0' }}>{quantity}</td>
+                                                                <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#d9534f' }}>${productReinversion.toFixed(2)}</td>
+                                                                <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#0275d8' }}>${productFondo.toFixed(2)}</td>
+                                                                <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#5cb85c', fontWeight: 'bold' }}>${productGananciaBruta.toFixed(2)}</td>
+                                                              </tr>
+                                                              {/* Mostrar agregos */}
+                                                              {item.agregos && item.agregos.length > 0 && (
+                                                                item.agregos.map((agrego: any, aidx: number) => {
+                                                                  const agregoQty = agrego.cantidad || 1
+                                                                  const agregoReinversion = (agrego?.reinversion || 0) * agregoQty
+                                                                  const agregoFondo = (agrego?.fondo || 0) * agregoQty
+                                                                  return (
+                                                                    <tr key={`agrego-${pidx}-${aidx}`}>
+                                                                      <td style={{ padding: '4px', borderBottom: '1px solid #f0f0f0', paddingLeft: '16px', color: '#666' }}>
+                                                                        + {agrego.nombre} x{agregoQty}
+                                                                      </td>
+                                                                      <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#666' }}>
+                                                                        1
+                                                                      </td>
+                                                                      <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#d9534f' }}>
+                                                                        ${agregoReinversion.toFixed(2)}
+                                                                      </td>
+                                                                      <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#0275d8' }}>
+                                                                        ${agregoFondo.toFixed(2)}
+                                                                      </td>
+                                                                      <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#999' }}>
+                                                                        $0.00
+                                                                      </td>
+                                                                    </tr>
+                                                                  )
+                                                                })
+                                                              )}
+                                                              {/* Mostrar envase */}
+                                                              {item.incluirEnvase && (
+                                                                <tr>
+                                                                  <td style={{ padding: '4px', borderBottom: '1px solid #f0f0f0', paddingLeft: '16px', color: '#666' }}>
+                                                                    + Envase x{quantity}
+                                                                  </td>
+                                                                  <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#666' }}>
+                                                                    1
+                                                                  </td>
+                                                                  <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#d9534f' }}>
+                                                                    $0.00
+                                                                  </td>
+                                                                  <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#0275d8' }}>
+                                                                    $0.00
+                                                                  </td>
+                                                                  <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#999' }}>
+                                                                    $0.00
+                                                                  </td>
+                                                                </tr>
+                                                              )}
+                                                            </React.Fragment>
+                                                          )
+                                                        })}
+                                                      </tbody>
+                                                    </table>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          ) : (
+                                            <p style={{ color: '#999' }}>No hay ventas registradas para este día</p>
+                                          )}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )}
+                                </React.Fragment>
+                              )
+                            })}
                           </tbody>
                         </table>
                         {renderPaginationControls(finanzasPage, finanzasTotalPages, setFinanzasPage)}
