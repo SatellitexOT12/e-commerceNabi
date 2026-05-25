@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { getFinanzas, updateFinanzas } from './finanzas'
+import { getFinanzas } from './finanzas'
 
 export interface Socia {
   id: string
@@ -71,17 +71,29 @@ export const initializeSocias = async () => {
 }
 
 // Añadir ganancia a una socia (cuando se completa un pedido)
+// La ganancia_total se calcula como: ganancia_personal_total / 2
+// La ganancia_disponible se incrementa con la mitad de la ganancia_personal
 export const addGananciaToSocia = async (nombreSocia: string, monto: number) => {
   const socia = await getSociaByName(nombreSocia)
   if (!socia) {
     throw new Error(`Socia ${nombreSocia} no encontrada`)
   }
 
+  // Obtener la ganancia_personal total acumulada en finanzas
+  const finanzas = await getFinanzas()
+  const ganancia_personal_total = finanzas?.ganancia_personal || 0
+
+  // Calcular ganancia_total como: ganancia_personal_total / 2
+  const nueva_ganancia_total = Math.round((ganancia_personal_total / 2) * 100) / 100
+  
+  // Actualizar ganancia_disponible sumando el monto recibido (que es 50% de ganancia_personal)
+  const nueva_ganancia_disponible = socia.ganancia_disponible + monto
+
   const { error } = await supabase
     .from('socias')
     .update({
-      ganancia_total: socia.ganancia_total + monto,
-      ganancia_disponible: socia.ganancia_disponible + monto,
+      ganancia_total: nueva_ganancia_total,
+      ganancia_disponible: Math.round(nueva_ganancia_disponible * 100) / 100,
       updated_at: new Date().toISOString()
     })
     .eq('id', socia.id)
@@ -130,19 +142,6 @@ export const retiroDineroSocia = async (
       updated_at: new Date().toISOString()
     })
     .eq('id', socia.id)
-
-  // Descontar de la ganancia personal en finanzas
-  try {
-    const finanzas = await getFinanzas()
-    if (finanzas) {
-      const nuevaGanancia = Math.max(0, finanzas.ganancia_personal - monto)
-      await updateFinanzas({
-        ganancia_personal: Math.round(nuevaGanancia * 100) / 100
-      })
-    }
-  } catch (error) {
-    console.error('Error updating finanzas:', error)
-  }
 
   return retiroData
 }

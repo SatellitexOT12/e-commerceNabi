@@ -11,6 +11,15 @@ export interface Finanzas {
   updated_at: string
 }
 
+export interface RetiroFinanzas {
+  id: string
+  fuente: 'reinversion' | 'fondo' | 'ahorro'
+  monto: number
+  concepto?: string
+  fecha: string
+  created_at: string
+}
+
 export const getFinanzas = async (): Promise<Finanzas | null> => {
   const { data, error } = await supabase.from('finanzas').select('*').limit(1).single()
   if (error && error.code !== 'PGRST116') {
@@ -59,7 +68,7 @@ export const addToFinanzas = async (order: any) => {
     return addToFinanzas(order)
   }
 
-  // Calcular reinversion, fondo y ganancia_bruta del pedido (igual que en dashboard)
+  // Calcular reinversion, fondo y ganancia_bruta del pedido
   let orderReinversion = 0
   let orderFondo = 0
   let orderGananciaBruta = 0
@@ -117,4 +126,56 @@ export const addToFinanzas = async (order: any) => {
     ahorro: Math.round((existing.ahorro + ahorro) * 100) / 100,
     ganancia_personal: Math.round((existing.ganancia_personal + ganancia_personal) * 100) / 100
   })
+}
+
+// Retirar dinero de finanzas
+export const retiroDineroFinanzas = async (
+  fuente: 'reinversion' | 'fondo' | 'ahorro',
+  monto: number,
+  concepto?: string
+): Promise<RetiroFinanzas> => {
+  const finanzas = await getFinanzas()
+  if (!finanzas) {
+    throw new Error('Datos de finanzas no encontrados')
+  }
+
+  const fondoDisponible = finanzas[fuente]
+  if (fondoDisponible < monto) {
+    throw new Error(`Fondos insuficientes en ${fuente}. Disponible: $${fondoDisponible.toFixed(2)}`)
+  }
+
+  // Registrar el retiro
+  const { data: retiroData, error: retiroError } = await supabase
+    .from('retiros_finanzas')
+    .insert([
+      {
+        fuente,
+        monto,
+        concepto: concepto || 'Retiro',
+        fecha: new Date().toISOString()
+      }
+    ])
+    .select()
+    .single()
+
+  if (retiroError) throw retiroError
+
+  // Actualizar el saldo de finanzas
+  const nuevoSaldo = Math.max(0, finanzas[fuente] - monto)
+  await updateFinanzas({
+    [fuente]: Math.round(nuevoSaldo * 100) / 100
+  } as Partial<Omit<Finanzas, 'id' | 'created_at' | 'updated_at'>>)
+
+  return retiroData
+}
+
+// Obtener historial de retiros
+export const getRetirosFinanzas = async (): Promise<RetiroFinanzas[]> => {
+  const { data, error } = await supabase
+    .from('retiros_finanzas')
+    .select('*')
+    .order('fecha', { ascending: false })
+  
+  if (error) throw error
+  return data || []
 }

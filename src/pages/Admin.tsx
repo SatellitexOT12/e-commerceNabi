@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getOrders, saveOrder, updateOrderStatus, deleteOrder, updateOrderDeliveryDate, Order } from '../services/orders'
 import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products'
 import { getAgregos, getAllAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado as AgregadoDB } from '../services/agregos'
-import { getFinanzas, updateFinanzas, addToFinanzas, Finanzas } from '../services/finanzas'
+import { getFinanzas, updateFinanzas, addToFinanzas, Finanzas, retiroDineroFinanzas, getRetirosFinanzas, RetiroFinanzas } from '../services/finanzas'
 import { getAllSocias, retiroDineroSocia, getRetirosSocia, initializeSocias, Socia, RetiroSocia } from '../services/socias'
 import { Product } from '../contexts/CartContext'
 import { getCurrentUser, signIn, signOut } from '../services/auth'
@@ -88,6 +88,11 @@ export const Admin: React.FC = () => {
   const [retiroAmount, setRetiroAmount] = useState('')
   const [retiroConcepto, setRetiroConcepto] = useState('')
   
+  // Finanzas retiros states
+  const [retirosFinanzas, setRetirosFinanzas] = useState<RetiroFinanzas[]>([])
+  const [showRetiroFinanzasModal, setShowRetiroFinanzasModal] = useState(false)
+  const [retiroFinanzasData, setRetiroFinanzasData] = useState({ fuente: 'ahorro' as 'reinversion' | 'fondo' | 'ahorro', monto: '', concepto: '' })
+  
   // Pagination states
   const [productsPage, setProductsPage] = useState(1)
   const [agregosPage, setAgregosPage] = useState(1)
@@ -111,7 +116,7 @@ export const Admin: React.FC = () => {
   const loadData = async () => {
     try {
       await initializeSocias()
-      const [ordersData, productsData, agregosData, finanzas, sociasData, retiros] = await Promise.all([
+      const [ordersData, productsData, agregosData, finanzas, sociasData, retiros, retirosF] = await Promise.all([
         getOrders(),
         getProducts(),
         getAgregos(),
@@ -120,7 +125,8 @@ export const Admin: React.FC = () => {
         getRetirosSocia('Gabriela').then(async (retiros) => {
           const retiros_lorena = await getRetirosSocia('Lorena')
           return [...retiros, ...retiros_lorena]
-        })
+        }),
+        getRetirosFinanzas()
       ])
       setOrders(ordersData)
       setProducts(productsData)
@@ -128,6 +134,7 @@ export const Admin: React.FC = () => {
       setFinanzasData(finanzas)
       setSocias(sociasData)
       setRetirosSocias(retiros)
+      setRetirosFinanzas(retirosF)
       if (finanzas) {
         setFinanzasForm({
           reinversion: finanzas.reinversion,
@@ -599,12 +606,23 @@ export const Admin: React.FC = () => {
       await retiroDineroSocia(nombreSocia, parseFloat(retiroAmount), retiroConcepto || undefined)
       
       const sociasData = await getAllSocias()
+      const finanzasData = await getFinanzas()
       const retiros = await Promise.all([
         getRetirosSocia('Gabriela'),
         getRetirosSocia('Lorena')
       ])
       setSocias(sociasData)
+      setFinanzasData(finanzasData)
       setRetirosSocias([...retiros[0], ...retiros[1]].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()))
+      
+      if (finanzasData) {
+        setFinanzasForm({
+          reinversion: finanzasData.reinversion,
+          fondo: finanzasData.fondo,
+          ahorro: finanzasData.ahorro,
+          ganancia_personal: finanzasData.ganancia_personal
+        })
+      }
       
       setShowRetiroModal(null)
       setRetiroAmount('')
@@ -612,6 +630,42 @@ export const Admin: React.FC = () => {
       toast.success(`Retiro registrado para ${nombreSocia}`)
     } catch (error: any) {
       console.error('Error en retiro:', error)
+      toast.error(error.message || 'Error al registrar el retiro')
+    }
+  }
+
+  const handleRetiroFinanzas = async () => {
+    if (!retiroFinanzasData.monto || isNaN(parseFloat(retiroFinanzasData.monto))) {
+      toast.error('Ingresa un monto válido')
+      return
+    }
+
+    try {
+      await retiroDineroFinanzas(
+        retiroFinanzasData.fuente,
+        parseFloat(retiroFinanzasData.monto),
+        retiroFinanzasData.concepto || undefined
+      )
+      
+      const finanzas = await getFinanzas()
+      const retirosF = await getRetirosFinanzas()
+      
+      setFinanzasData(finanzas)
+      setRetirosFinanzas(retirosF)
+      
+      if (finanzas) {
+        setFinanzasForm({
+          reinversion: finanzas.reinversion,
+          fondo: finanzas.fondo,
+          ahorro: finanzas.ahorro
+        })
+      }
+
+      setShowRetiroFinanzasModal(false)
+      setRetiroFinanzasData({ fuente: 'ahorro', monto: '', concepto: '' })
+      toast.success('Retiro registrado exitosamente')
+    } catch (error: any) {
+      console.error('Error en retiro de finanzas:', error)
       toast.error(error.message || 'Error al registrar el retiro')
     }
   }
@@ -1574,15 +1628,6 @@ export const Admin: React.FC = () => {
                                   onChange={(e) => setFinanzasForm({...finanzasForm, ahorro: parseFloat(e.target.value) || 0})}
                                 />
                               </div>
-                              <div className="form-group">
-                                <label>Ganancia Personal ($)</label>
-                                <input 
-                                  type="number"
-                                  step="0.01"
-                                  value={finanzasForm.ganancia_personal}
-                                  onChange={(e) => setFinanzasForm({...finanzasForm, ganancia_personal: parseFloat(e.target.value) || 0})}
-                                />
-                              </div>
                             </div>
                             <button type="submit" className="btn-save">Guardar Cambios</button>
                           </form>
@@ -1600,9 +1645,96 @@ export const Admin: React.FC = () => {
                               <span className="finanzas-label">Ahorro</span>
                               <span className="finanzas-value">{formatPrice(finanzasForm.ahorro)}</span>
                             </div>
-                            <div className="finanzas-item">
-                              <span className="finanzas-label">Ganancia Personal</span>
-                              <span className="finanzas-value">{formatPrice(finanzasForm.ganancia_personal)}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Sección de retiro de finanzas */}
+                      <div className="finanzas-retiro-section">
+                        <div className="section-header">
+                          <h3>💰 Retirar Dinero de Finanzas</h3>
+                          <button 
+                            className="btn-primary"
+                            onClick={() => setShowRetiroFinanzasModal(true)}
+                          >
+                            + Hacer Retiro
+                          </button>
+                        </div>
+
+                        {showRetiroFinanzasModal && (
+                          <div className="modal-overlay" onClick={() => setShowRetiroFinanzasModal(false)}>
+                            <div className="modal retiro-modal" onClick={e => e.stopPropagation()}>
+                              <h3>Retiro de Finanzas</h3>
+                              <form onSubmit={(e) => {
+                                e.preventDefault()
+                                handleRetiroFinanzas()
+                              }}>
+                                <div className="form-group">
+                                  <label>De dónde extraer</label>
+                                  <select 
+                                    value={retiroFinanzasData.fuente}
+                                    onChange={(e) => setRetiroFinanzasData({...retiroFinanzasData, fuente: e.target.value as 'reinversion' | 'fondo' | 'ahorro'})}
+                                  >
+                                    <option value="reinversion">Reinversión - {formatPrice(finanzasForm.reinversion)}</option>
+                                    <option value="fondo">Fondo - {formatPrice(finanzasForm.fondo)}</option>
+                                    <option value="ahorro">Ahorro - {formatPrice(finanzasForm.ahorro)}</option>
+                                  </select>
+                                </div>
+                                <div className="form-group">
+                                  <label>Monto a Retirar ($)</label>
+                                  <input 
+                                    type="number"
+                                    step="0.01"
+                                    value={retiroFinanzasData.monto}
+                                    onChange={(e) => setRetiroFinanzasData({...retiroFinanzasData, monto: e.target.value})}
+                                    placeholder="0.00"
+                                    required
+                                  />
+                                </div>
+                                <div className="form-group">
+                                  <label>Concepto (opcional)</label>
+                                  <input 
+                                    type="text"
+                                    value={retiroFinanzasData.concepto}
+                                    onChange={(e) => setRetiroFinanzasData({...retiroFinanzasData, concepto: e.target.value})}
+                                    placeholder="Ej: Compra de suministros, gasto, etc"
+                                  />
+                                </div>
+                                <div className="modal-actions">
+                                  <button type="submit" className="btn-primary">Registrar Retiro</button>
+                                  <button 
+                                    type="button" 
+                                    className="btn-secondary"
+                                    onClick={() => setShowRetiroFinanzasModal(false)}
+                                  >
+                                    Cancelar
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        )}
+
+                        {retirosFinanzas.length > 0 && (
+                          <div className="retiros-history">
+                            <h4>Historial de Retiros</h4>
+                            <div className="retiros-list">
+                              {retirosFinanzas.slice(0, 10).map((retiro, idx) => (
+                                <div key={idx} className="retiro-item">
+                                  <div className="retiro-info">
+                                    <span className="retiro-fuente" style={{
+                                      color: retiro.fuente === 'reinversion' ? '#d9534f' : retiro.fuente === 'fondo' ? '#0275d8' : '#5cb85c'
+                                    }}>
+                                      {retiro.fuente.charAt(0).toUpperCase() + retiro.fuente.slice(1)}
+                                    </span>
+                                    <span className="retiro-concepto">{retiro.concepto}</span>
+                                  </div>
+                                  <div className="retiro-meta">
+                                    <span className="retiro-monto">{formatPrice(retiro.monto)}</span>
+                                    <span className="retiro-fecha">{new Date(retiro.fecha).toLocaleDateString()}</span>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         )}
@@ -1810,14 +1942,15 @@ export const Admin: React.FC = () => {
                                       await addToFinanzas(order)
                                       const ordersData = await getOrders()
                                       const finanzas = await getFinanzas()
+                                      const sociasData = await getAllSocias()
                                       setOrders(ordersData)
                                       setFinanzasData(finanzas)
+                                      setSocias(sociasData)
                                       if (finanzas) {
                                         setFinanzasForm({
                                           reinversion: finanzas.reinversion,
                                           fondo: finanzas.fondo,
-                                          ahorro: finanzas.ahorro,
-                                          ganancia_personal: finanzas.ganancia_personal
+                                          ahorro: finanzas.ahorro
                                         })
                                       }
                                       toast.success('Pedido completado')
