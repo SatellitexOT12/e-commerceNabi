@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getOrders, saveOrder, updateOrderStatus, deleteOrder, updateOrderDeliveryDate, Order } from '../services/orders'
 import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products'
 import { getAgregos, getAllAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado as AgregadoDB } from '../services/agregos'
-import { getFinanzas, updateFinanzas, addToFinanzas, Finanzas, retiroDineroFinanzas, getRetirosFinanzas, RetiroFinanzas } from '../services/finanzas'
+import { getFinanzas, updateFinanzas, addToFinanzas, Finanzas, retiroDineroFinanzas, getRetirosFinanzas, RetiroFinanzas, removeFromFinanzas } from '../services/finanzas'
 import { getAllSocias, retiroDineroSocia, getRetirosSocia, initializeSocias, Socia, RetiroSocia } from '../services/socias'
 import { Product } from '../contexts/CartContext'
 import { getCurrentUser, signIn, signOut } from '../services/auth'
@@ -394,10 +394,35 @@ export const Admin: React.FC = () => {
    const handleDeleteOrder = async (id: string) => {
      if (!confirm('¿Estás seguro de eliminar este pedido?')) return
      try {
+       // Obtener el pedido antes de eliminarlo
+       const order = orders.find(o => o.id === id)
+       
+       // Si el pedido estaba completado, revertir los cambios en finanzas y socias
+       if (order && order.estado === 'completado') {
+         await removeFromFinanzas(order)
+       }
+       
        await deleteOrder(id)
-       toast.success('Pedido eliminado')
+       
+       // Recargar datos
        const ordersData = await getOrders()
+       const finanzas = await getFinanzas()
+       const sociasData = await getAllSocias()
+       
        setOrders(ordersData)
+       setFinanzasData(finanzas)
+       setSocias(sociasData)
+       
+       if (finanzas) {
+         setFinanzasForm({
+           reinversion: finanzas.reinversion,
+           fondo: finanzas.fondo,
+           ahorro: finanzas.ahorro,
+           ganancia_personal: finanzas.ganancia_personal ?? 0
+         })
+       }
+       
+       toast.success('Pedido eliminado')
      } catch (error) {
        console.error('Error deleting order:', error)
        toast.error('Error al eliminar el pedido')
@@ -657,7 +682,8 @@ export const Admin: React.FC = () => {
         setFinanzasForm({
           reinversion: finanzas.reinversion,
           fondo: finanzas.fondo,
-          ahorro: finanzas.ahorro
+          ahorro: finanzas.ahorro,
+          ganancia_personal: finanzas.ganancia_personal
         })
       }
 
@@ -1645,6 +1671,10 @@ export const Admin: React.FC = () => {
                               <span className="finanzas-label">Ahorro</span>
                               <span className="finanzas-value">{formatPrice(finanzasForm.ahorro)}</span>
                             </div>
+                            <div className="finanzas-item">
+                              <span className="finanzas-label">Ganancia Personal Total</span>
+                              <span className="finanzas-value">{formatPrice(finanzasForm.ganancia_personal)}</span>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1950,7 +1980,8 @@ export const Admin: React.FC = () => {
                                         setFinanzasForm({
                                           reinversion: finanzas.reinversion,
                                           fondo: finanzas.fondo,
-                                          ahorro: finanzas.ahorro
+                                          ahorro: finanzas.ahorro,
+                                          ganancia_personal: finanzas.ganancia_personal ?? 0
                                         })
                                       }
                                       toast.success('Pedido completado')

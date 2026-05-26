@@ -168,3 +168,32 @@ export const getAllRetiros = async (): Promise<RetiroSocia[]> => {
   if (error) throw error
   return data || []
 }
+
+// Remover ganancia de una socia (cuando se elimina un pedido completado)
+export const removeGananciaFromSocia = async (nombreSocia: string, monto: number) => {
+  const socia = await getSociaByName(nombreSocia)
+  if (!socia) {
+    throw new Error(`Socia ${nombreSocia} no encontrada`)
+  }
+
+  // Obtener la ganancia_personal total acumulada en finanzas
+  const finanzas = await getFinanzas()
+  const ganancia_personal_total = Math.max(0, (finanzas?.ganancia_personal || 0) - monto * 2) // Restar el doble porque es 50/50 dividido
+
+  // Calcular nueva ganancia_total como: ganancia_personal_total / 2
+  const nueva_ganancia_total = Math.round((ganancia_personal_total / 2) * 100) / 100
+  
+  // Actualizar ganancia_disponible restando el monto recibido
+  const nueva_ganancia_disponible = Math.max(0, socia.ganancia_disponible - monto)
+
+  const { error } = await supabase
+    .from('socias')
+    .update({
+      ganancia_total: nueva_ganancia_total,
+      ganancia_disponible: Math.round(nueva_ganancia_disponible * 100) / 100,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', socia.id)
+  
+  if (error) throw error
+}
