@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { CartProvider } from './contexts/CartContext'
 import { Header } from './components/Header'
@@ -26,11 +26,11 @@ function AppContent() {
 
   return (
     <>
-      <Header onCartClick={() => setIsCartOpen(true)} onAdminClick={() => navigate('/admin')} />
+      <Header onCartClick={() => setIsCartOpen(true)} />
       <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} onCheckout={handleCheckout} />
       
       <Routes>
-        <Route path="/" element={<Home onShopClick={() => navigate('/shop')} />} />
+        <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/checkout" element={<Checkout onBack={handleBack} />} />
         <Route path="/admin" element={<Admin />} />
