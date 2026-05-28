@@ -29,13 +29,15 @@ function AppContent() {
       <Header onCartClick={() => setIsCartOpen(true)} />
       <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} onCheckout={handleCheckout} />
       
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/checkout" element={<Checkout onBack={handleBack} />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/blog" element={<Blog />} />
-      </Routes>
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/checkout" element={<Checkout onBack={handleBack} />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/blog" element={<Blog />} />
+        </Routes>
+      </main>
 
       <Toaster position="top-right" />
     </>

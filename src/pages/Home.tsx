@@ -211,7 +211,19 @@ export const Home: React.FC = () => {
             >
               <div className="carousel-track" ref={trackRef}>
                 {products.map((product) => (
-                  <div key={product.id} className="carousel-item" onClick={() => navigate('/shop')}>
+                  <div 
+                    key={product.id} 
+                    className="carousel-item" 
+                    onClick={() => navigate('/shop')}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        navigate('/shop')
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Ver ${product.nombre} - $${product.precio.toFixed(2)}`}
+                  >
                     <div className="carousel-image">
                       <img src={product.imagen_url} alt={product.nombre} />
                     </div>

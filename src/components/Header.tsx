@@ -33,10 +33,22 @@ export const Header: React.FC<{ onCartClick: () => void }> = ({ onCartClick }) =
   return (
     <header className="header">
       <div className="header-container">
-        <div className="logo" onClick={() => { navigate('/'); closeMobileMenu() }}>
-          <span className="logo-emoji">🍩</span>
-          <h1>Mini Nabi</h1>
-        </div>
+      <div 
+        className="logo" 
+        onClick={() => { navigate('/'); closeMobileMenu() }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            navigate('/')
+            closeMobileMenu()
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Ir a inicio - MiniNabi"
+      >
+        <span className="logo-emoji">🍩</span>
+        <h1>Mini Nabi</h1>
+      </div>
         
         <button 
           className="mobile-menu-btn"
