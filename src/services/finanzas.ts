@@ -249,3 +249,35 @@ export const removeFromFinanzas = async (order: any) => {
     ganancia_personal: Math.round(Math.max(0, existing.ganancia_personal - ganancia_personal) * 100) / 100
   })
 }
+
+// Eliminar un retiro de finanzas y revertir la operación
+export const deleteRetiroFinanzas = async (retiroId: string): Promise<void> => {
+  // Obtener el retiro que se va a eliminar
+  const { data: retiro, error: fetchError } = await supabase
+    .from('retiros_finanzas')
+    .select('*')
+    .eq('id', retiroId)
+    .single()
+
+  if (fetchError) throw fetchError
+  if (!retiro) throw new Error('Retiro no encontrado')
+
+  // Obtener finanzas actuales
+  const finanzas = await getFinanzas()
+  if (!finanzas) throw new Error('Datos de finanzas no encontrados')
+
+  // Revertir el dinero a la fuente original
+  const actualizacion: any = {}
+  actualizacion[retiro.fuente] = Math.round((finanzas[retiro.fuente as keyof Finanzas] as number + retiro.monto) * 100) / 100
+
+  // Actualizar finanzas
+  await updateFinanzas(actualizacion as Partial<Omit<Finanzas, 'id' | 'created_at' | 'updated_at'>>)
+
+  // Eliminar el retiro de la BD
+  const { error: deleteError } = await supabase
+    .from('retiros_finanzas')
+    .delete()
+    .eq('id', retiroId)
+
+  if (deleteError) throw deleteError
+}

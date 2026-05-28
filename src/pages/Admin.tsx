@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getOrders, saveOrder, updateOrderStatus, deleteOrder, updateOrderDeliveryDate, Order } from '../services/orders'
 import { getProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products'
 import { getAgregos, getAllAgregos, createAgregado, updateAgregado, deleteAgregado, Agregado as AgregadoDB } from '../services/agregos'
-import { getFinanzas, updateFinanzas, addToFinanzas, Finanzas, retiroDineroFinanzas, getRetirosFinanzas, RetiroFinanzas, removeFromFinanzas } from '../services/finanzas'
-import { getAllSocias, retiroDineroSocia, getRetirosSocia, initializeSocias, Socia, RetiroSocia } from '../services/socias'
+import { getFinanzas, updateFinanzas, addToFinanzas, Finanzas, retiroDineroFinanzas, getRetirosFinanzas, RetiroFinanzas, removeFromFinanzas, deleteRetiroFinanzas } from '../services/finanzas'
+import { getAllSocias, retiroDineroSocia, getRetirosSocia, initializeSocias, Socia, RetiroSocia, deleteRetiroSocia } from '../services/socias'
 import { Product } from '../contexts/CartContext'
 import { getCurrentUser, signIn, signOut } from '../services/auth'
 import { useNavigate } from 'react-router-dom'
@@ -1762,6 +1762,34 @@ export const Admin: React.FC = () => {
                                   <div className="retiro-meta">
                                     <span className="retiro-monto">{formatPrice(retiro.monto)}</span>
                                     <span className="retiro-fecha">{new Date(retiro.fecha).toLocaleDateString()}</span>
+                                    <button
+                                      className="btn-delete-retiro"
+                                      onClick={async () => {
+                                        if (!confirm('¿Eliminar este retiro y revertir la operación?')) return
+                                        try {
+                                          await deleteRetiroFinanzas(retiro.id)
+                                          const retirosF = await getRetirosFinanzas()
+                                          const finanzas = await getFinanzas()
+                                          setRetirosFinanzas(retirosF)
+                                          setFinanzasData(finanzas)
+                                          if (finanzas) {
+                                            setFinanzasForm({
+                                              reinversion: finanzas.reinversion,
+                                              fondo: finanzas.fondo,
+                                              ahorro: finanzas.ahorro,
+                                              ganancia_personal: finanzas.ganancia_personal ?? 0
+                                            })
+                                          }
+                                          toast.success('Retiro eliminado y operación revertida')
+                                        } catch (error: any) {
+                                          console.error('Error deleting retiro:', error)
+                                          toast.error(error.message || 'Error al eliminar el retiro')
+                                        }
+                                      }}
+                                      title="Eliminar retiro"
+                                    >
+                                      🗑️
+                                    </button>
                                   </div>
                                 </div>
                               ))}
@@ -1860,6 +1888,39 @@ export const Admin: React.FC = () => {
                                   <div className="retiro-meta">
                                     <span className="retiro-monto">{formatPrice(retiro.monto)}</span>
                                     <span className="retiro-fecha">{new Date(retiro.fecha).toLocaleDateString()}</span>
+                                    <button
+                                      className="btn-delete-retiro"
+                                      onClick={async () => {
+                                        if (!confirm('¿Eliminar este retiro y revertir la operación?')) return
+                                        try {
+                                          await deleteRetiroSocia(retiro.id)
+                                          const sociasData = await getAllSocias()
+                                          const retiros = await Promise.all([
+                                            getRetirosSocia('Gabriela'),
+                                            getRetirosSocia('Lorena')
+                                          ])
+                                          const finanzasData = await getFinanzas()
+                                          setSocias(sociasData)
+                                          setRetirosSocias([...retiros[0], ...retiros[1]].sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()))
+                                          setFinanzasData(finanzasData)
+                                          if (finanzasData) {
+                                            setFinanzasForm({
+                                              reinversion: finanzasData.reinversion,
+                                              fondo: finanzasData.fondo,
+                                              ahorro: finanzasData.ahorro,
+                                              ganancia_personal: finanzasData.ganancia_personal ?? 0
+                                            })
+                                          }
+                                          toast.success('Retiro eliminado y operación revertida')
+                                        } catch (error: any) {
+                                          console.error('Error deleting retiro:', error)
+                                          toast.error(error.message || 'Error al eliminar el retiro')
+                                        }
+                                      }}
+                                      title="Eliminar retiro"
+                                    >
+                                      🗑️
+                                    </button>
                                   </div>
                                 </div>
                               ))}

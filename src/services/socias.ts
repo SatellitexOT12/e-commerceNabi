@@ -197,3 +197,49 @@ export const removeGananciaFromSocia = async (nombreSocia: string, monto: number
   
   if (error) throw error
 }
+
+// Eliminar un retiro de una socia y revertir la operación
+export const deleteRetiroSocia = async (retiroId: string): Promise<void> => {
+  // Obtener el retiro que se va a eliminar
+  const { data: retiro, error: fetchError } = await supabase
+    .from('retiros_socias')
+    .select('*')
+    .eq('id', retiroId)
+    .single()
+
+  if (fetchError) throw fetchError
+  if (!retiro) throw new Error('Retiro no encontrado')
+
+  // Obtener la socia
+  const socia = await getSociaByName(retiro.socia_nombre)
+  if (!socia) throw new Error(`Socia ${retiro.socia_nombre} no encontrada`)
+
+  // Revertir: agregar el monto de nuevo a ganancia_disponible
+  const nueva_ganancia_disponible = socia.ganancia_disponible + retiro.monto
+
+  // Obtener finanzas actuales para recalcular ganancia_total
+  const finanzas = await getFinanzas()
+  const ganancia_personal_total = finanzas?.ganancia_personal || 0
+  const nueva_ganancia_total = Math.round((ganancia_personal_total / 2) * 100) / 100
+
+  // Actualizar la socia
+  const { error: updateError } = await supabase
+    .from('socias')
+    .update({
+      ganancia_retirada: Math.max(0, socia.ganancia_retirada - retiro.monto),
+      ganancia_disponible: Math.round(nueva_ganancia_disponible * 100) / 100,
+      ganancia_total: nueva_ganancia_total,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', socia.id)
+
+  if (updateError) throw updateError
+
+  // Eliminar el retiro de la BD
+  const { error: deleteError } = await supabase
+    .from('retiros_socias')
+    .delete()
+    .eq('id', retiroId)
+
+  if (deleteError) throw deleteError
+}
