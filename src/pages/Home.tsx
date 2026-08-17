@@ -310,6 +310,22 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
+      <section className="history-section hotcakes-section">
+        <div className="history-content">
+          <div className="history-image"><img src="https://vfomcuyjibpbkistjhpd.supabase.co/storage/v1/object/public/pics/hotcakesPrincipal.webp" alt="Hotcakes MiniNabi" /></div>
+          <div className="history-text">
+            <span className="history-tag">Tradición</span><h2>Hotcakes MiniNabi 🥞</h2>
+            <p>Los hotcakes tienen un origen muy antiguo: ya en la Antigua Grecia se preparaban tortas dulces con harina, miel y leche. Con el tiempo, la receta viajó a Europa medieval y luego a América, donde se transformó en el desayuno icónico de Estados Unidos gracias a mezclas comerciales como Aunt Jemima (1889) y Bisquick (1930).</p>
+            <p>En MiniNabi hemos llevado este clásico a un nivel superior con presentaciones irresistibles, toppings artesanales y combinaciones que parecen sacadas de película.</p>
+            <ul className="history-facts">
+              <li>📍 Origen: Grecia clásica → popularizados en Estados Unidos, siglo XIX</li>
+              <li>🥞 Tamaño: Esponjosos y suaves</li>
+              <li>🍯 Coberturas: Miel, sirope de chocolate y frutas frescas</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section className="contact-section" id="contacto">
         <div className="contact-container">
           <h2>Información de Contacto</h2><p className="contact-subtitle">Escríbenos o síguenos</p>

@@ -508,6 +508,10 @@
   background: linear-gradient(180deg, white 0%, #f5f5ff 100%);
 }
 
+.history-section.hotcakes-section {
+  background: linear-gradient(180deg, #f5f5ff 0%, #fff8f0 100%);
+}
+
 .history-content {
   max-width: 1200px;
   margin: 0 auto;
