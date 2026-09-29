@@ -1,10 +1,11 @@
 .header {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-  padding: 1rem 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem 0;
+  box-shadow: 0 2px 12px rgba(93, 64, 55, 0.08);
   position: sticky;
   top: 0;
   z-index: 1000;
+  border-bottom: 1px solid rgba(248, 187, 217, 0.3);
 }
 
 .header-container {
@@ -34,9 +35,9 @@
   margin: 0;
   color: var(--accent-color);
   font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 2.25rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .nav-links {
@@ -55,38 +56,41 @@
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  padding: 0.5rem 0.75rem;
-  transition: all 0.25s ease;
+  padding: 0.6rem 1rem;
+  transition: all 0.2s ease;
   white-space: nowrap;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .nav-link:hover {
-  color: var(--primary-color);
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
+  color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
 }
 
 .admin-btn, .logout-btn, .login-btn {
   background-color: var(--accent-color);
   color: white;
   border: none;
-  padding: 0.6rem 1.25rem;
-  border-radius: 25px;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: 0.9rem;
-  transition: all 0.25s ease;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
   white-space: nowrap;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .admin-btn:hover, .logout-btn:hover, .login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(93, 64, 55, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.2);
   background: #4a3229;
 }
 
@@ -94,22 +98,23 @@
   background-color: var(--accent-color);
   color: white;
   border: none;
-  padding: 0.5rem;
+  padding: 0.6rem;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .cart-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.2);
+  background: #4a3229;
 }
 
 .cart-count {

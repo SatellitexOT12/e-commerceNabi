@@ -21,7 +21,7 @@ export const sendToBothNumbers = async (message: string) => {
 }
 
 export const generateOrderMessage = (order: any): string => {
-  let message = '🍰 NUEVO PEDIDO 🍰\n\n'
+  let message = 'NUEVO PEDIDO\n\n'
   message += `Cliente: ${order.cliente_nombre}\n`
   message += `Dirección: ${order.cliente_direccion}\n`
   message += `Teléfono: ${order.cliente_telefono}\n\n`
@@ -39,7 +39,7 @@ export const generateOrderMessage = (order: any): string => {
   })
   message += `\nTotal: $${order.total.toFixed(2)}\n`
   if (order.detalles && order.detalles.trim()) {
-    message += `\n📝 Detalles: ${order.detalles}\n`
+    message += `\nDetalles: ${order.detalles}\n`
   }
   message += `Fecha: ${new Date().toLocaleString()}\n`
   return message

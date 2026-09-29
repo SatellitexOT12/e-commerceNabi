@@ -1682,7 +1682,7 @@ export const Admin: React.FC = () => {
                       {/* Sección de retiro de finanzas */}
                       <div className="finanzas-retiro-section">
                         <div className="section-header">
-                          <h3>💰 Retirar Dinero de Finanzas</h3>
+                          <h3>Retirar Dinero de Finanzas</h3>
                           <button 
                             className="btn-primary"
                             onClick={() => setShowRetiroFinanzasModal(true)}
@@ -1826,7 +1826,7 @@ export const Admin: React.FC = () => {
                                 className="btn-retiro"
                                 onClick={() => setShowRetiroModal(socia.nombre)}
                               >
-                                💰 Registrar Retiro
+                                Registrar Retiro
                               </button>
                             </div>
                           ))}

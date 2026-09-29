@@ -105,7 +105,7 @@ export const Blog: React.FC = () => {
           </>
         ) : (
           <div className="empty-state">
-            <div className="empty-icon">📝</div>
+            <div className="empty-icon">Sin posts</div>
             <h2>Sin posts aún</h2>
             <p>Sigue nuestro blog para las actualizaciones más recientes sobre MiniNabi</p>
           </div>

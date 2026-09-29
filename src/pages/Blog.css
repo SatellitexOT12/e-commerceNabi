@@ -44,12 +44,12 @@
 
 .blog-hero h1 {
   font-family: var(--font-display);
-  font-size: 3.5rem;
+  font-size: 3.75rem;
   color: var(--accent-color);
-  margin: 0 0 1rem 0;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.08);
+  margin: 0 0 1.25rem 0;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-shadow: none;
 }
 
 .blog-hero p {
@@ -87,12 +87,12 @@
 .featured-label,
 .recent-label {
   font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 500;
   color: var(--accent-color);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 1.5rem;
+  letter-spacing: 0.12em;
+  margin-bottom: 1.75rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;

@@ -12,27 +12,27 @@ colors:
   gris-borde: "#eeeeee"
 typography:
   display:
-    fontFamily: "Playfair Display, Georgia, serif"
-    fontSize: "4rem"
-    fontWeight: 700
-    lineHeight: 1.1
+    fontFamily: "Cormorant Garamond, Georgia, serif"
+    fontSize: "4.5rem"
+    fontWeight: 600
+    lineHeight: 1.15
   headline:
-    fontFamily: "Playfair Display, Georgia, serif"
-    fontSize: "2.75rem"
-    fontWeight: 700
+    fontFamily: "Cormorant Garamond, Georgia, serif"
+    fontSize: "3rem"
+    fontWeight: 600
     lineHeight: 1.2
   title:
-    fontFamily: "Playfair Display, Georgia, serif"
+    fontFamily: "Cormorant Garamond, Georgia, serif"
     fontSize: "1.8rem"
     fontWeight: 600
-    lineHeight: 1.3
+    lineHeight: 1.35
   body:
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+    fontFamily: "DM Sans, -apple-system, BlinkMacSystemFont, sans-serif"
     fontSize: "1rem"
     fontWeight: 400
-    lineHeight: 1.7
+    lineHeight: 1.75
   label:
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+    fontFamily: "DM Sans, -apple-system, BlinkMacSystemFont, sans-serif"
     fontSize: "0.85rem"
     fontWeight: 500
     lineHeight: 1.4
@@ -55,16 +55,16 @@ components:
   button-primary:
     backgroundColor: "{colors.chocolate}"
     textColor: "{colors.blanco}"
-    rounded: "{rounded.pill}"
-    padding: "1.1rem 3rem"
+    rounded: "{rounded.lg}"
+    padding: "1.2rem 3.5rem"
   button-primary-hover:
     backgroundColor: "#4a3229"
     textColor: "{colors.blanco}"
   button-secondary:
     backgroundColor: "{colors.rosa-pastel}"
     textColor: "{colors.chocolate}"
-    rounded: "{rounded.pill}"
-    padding: "0.55rem 1.1rem"
+    rounded: "{rounded.lg}"
+    padding: "0.6rem 1.2rem"
   button-secondary-hover:
     backgroundColor: "{colors.chocolate}"
     textColor: "{colors.blanco}"
@@ -75,7 +75,7 @@ components:
   input:
     backgroundColor: "{colors.blanco}"
     textColor: "{colors.chocolate}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.sm}"
     padding: "0.875rem"
   tag:
     backgroundColor: "{colors.chocolate}"

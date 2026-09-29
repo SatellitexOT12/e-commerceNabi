@@ -304,7 +304,7 @@ export const Home: React.FC = () => {
             <span className="history-tag">Historia</span><h2>Las MiniDonas</h2>
             <p>Las mini donas (o donut holes) nacieron en Estados Unidos a principios del siglo XX. Originalmente eran los centros cortados de las donas tradicionales, pero rápidamente se convirtieron en un éxito independiente por su tamaño perfecto y textura crujiente.</p>
             <p>En MiniNabi hemos llevado este clásico a un nivel superior con nuestros toppings artesanales y coberturas especiales que las hacen irresistibles.</p>
-            <ul className="history-facts"><li>📍 Origen: Estados Unidos, 1910</li><li>🍩 Tamaño: Suaves y pequeñas</li><li>🍫 Coberturas: Chocolate Negro y Chocolate Blanco</li></ul>
+            <ul className="history-facts"><li>Origen: Estados Unidos, 1910</li><li>Tamaño: Suaves y pequeñas</li><li>Coberturas: Chocolate Negro y Chocolate Blanco</li></ul>
           </div>
           <div className="history-image"><img src="https://vfomcuyjibpbkistjhpd.supabase.co/storage/v1/object/public/pics/HistoriaDonas.webp?w=600&h=400&fit=crop" alt="MiniDonas" /></div>
         </div>
@@ -333,16 +333,16 @@ export const Home: React.FC = () => {
             <div className="contact-item"><span className="contact-icon">📲</span><div className="contact-info"><h3>Teléfonos</h3><p>+53 5 5845670</p><p>+53 5 3495645</p></div></div>
             <div className="contact-item"><span className="contact-icon">📸</span><div className="contact-info"><h3>Instagram</h3><a href="https://instagram.com/mini.donitasycrepesnabi" target="_blank" rel="noopener noreferrer" className="contact-link">@mini.donitasycrepesnabi</a></div></div>
             <div className="contact-item"><span className="contact-icon">⏰</span><div className="contact-info"><h3>Atención</h3><p>Solo por encargos con anticipación de 24 a 48 horas</p></div></div>
-            <div className="contact-item"><span className="contact-icon">🚚</span><div className="contact-info"><h3>Mensajería</h3><p>Disponible por un costo adicional (consultar al hacer el pedido)</p></div></div>
+            <div className="contact-item"><span className="contact-icon">Mensajería</span><div className="contact-info"><h3>Mensajería</h3><p>Disponible por un costo adicional (consultar al hacer el pedido)</p></div></div>
             <div className="contact-item"><span className="contact-icon">📍</span><div className="contact-info"><h3>Puntos de recogida</h3><p>Miramar • El Cerro</p><span className="free-tag">Sin costo</span></div></div>
-            <div className="contact-item"><span className="contact-icon">💰</span><div className="contact-info"><h3>Métodos de pago</h3><p>Efectivo (cup), Transferencia, Dólares</p></div></div>
+            <div className="contact-item"><span className="contact-icon">Pago</span><div className="contact-info"><h3>Métodos de pago</h3><p>Efectivo (cup), Transferencia, Dólares</p></div></div>
           </div>
         </div>
       </section>
 
       <section className="features">
         <div className="feature"><div className="feature-icon">🌟</div><h3>Productos Frescos</h3><p>Elaborados con ingredientes de calidad premium</p></div>
-        <div className="feature"><div className="feature-icon">🚚</div><h3>Envíos Rápidos</h3><p>Llega a tu casa en el menor tiempo posible</p></div>
+        <div className="feature"><div className="feature-icon">Envíos</div><h3>Envíos Rápidos</h3><p>Llega a tu casa en el menor tiempo posible</p></div>
         <div className="feature"><div className="feature-icon">💝</div><h3>Empaques Bonitos</h3><p>Perfectos para regalar y sorprender</p></div>
       </section>
     </div>
