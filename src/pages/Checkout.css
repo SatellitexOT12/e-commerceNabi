@@ -14,7 +14,10 @@
   text-align: center;
   color: var(--accent-color);
   margin-bottom: 2rem;
-  font-size: 2rem;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .checkout-content {
@@ -39,17 +42,18 @@
   display: block;
   margin-bottom: 0.5rem;
   color: var(--accent-color);
+  font-family: var(--font-body);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .form-group input {
   width: 100%;
   padding: 0.875rem;
   border: 2px solid var(--primary-color);
-  border-radius: 8px;
-  font-family: 'Poppins', sans-serif;
-  transition: all 0.3s ease;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  transition: all 0.25s ease;
   font-size: 1rem;
   box-sizing: border-box;
 }
@@ -90,21 +94,24 @@
 
 .submit-btn {
   width: 100%;
-  padding: 1rem;
+  padding: 1.1rem;
   background-color: var(--accent-color);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   margin-top: 1rem;
+  letter-spacing: 0.02em;
 }
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
+  box-shadow: 0 8px 25px rgba(93, 64, 55, 0.3);
+  background: #4a3229;
 }
 
 .submit-btn:disabled {

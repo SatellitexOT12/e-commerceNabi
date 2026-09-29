@@ -51,6 +51,9 @@ export const Blog: React.FC = () => {
     loadPosts()
   }
 
+  const featuredPost = posts[0]
+  const regularPosts = posts.slice(1)
+
   return (
     <div className="blog-page">
       <div className="blog-hero">
@@ -73,15 +76,33 @@ export const Blog: React.FC = () => {
             <p>Cargando posts...</p>
           </div>
         ) : posts.length > 0 ? (
-          <div className="posts-grid">
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onLikeChange={handleLikeChange}
-              />
-            ))}
-          </div>
+          <>
+            {featuredPost && (
+              <div className="featured-section">
+                <div className="featured-label">Destacado</div>
+                <div className="posts-grid">
+                  <PostCard
+                    post={featuredPost}
+                    onLikeChange={handleLikeChange}
+                  />
+                </div>
+              </div>
+            )}
+            {regularPosts.length > 0 && (
+              <div className="recent-section">
+                <div className="recent-label">Recientes</div>
+                <div className="posts-grid">
+                  {regularPosts.map((post) => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      onLikeChange={handleLikeChange}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="empty-state">
             <div className="empty-icon">📝</div>

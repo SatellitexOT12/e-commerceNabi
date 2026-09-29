@@ -33,7 +33,10 @@
 .logo h1 {
   margin: 0;
   color: var(--accent-color);
-  font-size: 1.8rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .nav-links {
@@ -48,37 +51,43 @@
   background: none;
   border: none;
   color: var(--accent-color);
-  font-size: 1rem;
-  font-weight: 600;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 0.5rem;
-  transition: all 0.3s ease;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.25s ease;
   white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 
 .nav-link:hover {
-  color: white;
-  text-decoration: underline;
+  color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
 }
 
 .admin-btn, .logout-btn, .login-btn {
   background-color: var(--accent-color);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.25rem;
   border-radius: 25px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
+  font-family: var(--font-body);
   font-weight: 500;
-  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  transition: all 0.25s ease;
   white-space: nowrap;
 }
 
 .admin-btn:hover, .logout-btn:hover, .login-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
+  box-shadow: 0 6px 20px rgba(93, 64, 55, 0.25);
+  background: #4a3229;
 }
 
 .cart-btn {

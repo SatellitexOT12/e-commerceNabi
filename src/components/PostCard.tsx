@@ -117,10 +117,19 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLikeChange }) => {
     day: 'numeric'
   })
 
+  const isNew = () => {
+    const postDate = new Date(post.created_at)
+    const now = new Date()
+    const diffTime = Math.abs(now.getTime() - postDate.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays <= 7
+  }
+
   return (
     <div className="post-card">
       <div className="post-image-container">
         <img src={post.image_url} alt={post.title} className="post-image" />
+        {isNew() && <span className="new-badge">Nuevo</span>}
       </div>
 
       <div className="post-content">

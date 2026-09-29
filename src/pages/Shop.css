@@ -10,7 +10,10 @@
 .shop-header h1 {
   margin: 0;
   color: var(--accent-color);
-  font-size: 2.5rem;
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 /* Shop Container */
@@ -109,18 +112,20 @@
 .filter-section h3 {
   margin: 0 0 1rem 0;
   color: var(--accent-color);
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.875rem;
   border: 2px solid var(--primary-color);
-  border-radius: 8px;
-  font-family: 'Poppins', sans-serif;
-  transition: all 0.3s ease;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  transition: all 0.25s ease;
   box-sizing: border-box;
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 .search-input:focus {
@@ -131,14 +136,15 @@
 
 .category-btn {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.875rem;
   margin-bottom: 0.5rem;
   border: 2px solid var(--primary-color);
   background: white;
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--accent-color);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  font-family: var(--font-body);
   font-weight: 500;
   text-align: left;
   font-size: 0.95rem;
