@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ShoppingCart, LogOut, Menu, X } from 'lucide-react'
+import { ShoppingCart, LogOut, Menu, X, Croissant } from 'lucide-react'
 import { useCart } from '../contexts/CartContext'
 import { getCurrentUser, signOut } from '../services/auth'
 import { useNavigate } from 'react-router-dom'
@@ -46,8 +46,9 @@ export const Header: React.FC<{ onCartClick: () => void }> = ({ onCartClick }) =
         tabIndex={0}
         aria-label="Ir a inicio - MiniNabi"
       >
-        <span className="logo-emoji">🍩</span>
+        <span className="logo-mark"><Croissant size={22} strokeWidth={1.5} aria-hidden="true" /></span>
         <h1>Mini Nabi</h1>
+        <span className="logo-folio">La Habana · crepes y mini donas</span>
       </div>
         
         <button 

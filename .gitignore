@@ -3,3 +3,5 @@ dist
 .env
 .env.local
 tsconfig.tsbuildinfo
+# Capturas de revisión (artefactos locales)
+.impeccable/review/

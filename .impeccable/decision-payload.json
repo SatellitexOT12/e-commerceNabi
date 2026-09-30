@@ -1,0 +1,130 @@
+{
+  "title": "Elige el mundo visual de MiniNabi",
+  "question": "La tirada asignó El Cuaderno de la Casa. Quédate con él, toma una alternativa, o vuelve a tirar.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "El Cuaderno de la Casa",
+      "kicker": "THE ROLL",
+      "lineage": "cuadernos de recetas familiares y fichas de imprenta",
+      "thesis": "La tienda como cuaderno de recetas de una familia cubana: entradas fechadas, fichas mecanografiadas, fotos pegadas con esquineros y precios en tickets desprendibles.",
+      "palette": ["#fef7f0", "#f8bbd9", "#5d4037", "#e9d8c6"],
+      "materials": ["papel rayado", "cinta adhesiva", "fichas mecanografiadas"],
+      "viewport": "Portada de cuaderno: «Mini Nabi» en serif display enorme, foto real del crepe pegada con esquineros, sello con el número de entrada y el CTA como ticket de pedido.",
+      "risk": "Si las anotaciones al margen se exceden, satura; la disciplina es que el papel y las reglas lo digan todo y las notas escaseen.",
+      "raised": [
+        { "from": "bazaar de sombras", "raise": "Cada pieza con su ticket: el precio siempre vive en una ficha impresa pegada al producto, nunca flotando." },
+        { "from": "margen de líneas de emisión", "raise": "Un solo margen calibrado: todas las secciones se registran contra una regla vertical izquierda." },
+        { "from": "teletexto", "raise": "Numeración visible: cada sección y cada ficha lleva su número de entrada como forma de orientación." },
+        { "from": "ficha de título bebop", "raise": "Un campo inundado por sección: la sección activa inunda un bloque entero de rosa pastel en lugar de esparcir acentos." },
+        { "from": "tejido op-art", "raise": "Papel rayado sin costura: la trama de fondo se regenera a cualquier anuncio sin anunciar su unión." }
+      ]
+    },
+    {
+      "id": "pick",
+      "label": "La Vitrina de la Dulcería",
+      "kicker": "IMPECCABLE'S PICK",
+      "lineage": "vitribas de pastelería y catálogos de repostería impresos",
+      "thesis": "El escaparte de cristal: el producto primero, fichas de precio y estantes reglados; lo artesanal vive en el orden y en la abundancia.",
+      "palette": ["#fef7f0", "#f8bbd9", "#5d4037", "#ffffff"],
+      "materials": ["cristal", "bandejas de mármol", "fichas de precio"],
+      "viewport": "Muro de productos en rejilla editorial con foto real a sangre y ficha de precio; el nombre del sitio como rótulo de escaparate sobre el primer estante.",
+      "risk": "Es donde aterriza casi todo el e-commerce de comida: efectivo y claro, pero familiar y reconocible como cualquier otra tienda."
+    },
+    {
+      "id": "challenger-quilt",
+      "label": "Tapiz de Familia",
+      "verdict": "competitive",
+      "lineage": "retales y etiquetas cosidas de tela",
+      "thesis": "Los productos como parches de un tapiz, cada uno con su etiqueta de procedencia cosida y su fecha.",
+      "palette": ["#fef7f0", "#f8bbd9", "#5d4037", "#c26b7f"],
+      "materials": ["retales", "hilo nuevo", "etiquetas manuscritas"],
+      "viewport": "Rejilla de parches desiguales con la foto real recortada dentro y una etiqueta cosida con origen, fecha y precio bajo cada producto.",
+      "case": "Fusiona limpio: la rejilla de productos con pies de foto sostiene la claridad, pero el lenguaje textil no lo reconoce este público como suyo.",
+      "risk": "Si la costura se repite en cada celda, se vuelve taller textil y deja de parecer una pastelería.",
+      "hero": "https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-memory-quilt-atlas-hero.webp"
+    },
+    {
+      "id": "challenger-bazaar",
+      "label": "Bazar de Sombras",
+      "verdict": "declined",
+      "lineage": "bazar nocturno imposible",
+      "thesis": "Un mercado nocturno donde cada mercancía lleva su ticket de origen.",
+      "palette": ["#0b1020", "#d8a13a", "#f3ead8"],
+      "materials": ["lienzo de toldo", "tickets de tiza"],
+      "viewport": "Calle nocturna de puestos con precios a tiza.",
+      "case": "Pierde los dos ejes: este público no se identifica con el trueque de sombras y el producto queda opaco en la penumbra.",
+      "kept": "Lo que queda: cada pieza conserva su ticket de origen impreso.",
+      "risk": "La oscuridad choca con el criterio de mantenerlo cálido y luminoso.",
+      "hero": "https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-moon-shadow-bazaar-hero.webp"
+    },
+    {
+      "id": "challenger-rail",
+      "label": "Riel de Emisión",
+      "verdict": "declined",
+      "lineage": "espectrograma de laboratorio",
+      "thesis": "Todo se registra contra un único riel calibrado y el color existe solo como hairlines.",
+      "palette": ["#1c1e21", "#efe9dd", "#f2c14e"],
+      "materials": ["continuo de carbón", "líneas de 1px"],
+      "viewport": "Placa de carbón con leyendas en hueso colgando de un riel descentrado.",
+      "case": "Pierde los dos ejes: un lenguaje de instrumento óptico no identifica a compradores de dulces ni hace el producto apetecible.",
+      "kept": "Lo que queda: un solo margen calibrado al que se registra todo.",
+      "risk": "Carbón y grotesca única: frío y sin calor artesanal.",
+      "hero": "https://impeccable.style/worlds/cards/operate-c-emission-line-rail-hero.webp"
+    },
+    {
+      "id": "challenger-teletext",
+      "label": "Teletexto",
+      "verdict": "declined",
+      "lineage": "servicio teletexto de broadcast",
+      "thesis": "Revista de páginas de tres dígitos sobre una retícula rígida de 40×24 en negro.",
+      "palette": ["#000000", "#ffff00", "#00ffff"],
+      "materials": ["mosaico de bloques", "brillo de fósforo"],
+      "viewport": "Página P100 con los productos como filas numeradas.",
+      "case": "Pierde los dos ejes: la retícula de caracteres no identifica a este público y la lectura en negro resta apetito al producto.",
+      "kept": "Lo que queda: numeración visible de secciones y fichas.",
+      "risk": "Novedad retro si la retícula no es estricta; ilegible en móvil angosto.",
+      "hero": "https://impeccable.style/worlds/cards/broadcast-programming-teletext-service-hero.webp"
+    },
+    {
+      "id": "challenger-bebop",
+      "label": "Ficha de Título",
+      "verdict": "declined",
+      "lineage": "carteles de título de sesión de jazz animada",
+      "thesis": "Campos planos cortados por barras asimétricas y títulos grotescos en colisión deliberada.",
+      "palette": ["#e9b44c", "#c1502e", "#3f8f8a", "#f3ead8"],
+      "materials": ["grano de impresión", "cel color"],
+      "viewport": "Barras duras partiendo el encuadre con el título chocando letras contra letras.",
+      "case": "Pierde los dos ejes: la energía es de ficha de anime, no del obrador, y la colisión tipográfica dificulta leer precios y categorías.",
+      "kept": "Lo que queda: un campo inundado por sección activa.",
+      "risk": "Sin disciplina de retícula, las barras se leen como decoración suelta.",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-bebop-title-card-hero.webp"
+    },
+    {
+      "id": "challenger-opart",
+      "label": "Tejido Op-Art",
+      "verdict": "declined",
+      "lineage": "estampado óptico de tela",
+      "thesis": "Un repeat de ondas que se niega a mostrar dónde vuelve a empezar.",
+      "palette": ["#ffffff", "#000000"],
+      "materials": ["tela mate", "geometría pura"],
+      "viewport": "Campo de onda continua sin costura visible.",
+      "case": "Pierde los dos ejes: blanco y negro duro niega la paleta cálida y la óptica no habla de repostería artesanal.",
+      "kept": "Lo que queda: textura de rayado de papel que se regenera sin costura.",
+      "risk": "Sin color, se percibe frío y ajeno a la marca.",
+      "hero": "https://impeccable.style/worlds/cards/design-canon-op-art-textile-repeat-hero.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": false },
+  "canon": true,
+  "canonCard": {
+    "label": "El estándar de la categoría",
+    "thesis": "La tienda de repostería que todos esperan, ejecutada con oficio.",
+    "palette": ["#ffffff", "#1f2937", "#e11d48"],
+    "materials": ["rejilla limpia", "fotografía de producto"],
+    "viewport": "Hero con foto de producto, rejilla de tarjetas y carrito arriba a la derecha.",
+    "risk": "Indistinguible de la competencia por diseño."
+  },
+  "steer": true
+}

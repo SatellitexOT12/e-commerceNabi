@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { generateOrderMessage, sendToBothNumbers } from '../utils/whatsapp'
 import { saveOrder } from '../services/orders'
 import { formatPrice } from '../utils/formatPrice'
+import { AlertCircle, ArrowLeft, ClipboardList } from 'lucide-react'
 import './Checkout.css'
 import toast from 'react-hot-toast'
 
@@ -63,101 +64,223 @@ export const Checkout: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
   }
 
+  const itemCount = state.items.reduce((total, item) => total + item.quantity, 0)
+  const today = new Date().toISOString().split('T')[0]
+
   return (
     <div className="checkout">
-      <div className="checkout-container">
-        <h1>Completar Compra</h1>
+      {/* Franja de la hoja: la única zona inundada de rosa */}
+      <div className="checkout-band">
+        <div className="checkout-band-inner">
+          <div className="checkout-title-block">
+            <h1>Hoja de pedido</h1>
+            <p className="checkout-standfirst">
+              Anota los datos del encargo, revisa el resumen y envíalo por WhatsApp.
+            </p>
+          </div>
+          <button type="button" className="checkout-back" onClick={onBack}>
+            <ArrowLeft size={16} aria-hidden="true" />
+            Volver a la tienda
+          </button>
+        </div>
+      </div>
 
+      <div className="checkout-container">
         <div className="checkout-content">
           <form onSubmit={handleSubmit(onSubmit)} className="checkout-form">
-            <div className="form-group">
-              <label>Nombre Completo *</label>
+            <h2 className="sheet-heading">Datos del encargo</h2>
+
+            <div className={`form-group${errors.nombre ? ' has-error' : ''}`}>
+              <label htmlFor="co-nombre">
+                Nombre completo
+                <span className="req-mark" aria-hidden="true">*</span>
+                <span className="sr-only"> (obligatorio)</span>
+              </label>
               <input
-                {...register('nombre', { required: 'El nombre es requerido' })}
-                placeholder="Tu nombre"
+                id="co-nombre"
+                type="text"
+                autoComplete="name"
+                placeholder="Como quieres que te llamemos"
+                aria-invalid={errors.nombre ? true : undefined}
+                aria-describedby={errors.nombre ? 'co-nombre-error' : undefined}
+                {...register('nombre', {
+                  required: 'Escribe tu nombre completo: será la firma del pedido.'
+                })}
               />
-              {errors.nombre && <span className="error">{errors.nombre.message}</span>}
+              {errors.nombre && (
+                <span className="error" id="co-nombre-error" role="alert">
+                  <AlertCircle size={15} aria-hidden="true" />
+                  {errors.nombre.message}
+                </span>
+              )}
             </div>
 
-            <div className="form-group">
-              <label>Dirección de Entrega *</label>
+            <div className={`form-group${errors.direccion ? ' has-error' : ''}`}>
+              <label htmlFor="co-direccion">
+                Dirección de entrega
+                <span className="req-mark" aria-hidden="true">*</span>
+                <span className="sr-only"> (obligatorio)</span>
+              </label>
               <input
-                {...register('direccion', { required: 'La dirección es requerida' })}
-                placeholder="Tu dirección"
+                id="co-direccion"
+                type="text"
+                autoComplete="street-address"
+                placeholder="Calle, número y referencia cercana"
+                aria-invalid={errors.direccion ? true : undefined}
+                aria-describedby={errors.direccion ? 'co-direccion-error' : undefined}
+                {...register('direccion', {
+                  required: 'Falta la dirección: indica calle y número para poder entregar.'
+                })}
               />
-              {errors.direccion && <span className="error">{errors.direccion.message}</span>}
+              {errors.direccion && (
+                <span className="error" id="co-direccion-error" role="alert">
+                  <AlertCircle size={15} aria-hidden="true" />
+                  {errors.direccion.message}
+                </span>
+              )}
             </div>
 
-            <div className="form-group">
-              <label>Teléfono *</label>
+            <div className={`form-group${errors.telefono ? ' has-error' : ''}`}>
+              <label htmlFor="co-telefono">
+                Teléfono
+                <span className="req-mark" aria-hidden="true">*</span>
+                <span className="sr-only"> (obligatorio) con código +53</span>
+              </label>
               <div className="phone-input">
-                <span className="phone-prefix">+53</span>
+                <span className="phone-prefix" aria-hidden="true">+53</span>
                 <input
+                  id="co-telefono"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  placeholder="XXXXXXXX"
+                  aria-invalid={errors.telefono ? true : undefined}
+                  aria-describedby={errors.telefono ? 'co-telefono-error' : undefined}
                   {...register('telefono', {
-                    required: 'El teléfono es requerido',
+                    required: 'Falta el teléfono: escribe los 8 dígitos que van después de +53.',
                     pattern: {
                       value: /^[0-9]{8}$/,
-                      message: 'Ingresa los 8 dígitos restantes'
+                      message: 'No son 8 dígitos: revisa el número y déjalo solo con cifras.'
                     }
                   })}
-                  placeholder="XXXXXXX"
                 />
               </div>
-              {errors.telefono && <span className="error">{errors.telefono.message}</span>}
+              {errors.telefono && (
+                <span className="error" id="co-telefono-error" role="alert">
+                  <AlertCircle size={15} aria-hidden="true" />
+                  {errors.telefono.message}
+                </span>
+              )}
             </div>
 
-            <div className="form-group">
-              <label>Fecha de Entrega *</label>
+            <div className={`form-group${errors.fecha_entrega ? ' has-error' : ''}`}>
+              <label htmlFor="co-fecha">
+                Fecha de entrega
+                <span className="req-mark" aria-hidden="true">*</span>
+                <span className="sr-only"> (obligatorio)</span>
+              </label>
               <input
+                id="co-fecha"
                 type="date"
-                {...register('fecha_entrega', { required: 'La fecha de entrega es requerida' })}
-                min={new Date().toISOString().split('T')[0]}
+                min={today}
+                aria-invalid={errors.fecha_entrega ? true : undefined}
+                aria-describedby={errors.fecha_entrega ? 'co-fecha-error' : undefined}
+                {...register('fecha_entrega', {
+                  required: 'Elige la fecha de entrega: el pedido no puede quedar sin día.'
+                })}
               />
-              {errors.fecha_entrega && <span className="error">{errors.fecha_entrega.message}</span>}
+              {errors.fecha_entrega && (
+                <span className="error" id="co-fecha-error" role="alert">
+                  <AlertCircle size={15} aria-hidden="true" />
+                  {errors.fecha_entrega.message}
+                </span>
+              )}
             </div>
 
             <div className="form-group">
-              <label>Detalles o Notas del Encargo</label>
+              <label htmlFor="co-detalles">
+                Detalles o notas del encargo
+                <span className="req-mark optional" aria-hidden="true">(opcional)</span>
+              </label>
               <textarea
-                {...register('detalles')}
-                placeholder="Ejemplo: Sin azúcar, extra crema, etc."
+                id="co-detalles"
                 rows={4}
+                placeholder="Ejemplo: sin azúcar, extra crema, etc."
+                {...register('detalles')}
               />
             </div>
 
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Procesando...' : 'Enviar Pedido por WhatsApp'}
+            <button type="submit" className="submit-btn" disabled={loading} aria-busy={loading}>
+              {loading ? 'Enviando el pedido…' : 'Enviar pedido por WhatsApp'}
             </button>
+            <p className="submit-note">
+              El pedido se guarda en el cuaderno y se abre WhatsApp para despacharlo.
+            </p>
           </form>
 
-          <div className="order-summary">
-            <h2>Resumen del Pedido</h2>
-            {state.items.map(item => {
-              const agregosPrice = item.agregos?.reduce((sum, agg) => sum + (agg.precio * (agg.cantidad || 1)), 0) || 0
-              const itemTotal = (item.product.precio * item.quantity) + agregosPrice
-              return (
-                <div key={item.product.id} className="summary-item">
-                  <div className="item-info">
-                    <span>{item.product.nombre} x{item.quantity}</span>
-                    <span>{formatPrice(item.product.precio * item.quantity)}</span>
-                  </div>
-                  {item.agregos && item.agregos.length > 0 && (
-                    <div className="item-agregos">
-                      {item.agregos.map((agrego, idx) => (
-                        <span key={idx} className="agrego-item">
-                          + {agrego.nombre} {agrego.cantidad && agrego.cantidad > 1 ? `x${agrego.cantidad}` : ''} - {formatPrice(agrego.precio * (agrego.cantidad || 1))}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-            <div className="summary-total">
-              <strong>Total:</strong>
-              <strong>{formatPrice(state.total)}</strong>
+          <aside className="order-summary" aria-labelledby="co-summary-title">
+            <div className="ticket-head">
+              <h2 id="co-summary-title">Resumen del pedido</h2>
+              <span className="ticket-count">
+                {itemCount} {itemCount === 1 ? 'artículo' : 'artículos'}
+              </span>
             </div>
-          </div>
+
+            {state.items.length === 0 ? (
+              <div className="ticket-empty">
+                <ClipboardList size={26} aria-hidden="true" className="empty-mark" />
+                <p className="empty-title">La hoja está en blanco</p>
+                <p className="empty-body">
+                  Todavía no hay ningún encargo anotado. Vuelve a la tienda, elige tus dulces
+                  y aparecerán aquí con su precio.
+                </p>
+                <button type="button" className="ghost-btn" onClick={onBack}>
+                  <ArrowLeft size={15} aria-hidden="true" />
+                  Volver a la tienda
+                </button>
+              </div>
+            ) : (
+              <>
+                <ul className="ticket-lines">
+                  {state.items.map(item => {
+                    const agregosPrice = item.agregos?.reduce((sum, agg) => sum + (agg.precio * (agg.cantidad || 1)), 0) || 0
+                    const itemTotal = (item.product.precio * item.quantity) + agregosPrice
+                    return (
+                      <li key={item.product.id} className="ticket-line">
+                        <div className="line-main">
+                          <span className="line-qty">{item.quantity} ×</span>
+                          <span className="line-name">{item.product.nombre}</span>
+                          <span className="line-dots" aria-hidden="true" />
+                          <span className="line-amount">{formatPrice(itemTotal)}</span>
+                        </div>
+                        {item.agregos && item.agregos.length > 0 && (
+                          <ul className="line-agregos">
+                            {item.agregos.map((agrego, idx) => (
+                              <li key={idx} className="agrego-line">
+                                <span className="agrego-name">
+                                  + {agrego.nombre}
+                                  {agrego.cantidad && agrego.cantidad > 1 ? ` x${agrego.cantidad}` : ''}
+                                </span>
+                                <span className="line-dots" aria-hidden="true" />
+                                <span className="agrego-amount">
+                                  {formatPrice(agrego.precio * (agrego.cantidad || 1))}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    )
+                  })}
+                </ul>
+
+                <div className="ticket-total">
+                  <span className="total-label">Total</span>
+                  <span className="total-amount">{formatPrice(state.total)}</span>
+                </div>
+              </>
+            )}
+          </aside>
         </div>
       </div>
     </div>

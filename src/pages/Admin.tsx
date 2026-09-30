@@ -11,6 +11,10 @@ import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tool
 import { formatPrice } from '../utils/formatPrice'
 import { getAgregosConEnvaseAuto, calcularEnvasesNecesarios } from '../utils/envaseCalculator'
 import * as XLSX from 'xlsx'
+import {
+  Pencil, Trash2, CalendarDays, Download, Check, ChevronLeft, ChevronRight,
+  ChevronDown, X, Plus, Minus, LogOut, KeyRound, Inbox, AlertTriangle
+} from 'lucide-react'
 import './Admin.css'
 import toast from 'react-hot-toast'
 
@@ -31,6 +35,8 @@ export const Admin: React.FC = () => {
   const [showLoginForm, setShowLoginForm] = useState(false)
   const [loginData, setLoginData] = useState({ email: '', password: '' })
   const [loggingIn, setLoggingIn] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
@@ -114,6 +120,7 @@ export const Admin: React.FC = () => {
   }, [])
 
   const loadData = async () => {
+    setLoadError(null)
     try {
       await initializeSocias()
       const [ordersData, productsData, agregosData, finanzas, sociasData, retiros, retirosF] = await Promise.all([
@@ -148,6 +155,7 @@ export const Admin: React.FC = () => {
       setAllAgregos(allData)
     } catch (error) {
       console.error('Error fetching data:', error)
+      setLoadError('No se pudieron cargar los datos del panel. Revisa la conexión y vuelve a intentarlo.')
       toast.error('Error al cargar los datos')
     } finally {
       setLoading(false)
@@ -157,6 +165,7 @@ export const Admin: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoggingIn(true)
+    setLoginError(null)
     try {
       await signIn(loginData.email, loginData.password)
       setIsAuthenticated(true)
@@ -164,6 +173,7 @@ export const Admin: React.FC = () => {
       loadData()
     } catch (error: any) {
       toast.error(error.message || 'Error al iniciar sesión')
+      setLoginError('El email o la contraseña no coinciden. Revísalos y vuelve a intentarlo.')
     } finally {
       setLoggingIn(false)
     }
@@ -177,48 +187,59 @@ export const Admin: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="admin">
-        <div className="admin-container">
-          <div className="login-box">
-            <h1>Panel de Administración</h1>
-            {!showLoginForm ? (
-              <div className="login-options">
-                <p>Inicia sesión para gestionar productos</p>
-                <button className="btn-primary" onClick={() => setShowLoginForm(true)}>
-                  Iniciar Sesión
+      <div className="admin admin-login">
+        <div className="login-box">
+          <span className="login-ribbon" aria-hidden="true" />
+          <h1>Panel de Administración</h1>
+          <p className="login-hand">cuaderno de la casa</p>
+          {!showLoginForm ? (
+            <div className="login-options">
+              <p>Acceso reservado al taller. Gestiona productos, pedidos y finanzas desde un solo cuaderno.</p>
+              <button className="btn-primary" onClick={() => setShowLoginForm(true)}>
+                <KeyRound size={16} aria-hidden="true" />
+                Iniciar Sesión
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleLogin} className="login-form">
+              <div className="form-group">
+                <label htmlFor="login-email">Email</label>
+                <input
+                  id="login-email"
+                  type="email"
+                  autoComplete="username"
+                  value={loginData.email}
+                  onChange={e => setLoginData({ ...loginData, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="login-password">Contraseña</label>
+                <input
+                  id="login-password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={loginData.password}
+                  onChange={e => setLoginData({ ...loginData, password: e.target.value })}
+                  required
+                />
+              </div>
+              {loginError && (
+                <p className="field-error" role="alert">
+                  <AlertTriangle size={15} aria-hidden="true" />
+                  {loginError}
+                </p>
+              )}
+              <div className="modal-actions">
+                <button type="submit" className="btn-primary" disabled={loggingIn} aria-busy={loggingIn}>
+                  {loggingIn ? 'Entrando...' : 'Iniciar Sesión'}
+                </button>
+                <button type="button" className="btn-secondary" onClick={() => setShowLoginForm(false)}>
+                  Cancelar
                 </button>
               </div>
-            ) : (
-              <form onSubmit={handleLogin} className="login-form">
-                <div className="form-group">
-                  <label>Email</label>
-                  <input
-                    type="email"
-                    value={loginData.email}
-                    onChange={e => setLoginData({ ...loginData, email: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Contraseña</label>
-                  <input
-                    type="password"
-                    value={loginData.password}
-                    onChange={e => setLoginData({ ...loginData, password: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="modal-actions">
-                  <button type="submit" className="btn-primary" disabled={loggingIn}>
-                    {loggingIn ? 'Entrando...' : 'Iniciar Sesión'}
-                  </button>
-                  <button type="button" className="btn-secondary" onClick={() => setShowLoginForm(false)}>
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
+            </form>
+          )}
         </div>
       </div>
     )
@@ -888,7 +909,8 @@ export const Admin: React.FC = () => {
           disabled={currentPage === 1}
           className="btn-pagination"
         >
-          ← Anterior
+          <ChevronLeft size={15} aria-hidden="true" />
+          Anterior
         </button>
         <span className="pagination-info">Página {currentPage} de {totalPages}</span>
         <button 
@@ -896,7 +918,8 @@ export const Admin: React.FC = () => {
           disabled={currentPage === totalPages}
           className="btn-pagination"
         >
-          Siguiente →
+          Siguiente
+          <ChevronRight size={15} aria-hidden="true" />
         </button>
       </div>
     )
@@ -905,38 +928,65 @@ export const Admin: React.FC = () => {
   return (
     <div className="admin">
       <div className="admin-container">
-        <h1>Panel de Administración</h1>
+        <header className="panel-head">
+          <div className="panel-head-text">
+            <h1>Panel de Administración</h1>
+            <p className="panel-sub">Libro mayor de la casa</p>
+          </div>
+          <button className="btn-logout" onClick={handleLogout}>
+            <LogOut size={15} aria-hidden="true" />
+            Cerrar Sesión
+          </button>
+        </header>
 
-        <div className="admin-tabs">
-          <button className={`tab-btn ${activeTab === 'products' ? 'active' : ''}`} onClick={() => setActiveTab('products')}>Productos</button>
-          <button className={`tab-btn ${activeTab === 'agregos' ? 'active' : ''}`} onClick={() => setActiveTab('agregos')}>Agregos</button>
-          <button className={`tab-btn ${activeTab === 'finanzas' ? 'active' : ''}`} onClick={() => setActiveTab('finanzas')}>Finanzas</button>
-          <button className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>Pedidos</button>
-        </div>
+        {loadError && (
+          <div className="admin-alert" role="alert">
+            <AlertTriangle size={16} aria-hidden="true" />
+            <p>{loadError}</p>
+            <button type="button" className="btn-secondary" onClick={() => loadData()}>Reintentar</button>
+          </div>
+        )}
+
+        <nav className="admin-tabs" aria-label="Secciones del panel">
+          <button className={`tab-btn ${activeTab === 'products' ? 'active' : ''}`} aria-current={activeTab === 'products' ? 'page' : undefined} onClick={() => setActiveTab('products')}>Productos</button>
+          <button className={`tab-btn ${activeTab === 'agregos' ? 'active' : ''}`} aria-current={activeTab === 'agregos' ? 'page' : undefined} onClick={() => setActiveTab('agregos')}>Agregos</button>
+          <button className={`tab-btn ${activeTab === 'finanzas' ? 'active' : ''}`} aria-current={activeTab === 'finanzas' ? 'page' : undefined} onClick={() => setActiveTab('finanzas')}>Finanzas</button>
+          <button className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`} aria-current={activeTab === 'orders' ? 'page' : undefined} onClick={() => setActiveTab('orders')}>Pedidos</button>
+        </nav>
 
         {activeTab === 'products' && (
           <div className="tab-content">
             <div className="section-header">
               <h2>Gestión de Productos</h2>
               <div className="header-actions">
-                <button className="btn-logout" onClick={handleLogout}>Cerrar Sesión</button>
-                <button className="btn-primary" onClick={openAddModal}>Agregar Producto</button>
+                <button className="btn-primary" onClick={openAddModal}>
+                  <Plus size={16} aria-hidden="true" />
+                  Agregar Producto
+                </button>
               </div>
             </div>
 
             {loading ? (
               <div className="loading">Cargando productos...</div>
             ) : products.length === 0 ? (
-              <div className="no-data">No hay productos</div>
+              <div className="no-data">
+                <Inbox size={26} aria-hidden="true" />
+                <p className="no-data-title">Sin productos en el cuaderno</p>
+                <p className="no-data-hint">Añade el primero para que aparezca en la tienda.</p>
+                <button className="btn-primary" onClick={openAddModal}>
+                  <Plus size={16} aria-hidden="true" />
+                  Agregar Producto
+                </button>
+              </div>
             ) : (
               <div className="products-table">
                 <table>
                   <thead>
                     <tr>
-                      <th>Imagen</th>
+                      <th className="col-thumb">Imagen</th>
                       <th>Nombre</th>
                       <th>Categoría</th>
-                      <th>Precio</th>
+                      <th className="num">Precio</th>
                       <th>Stock</th>
                       <th>Acciones</th>
                     </tr>
@@ -944,18 +994,24 @@ export const Admin: React.FC = () => {
                   <tbody>
                      {getPaginatedData(products, productsPage).map(product => (
                        <tr key={product.id}>
-                         <td><img src={product.imagen_url} alt={product.nombre} className="product-thumb" /></td>
-                         <td>{product.nombre}</td>
+                         <td className="col-thumb"><img src={product.imagen_url} alt={product.nombre} className="product-thumb" /></td>
+                         <td className="cell-name">{product.nombre}</td>
                          <td>{product.categoria}</td>
-                         <td>{formatPrice(product.precio)}</td>
+                         <td className="num">{formatPrice(product.precio)}</td>
                          <td>
                            <span className={`status-badge ${product.disponible ? 'available' : 'unavailable'}`}>
                              {product.disponible ? 'Disponible' : 'No disponible'}
                            </span>
                          </td>
-                         <td>
-                           <button className="btn-edit" onClick={() => openEditModal(product)}>Editar</button>
-                           <button className="btn-delete" onClick={() => handleDelete(product.id)}>Eliminar</button>
+                         <td className="row-actions">
+                           <button className="btn-edit" onClick={() => openEditModal(product)}>
+                             <Pencil size={14} aria-hidden="true" />
+                             Editar
+                           </button>
+                           <button className="btn-delete" onClick={() => handleDelete(product.id)}>
+                             <Trash2 size={14} aria-hidden="true" />
+                             Eliminar
+                           </button>
                          </td>
                        </tr>
                      ))}
@@ -971,13 +1027,24 @@ export const Admin: React.FC = () => {
           <div className="tab-content">
             <div className="section-header">
               <h2>Gestión de Agregos</h2>
-              <button className="btn-primary" onClick={() => openAgregosModal()}>Agregar Agregado</button>
+              <button className="btn-primary" onClick={() => openAgregosModal()}>
+                <Plus size={16} aria-hidden="true" />
+                Agregar Agregado
+              </button>
             </div>
 
             {loading ? (
               <div className="loading">Cargando agregos...</div>
             ) : agregos.length === 0 ? (
-              <div className="no-data">No hay agregos</div>
+              <div className="no-data">
+                <Inbox size={26} aria-hidden="true" />
+                <p className="no-data-title">Sin agregos anotados</p>
+                <p className="no-data-hint">Crea cremes, chocolates o frutas para acompañar los pedidos.</p>
+                <button className="btn-primary" onClick={() => openAgregosModal()}>
+                  <Plus size={16} aria-hidden="true" />
+                  Agregar Agregado
+                </button>
+              </div>
             ) : (
               <div className="products-table">
                 <table>
@@ -985,7 +1052,7 @@ export const Admin: React.FC = () => {
                     <tr>
                       <th>Nombre</th>
                       <th>Categoría</th>
-                      <th>Precio</th>
+                      <th className="num">Precio</th>
                       <th>Estado</th>
                       <th>Acciones</th>
                     </tr>
@@ -993,17 +1060,23 @@ export const Admin: React.FC = () => {
                   <tbody>
                      {getPaginatedData(agregos, agregosPage).map(agregado => (
                        <tr key={agregado.id}>
-                         <td>{agregado.nombre}</td>
+                         <td className="cell-name">{agregado.nombre}</td>
                          <td>{agregado.categoria}</td>
-                         <td>{formatPrice(agregado.precio)}</td>
+                         <td className="num">{formatPrice(agregado.precio)}</td>
                          <td>
                            <span className={`status-badge ${agregado.disponible ? 'available' : 'unavailable'}`}>
                              {agregado.disponible ? 'Disponible' : 'No disponible'}
                            </span>
                          </td>
-                         <td>
-                           <button className="btn-edit" onClick={() => openAgregosModal(agregado)}>Editar</button>
-                           <button className="btn-delete" onClick={() => handleDeleteAgrego(agregado.id)}>Eliminar</button>
+                         <td className="row-actions">
+                           <button className="btn-edit" onClick={() => openAgregosModal(agregado)}>
+                             <Pencil size={14} aria-hidden="true" />
+                             Editar
+                           </button>
+                           <button className="btn-delete" onClick={() => handleDeleteAgrego(agregado.id)}>
+                             <Trash2 size={14} aria-hidden="true" />
+                             Eliminar
+                           </button>
                          </td>
                        </tr>
                      ))}
@@ -1019,7 +1092,10 @@ export const Admin: React.FC = () => {
           <div className="tab-content">
             <div className="section-header">
               <h2>Dashboard Financiero</h2>
-              <button className="btn-primary" onClick={() => setShowManualOrder(true)}>+ Añadir Venta Manual</button>
+              <button className="btn-primary" onClick={() => setShowManualOrder(true)}>
+                <Plus size={16} aria-hidden="true" />
+                Añadir Venta Manual
+              </button>
             </div>
 
             {showManualOrder && (
@@ -1065,7 +1141,8 @@ export const Admin: React.FC = () => {
                         className="btn-add-item"
                         onClick={() => setShowProductSelector(true)}
                       >
-                        + Agregar Producto
+                        <Plus size={15} aria-hidden="true" />
+                        Agregar Producto
                       </button>
                     </div>
 
@@ -1092,20 +1169,22 @@ export const Admin: React.FC = () => {
                                 )}
                                 <div className="item-actions">
                                   <div className="item-quantity">
-                                    <button 
+                                    <button
                                       type="button"
                                       className="qty-btn"
+                                      aria-label={`Quitar una unidad de ${item.product.nombre}`}
                                       onClick={() => updateManualItemQuantity(item.product.id, item.quantity - 1)}
                                     >
-                                      -
+                                      <Minus size={14} aria-hidden="true" />
                                     </button>
-                                    <span>{item.quantity}</span>
-                                    <button 
+                                    <span className="qty-value">{item.quantity}</span>
+                                    <button
                                       type="button"
                                       className="qty-btn"
+                                      aria-label={`Añadir una unidad de ${item.product.nombre}`}
                                       onClick={() => updateManualItemQuantity(item.product.id, item.quantity + 1)}
                                     >
-                                      +
+                                      <Plus size={14} aria-hidden="true" />
                                     </button>
                                   </div>
                                   {calificaParaEnvase && (
@@ -1121,9 +1200,10 @@ export const Admin: React.FC = () => {
                                   <button 
                                     type="button" 
                                     className="btn-remove-item"
+                                    aria-label="Quitar producto de la venta"
                                     onClick={() => removeManualItem(item.product.id)}
                                   >
-                                    ×
+                                    <X size={16} aria-hidden="true" />
                                   </button>
                                 </div>
                               </div>
@@ -1166,7 +1246,15 @@ export const Admin: React.FC = () => {
                         <div 
                           key={product.id} 
                           className="product-selector-card"
+                          role="button"
+                          tabIndex={0}
                           onClick={() => addProductToManualOrder(product)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              addProductToManualOrder(product)
+                            }
+                          }}
                         >
                           <img src={product.imagen_url} alt={product.nombre} />
                           <h4>{product.nombre}</h4>
@@ -1209,9 +1297,10 @@ export const Admin: React.FC = () => {
                               <span className="agrego-precio">+{formatPrice(agg.precio)} c/u</span>
                             </div>
                             <div className="agrego-cantidad">
-                              <button 
+                              <button
                                 type="button"
                                 className="qty-btn"
+                                aria-label={`Quitar una unidad de ${agg.nombre}`}
                                 onClick={() => {
                                   setSelectedAgregos(prev => {
                                     const current = prev[agg.id] || 0
@@ -1224,12 +1313,13 @@ export const Admin: React.FC = () => {
                                   })
                                 }}
                               >
-                                -
+                                <Minus size={14} aria-hidden="true" />
                               </button>
                               <span className="qty-value">{cantidad}</span>
-                              <button 
+                              <button
                                 type="button"
                                 className="qty-btn"
+                                aria-label={`Añadir una unidad de ${agg.nombre}`}
                                 onClick={() => {
                                   setSelectedAgregos(prev => ({
                                     ...prev,
@@ -1237,7 +1327,7 @@ export const Admin: React.FC = () => {
                                   }))
                                 }}
                               >
-                                +
+                                <Plus size={14} aria-hidden="true" />
                               </button>
                             </div>
                           </div>
@@ -1273,7 +1363,11 @@ export const Admin: React.FC = () => {
             {loading ? (
               <div className="loading">Cargando datos...</div>
             ) : orders.length === 0 ? (
-              <div className="no-data">No hay ventas registradas</div>
+              <div className="no-data">
+                <Inbox size={26} aria-hidden="true" />
+                <p className="no-data-title">Sin ventas registradas</p>
+                <p className="no-data-hint">Cuando completes un pedido o registres una venta manual, el resumen diario aparecerá aquí.</p>
+              </div>
             ) : (
               <>
                 {(() => {
@@ -1287,18 +1381,17 @@ export const Admin: React.FC = () => {
                   // Track product quantities for pie chart
                   const productQuantities: Record<string, { nombre: string; cantidad: number; color: string }> = {}
 
+                  // Tintas del cuaderno: chocolate y rosa pastel, nunca arcoíris
+                  const PIE_TINTS = [
+                    '#5d4037', '#f4a8c8', '#8d6e63', '#b8718a', '#6d5347',
+                    '#f8bbd9', '#a1887f', '#3f2a24', '#e9a7bd', '#4e342e'
+                  ]
+
                   // Helper function for product colors
                   function getProductColor(categoria: string): string {
-                    const colors: Record<string, string> = {
-                      'Mini Donas': '#ff6b6b',
-                      'Combos de Donas': '#ee5a5a',
-                      'Crepes': '#4ecdc4',
-                      'Combos de Crepes': '#45b7af',
-                      'Combos Mixtos': '#9b59b6',
-                      'Bebidas': '#3498db',
-                      'Postres': '#f39c12'
-                    }
-                    return colors[categoria || ''] || '#95a5a6'
+                    const categories = ['Mini Donas', 'Combos de Donas', 'Crepes', 'Combos de Crepes', 'Combos Mixtos', 'Bebidas', 'Postres']
+                    const idx = categories.indexOf(categoria || '')
+                    return idx >= 0 ? PIE_TINTS[idx] : PIE_TINTS[PIE_TINTS.length - 1]
                   }
 
                   // Track product quantities for pie chart
@@ -1380,37 +1473,66 @@ export const Admin: React.FC = () => {
                       <div className="chart-container">
                         <h3>Ventas Diarias</h3>
                         <ResponsiveContainer width="100%" height={250}>
-                          <LineChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="fecha" tick={{ fontSize: 12 }} />
-                            <YAxis tick={{ fontSize: 12 }} />
-                            <Tooltip />
-                            <Line type="monotone" dataKey="total" stroke="#5d4037" strokeWidth={2} name="Ventas ($)" />
+                          <LineChart data={chartData} margin={{ top: 8, right: 16, left: 4, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="2 4" stroke="rgba(93, 64, 55, 0.16)" vertical={false} />
+                            <XAxis
+                              dataKey="fecha"
+                              tick={{ fontSize: 11, fill: '#6d5347', fontFamily: 'Courier Prime, monospace' }}
+                              tickLine={false}
+                              axisLine={{ stroke: 'rgba(93, 64, 55, 0.42)' }}
+                            />
+                            <YAxis
+                              tick={{ fontSize: 11, fill: '#6d5347', fontFamily: 'Courier Prime, monospace' }}
+                              tickLine={false}
+                              axisLine={false}
+                              width={56}
+                            />
+                            <Tooltip
+                              cursor={{ stroke: 'rgba(93, 64, 55, 0.42)', strokeWidth: 1 }}
+                              contentStyle={{
+                                background: '#fef7f0',
+                                border: '1px solid #5d4037',
+                                borderRadius: 0,
+                                fontFamily: 'Courier Prime, monospace',
+                                fontSize: 12
+                              }}
+                              labelStyle={{ color: '#5d4037', textTransform: 'uppercase', letterSpacing: '0.06em' }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="total"
+                              stroke="#5d4037"
+                              strokeWidth={2}
+                              name="Ventas ($)"
+                              dot={{ r: 2.5, fill: '#f8bbd9', stroke: '#5d4037', strokeWidth: 1 }}
+                              activeDot={{ r: 4.5, fill: '#5d4037', stroke: '#fef7f0', strokeWidth: 2 }}
+                            />
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
 
                       <div className="finanzas-table">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                        <div className="table-toolbar">
                           <h3>Ventas Diarias</h3>
                           <button 
                             className="btn-primary"
                             onClick={exportarVentasDiariosExcel}
                             title="Descargar tabla de ventas diarias en Excel"
                           >
-                            📥 Descargar Excel
+                            <Download size={15} aria-hidden="true" />
+                            Descargar Excel
                           </button>
                         </div>
                         <table>
                           <thead>
                             <tr>
                               <th>Fecha</th>
-                              <th>Total</th>
-                              <th>Reinversión</th>
-                              <th>Fondo</th>
-                              <th>Gan. Bruta</th>
-                              <th>Ahorro</th>
-                              <th>Gan. Personal</th>
+                              <th className="num">Total</th>
+                              <th className="num">Reinversión</th>
+                              <th className="num">Fondo</th>
+                              <th className="num">Gan. Bruta</th>
+                              <th className="num">Ahorro</th>
+                              <th className="num">Gan. Personal</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1423,52 +1545,59 @@ export const Admin: React.FC = () => {
                               return (
                                 <React.Fragment key={idx}>
                                   <tr 
+                                    className={`day-row ${isExpanded ? 'is-open' : ''}`}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-expanded={isExpanded}
                                     onClick={() => setExpandedDailySalesDay(isExpanded ? null : day.fecha)}
-                                    style={{ cursor: 'pointer', backgroundColor: isExpanded ? '#f5f5f5' : 'transparent' }}
+                                    onKeyDown={e => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault()
+                                        setExpandedDailySalesDay(isExpanded ? null : day.fecha)
+                                      }
+                                    }}
                                   >
-                                    <td style={{ fontWeight: isExpanded ? 'bold' : 'normal' }}>{day.fecha} {isExpanded ? '▼' : '▶'}</td>
-                                    <td>{formatPrice(day.total)}</td>
-                                    <td>{formatPrice(day.reinversion)}</td>
-                                    <td>{formatPrice(day.fondo)}</td>
-                                    <td>{formatPrice(day.gananciaBruta)}</td>
-                                    <td className="ahorro-cell">{formatPrice(day.gananciaBruta * 0.3)}</td>
-                                    <td className="personal-cell">{formatPrice(day.gananciaBruta * 0.7)}</td>
+                                    <td className="day-row-date">
+                                      <ChevronRight size={14} aria-hidden="true" />
+                                      <span>{day.fecha}</span>
+                                    </td>
+                                    <td className="num">{formatPrice(day.total)}</td>
+                                    <td className="num">{formatPrice(day.reinversion)}</td>
+                                    <td className="num">{formatPrice(day.fondo)}</td>
+                                    <td className="num">{formatPrice(day.gananciaBruta)}</td>
+                                    <td className="num ahorro-cell">{formatPrice(day.gananciaBruta * 0.3)}</td>
+                                    <td className="num personal-cell">{formatPrice(day.gananciaBruta * 0.7)}</td>
                                   </tr>
                                   {isExpanded && (
-                                    <tr>
-                                      <td colSpan={7} style={{ padding: '0' }}>
-                                        <div style={{ padding: '15px', backgroundColor: '#fafafa', borderTop: '1px solid #ddd' }}>
-                                          <h4 style={{ marginTop: 0, marginBottom: '10px' }}>Ventas de {day.fecha}:</h4>
+                                    <tr className="day-detail-row">
+                                      <td colSpan={7}>
+                                        <div className="day-detail">
+                                          <h4>Ventas de {day.fecha}</h4>
                                           {dayOrders.length > 0 ? (
-                                            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                            <div className="day-orders">
                                               {dayOrders.map((order) => (
                                                 <div 
                                                   key={order.id} 
-                                                  style={{ 
-                                                    marginBottom: '12px', 
-                                                    padding: '10px', 
-                                                    backgroundColor: '#fff', 
-                                                    border: '1px solid #e0e0e0',
-                                                    borderRadius: '4px'
-                                                  }}
+                                                  className="day-order"
                                                 >
-                                                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                  <div className="day-order-head">
                                                     <div>
-                                                      <strong>{order.cliente_nombre}</strong> | {order.cliente_telefono}
+                                                      <strong>{order.cliente_nombre}</strong>
+                                                      <span className="day-order-phone">{order.cliente_telefono}</span>
                                                     </div>
-                                                    <div style={{ color: '#666' }}>
-                                                      Total: <strong>{formatPrice(order.total)}</strong>
+                                                    <div className="day-order-total">
+                                                      Total <strong>{formatPrice(order.total)}</strong>
                                                     </div>
                                                   </div>
-                                                  <div style={{ fontSize: '12px', marginBottom: '8px' }}>
-                                                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
+                                                  <div className="day-order-lines">
+                                                    <table className="ledger-table">
                                                       <thead>
-                                                        <tr style={{ backgroundColor: '#f0f0f0' }}>
-                                                          <th style={{ padding: '4px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Producto</th>
-                                                          <th style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>Cant.</th>
-                                                          <th style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>Reinv.</th>
-                                                          <th style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>Fondo</th>
-                                                          <th style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>Gan. Bruta</th>
+                                                        <tr>
+                                                          <th>Producto</th>
+                                                          <th className="num">Cant.</th>
+                                                          <th className="num">Reinv.</th>
+                                                          <th className="num">Fondo</th>
+                                                          <th className="num">Gan. Bruta</th>
                                                         </tr>
                                                       </thead>
                                                       <tbody>
@@ -1481,11 +1610,11 @@ export const Admin: React.FC = () => {
                                                           return (
                                                             <React.Fragment key={pidx}>
                                                               <tr>
-                                                                <td style={{ padding: '4px', borderBottom: '1px solid #f0f0f0' }}>{product?.nombre}</td>
-                                                                <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0' }}>{quantity}</td>
-                                                                <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#d9534f' }}>${productReinversion.toFixed(2)}</td>
-                                                                <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#0275d8' }}>${productFondo.toFixed(2)}</td>
-                                                                <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#5cb85c', fontWeight: 'bold' }}>${productGananciaBruta.toFixed(2)}</td>
+                                                                <td>{product?.nombre}</td>
+                                                                <td className="num">{quantity}</td>
+                                                                <td className="num cost-reinversion">${productReinversion.toFixed(2)}</td>
+                                                                <td className="num cost-fondo">${productFondo.toFixed(2)}</td>
+                                                                <td className="num cost-neta">${productGananciaBruta.toFixed(2)}</td>
                                                               </tr>
                                                               {/* Mostrar agregos */}
                                                               {item.agregos && item.agregos.length > 0 && (
@@ -1494,44 +1623,28 @@ export const Admin: React.FC = () => {
                                                                   const agregoReinversion = (agrego?.reinversion || 0) * agregoQty
                                                                   const agregoFondo = (agrego?.fondo || 0) * agregoQty
                                                                   return (
-                                                                    <tr key={`agrego-${pidx}-${aidx}`}>
-                                                                      <td style={{ padding: '4px', borderBottom: '1px solid #f0f0f0', paddingLeft: '16px', color: '#666' }}>
+                                                                    <tr className="ledger-sub" key={`agrego-${pidx}-${aidx}`}>
+                                                                      <td className="ledger-sub-name">
                                                                         + {agrego.nombre} x{agregoQty}
                                                                       </td>
-                                                                      <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#666' }}>
-                                                                        1
-                                                                      </td>
-                                                                      <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#d9534f' }}>
-                                                                        ${agregoReinversion.toFixed(2)}
-                                                                      </td>
-                                                                      <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#0275d8' }}>
-                                                                        ${agregoFondo.toFixed(2)}
-                                                                      </td>
-                                                                      <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#999' }}>
-                                                                        $0.00
-                                                                      </td>
+                                                                      <td className="num">1</td>
+                                                                      <td className="num cost-reinversion">${agregoReinversion.toFixed(2)}</td>
+                                                                      <td className="num cost-fondo">${agregoFondo.toFixed(2)}</td>
+                                                                      <td className="num cost-muted">$0.00</td>
                                                                     </tr>
                                                                   )
                                                                 })
                                                               )}
                                                               {/* Mostrar envase */}
                                                               {item.incluirEnvase && (
-                                                                <tr>
-                                                                  <td style={{ padding: '4px', borderBottom: '1px solid #f0f0f0', paddingLeft: '16px', color: '#666' }}>
+                                                                <tr className="ledger-sub">
+                                                                  <td className="ledger-sub-name">
                                                                     + Envase x{quantity}
                                                                   </td>
-                                                                  <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#666' }}>
-                                                                    1
-                                                                  </td>
-                                                                  <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#d9534f' }}>
-                                                                    $0.00
-                                                                  </td>
-                                                                  <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#0275d8' }}>
-                                                                    $0.00
-                                                                  </td>
-                                                                  <td style={{ padding: '4px', textAlign: 'right', borderBottom: '1px solid #f0f0f0', color: '#999' }}>
-                                                                    $0.00
-                                                                  </td>
+                                                                  <td className="num">1</td>
+                                                                  <td className="num cost-reinversion">$0.00</td>
+                                                                  <td className="num cost-fondo">$0.00</td>
+                                                                  <td className="num cost-muted">$0.00</td>
                                                                 </tr>
                                                               )}
                                                             </React.Fragment>
@@ -1544,7 +1657,7 @@ export const Admin: React.FC = () => {
                                               ))}
                                             </div>
                                           ) : (
-                                            <p style={{ color: '#999' }}>No hay ventas registradas para este día</p>
+                                            <p className="day-detail-empty">No hay ventas registradas para este día</p>
                                           )}
                                         </div>
                                       </td>
@@ -1608,7 +1721,17 @@ export const Admin: React.FC = () => {
                               setEditingFinanzas(!editingFinanzas)
                             }}
                           >
-                            {editingFinanzas ? 'Cancelar' : 'Editar'}
+                            {editingFinanzas ? (
+                              <>
+                                <X size={14} aria-hidden="true" />
+                                Cancelar
+                              </>
+                            ) : (
+                              <>
+                                <Pencil size={14} aria-hidden="true" />
+                                Editar
+                              </>
+                            )}
                           </button>
                         </div>
 
@@ -1687,7 +1810,8 @@ export const Admin: React.FC = () => {
                             className="btn-primary"
                             onClick={() => setShowRetiroFinanzasModal(true)}
                           >
-                            + Hacer Retiro
+                            <Plus size={15} aria-hidden="true" />
+                            Hacer Retiro
                           </button>
                         </div>
 
@@ -1752,9 +1876,7 @@ export const Admin: React.FC = () => {
                               {retirosFinanzas.slice(0, 10).map((retiro, idx) => (
                                 <div key={idx} className="retiro-item">
                                   <div className="retiro-info">
-                                    <span className="retiro-fuente" style={{
-                                      color: retiro.fuente === 'reinversion' ? '#d9534f' : retiro.fuente === 'fondo' ? '#0275d8' : '#5cb85c'
-                                    }}>
+                                    <span className={`retiro-fuente is-${retiro.fuente}`}>
                                       {retiro.fuente.charAt(0).toUpperCase() + retiro.fuente.slice(1)}
                                     </span>
                                     <span className="retiro-concepto">{retiro.concepto}</span>
@@ -1788,7 +1910,7 @@ export const Admin: React.FC = () => {
                                       }}
                                       title="Eliminar retiro"
                                     >
-                                      🗑️
+                                      <Trash2 size={15} aria-hidden="true" />
                                     </button>
                                   </div>
                                 </div>
@@ -1919,7 +2041,7 @@ export const Admin: React.FC = () => {
                                       }}
                                       title="Eliminar retiro"
                                     >
-                                      🗑️
+                                      <Trash2 size={15} aria-hidden="true" />
                                     </button>
                                   </div>
                                 </div>
@@ -1940,7 +2062,10 @@ export const Admin: React.FC = () => {
                                 cy="50%"
                                 labelLine={false}
                                 outerRadius={100}
-                                fill="#8884d8"
+                                fill="#5d4037"
+                                stroke="#fef7f0"
+                                strokeWidth={2}
+                                paddingAngle={1}
                                 dataKey="cantidad"
                                 nameKey="nombre"
                               >
@@ -1953,6 +2078,13 @@ export const Admin: React.FC = () => {
                                 labelFormatter={(name: string) => {
                                   const product = pieData.find(p => p.nombre === name)
                                   return product ? product.nombre : name
+                                }}
+                                contentStyle={{
+                                  background: '#fef7f0',
+                                  border: '1px solid #5d4037',
+                                  borderRadius: 0,
+                                  fontFamily: 'Courier Prime, monospace',
+                                  fontSize: 12
                                 }}
                               />
                               <Legend />
@@ -1975,18 +2107,24 @@ export const Admin: React.FC = () => {
             {loading ? (
               <div className="loading">Cargando pedidos...</div>
             ) : orders.length === 0 ? (
-              <div className="no-data">No hay pedidos</div>
+              <div className="no-data">
+                <Inbox size={26} aria-hidden="true" />
+                <p className="no-data-title">Sin pedidos anotados</p>
+                <p className="no-data-hint">Los pedidos que lleguen desde la tienda aparecerán aquí.</p>
+              </div>
             ) : (
               <div className="orders-table">
                 <table>
                   <thead>
                     <tr>
-                      <th></th>
+                      <th className="col-expand">
+                        <span className="sr-only">Detalle</span>
+                      </th>
                       <th>Cliente</th>
                       <th>Teléfono</th>
-                      <th>Total</th>
-                      <th>Fecha Pedido</th>
-                      <th>Fecha Entrega</th>
+                      <th className="num">Total</th>
+                      <th className="num">Fecha Pedido</th>
+                      <th className="num">Fecha Entrega</th>
                       <th>Estado</th>
                       <th>Productos</th>
                       <th>Acción</th>
@@ -1996,33 +2134,35 @@ export const Admin: React.FC = () => {
                      {getPaginatedData(orders, ordersPage).map(order => (
                        <React.Fragment key={order.id}>
                          <tr>
-                           <td>
+                           <td className="col-expand">
                              <button 
                                className="expand-btn"
                                onClick={() => setExpandedOrders(prev => ({ ...prev, [order.id]: !prev[order.id] }))}
-                               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', padding: '4px 8px' }}
+                               aria-expanded={!!expandedOrders[order.id]}
+                               aria-label={expandedOrders[order.id] ? 'Ocultar detalle del pedido' : 'Ver detalle del pedido'}
                              >
-                               {expandedOrders[order.id] ? '▼' : '▶'}
+                               <ChevronDown size={16} aria-hidden="true" />
                              </button>
                            </td>
-                           <td>{order.cliente_nombre}</td>
-                           <td>{order.cliente_telefono}</td>
-                           <td>{formatPrice(order.total)}</td>
-                           <td>{new Date(order.fecha).toLocaleDateString()}</td>
-                           <td>{order.fecha_entrega ? new Date(order.fecha_entrega).toLocaleDateString('es-CU', { timeZone: 'UTC' }) : '-'}</td>
+                           <td className="cell-name">{order.cliente_nombre}</td>
+                           <td className="num">{order.cliente_telefono}</td>
+                           <td className="num">{formatPrice(order.total)}</td>
+                           <td className="num">{new Date(order.fecha).toLocaleDateString()}</td>
+                           <td className="num">{order.fecha_entrega ? new Date(order.fecha_entrega).toLocaleDateString('es-CU', { timeZone: 'UTC' }) : '-'}</td>
                            <td>
                              <span className={`status ${order.estado === 'completado' ? 'completed' : ''}`}>
                                {order.estado}
                              </span>
                            </td>
-                            <td>{renderProductSummary(order.productos)}</td>
+                            <td className="cell-products">{renderProductSummary(order.productos)}</td>
                             <td>
                               <button 
                                 className="btn-edit-date"
                                 onClick={() => setEditingDeliveryDate({ orderId: order.id, date: order.fecha_entrega || '' })}
                                 title="Editar fecha de entrega"
                               >
-                                📅 Fecha
+                                <CalendarDays size={14} aria-hidden="true" />
+                                Fecha
                               </button>
                               {order.estado !== 'completado' && (
                                 <button 
@@ -2052,7 +2192,8 @@ export const Admin: React.FC = () => {
                                     }
                                   }}
                                 >
-                                  ✓ Completar
+                                  <Check size={14} aria-hidden="true" />
+                                  Completar
                                 </button>
                               )}
                               <button 
@@ -2060,13 +2201,14 @@ export const Admin: React.FC = () => {
                                 onClick={() => handleDeleteOrder(order.id)}
                                 title="Eliminar pedido"
                               >
-                                🗑️ Eliminar
+                                <Trash2 size={14} aria-hidden="true" />
+                                Eliminar
                               </button>
                             </td>
                          </tr>
                          {expandedOrders[order.id] && (
                            <tr className="expanded-row">
-                             <td colSpan={8}>
+                             <td colSpan={9}>
                                <div className="products-details">
                                  <h4>Detalles de productos:</h4>
                                  <div className="products-list">

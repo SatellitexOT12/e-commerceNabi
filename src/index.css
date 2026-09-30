@@ -1,13 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Caveat:wght@400..700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap');
 
 :root {
-  --primary-color: #f8bbd9; /* rosa pastel */
-  --secondary-color: #fef7f0; /* crema */
-  --accent-color: #5d4037; /* marrón chocolate */
+  /* Paleta innegociable: rosa pastel, crema, chocolate */
+  --primary-color: #f8bbd9;   /* rosa pastel */
+  --secondary-color: #fef7f0; /* crema papel */
+  --accent-color: #5d4037;    /* chocolate, tinta */
   --text-color: #5d4037;
   --background-color: #fef7f0;
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Materiales del cuaderno */
+  --paper-aged: #e9d8c6;      /* papel viejo: reglas, bordes, tickets */
+  --paper-aged-2: #f3e7da;    /* relleno de tickets y casillas */
+  --ink-soft: #6d5347;        /* texto secundario, tinteado del chocolate, nunca gris */
+  --rule: rgba(93, 64, 55, 0.1);
+  --rule-strong: rgba(93, 64, 55, 0.42);
+  --tape: rgba(248, 187, 217, 0.55);
+
+  /* Voz tipográfica */
+  --font-display: 'Bodoni Moda', 'Times New Roman', Georgia, serif;
+  --font-body: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-data: 'Courier Prime', ui-monospace, 'Courier New', monospace;
+  --font-hand: 'Caveat', 'Segoe Script', cursive;
+
+  /* Ritmo de papel rayado */
+  --rule-step: 32px;
+  --measure: 68ch;
+  --page-max: 1180px;
 }
 
 html {
@@ -19,24 +37,31 @@ body {
   margin: 0;
   font-family: var(--font-body);
   background-color: var(--background-color);
+  /* El papel del cuaderno: rayado horizontal continuo, sin costura visible */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(var(--rule-step) - 1px),
+    var(--rule) calc(var(--rule-step) - 1px) var(--rule-step)
+  );
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  line-height: 1.6;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Prevent text size adjustment on mobile */
+/* Prevenir ajuste de tamaño de texto en móvil */
 input, textarea, select, button {
   font-family: inherit;
-  font-size: 16px; /* Prevents zoom on iOS */
+  font-size: 16px;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Improve touch targets */
+/* Objetivos táctiles */
 button, .button-like {
   min-height: 44px;
   min-width: 44px;
@@ -45,32 +70,42 @@ button, .button-like {
   justify-content: center;
 }
 
-/* Better focus styles for accessibility */
 :focus-visible {
-  outline: 3px solid var(--accent-color);
-  outline-offset: 2px;
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
 }
 
-/* Smooth scrolling container */
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Remove default tap highlight on mobile */
 a, button {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Ensure images don't overflow containers */
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* Custom scrollbar */
+/* Dato numérico: cifras tabulares en todo el cuaderno */
+.data,
+input[type="number"],
+.price,
+input[type="date"] {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--primary-color);
+  color: var(--accent-color);
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -81,7 +116,8 @@ img {
 
 ::-webkit-scrollbar-thumb {
   background: var(--primary-color);
-  border-radius: 5px;
+  border: 2px solid var(--secondary-color);
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -89,5 +125,5 @@ img {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: var(--font-data);
 }

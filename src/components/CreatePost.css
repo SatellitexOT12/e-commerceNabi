@@ -1,94 +1,100 @@
+/* Compositor de entradas: formulario impreso sobre el cuaderno */
+
 .create-post-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
-  color: white;
-  border: none;
-  padding: 0.7rem 1.5rem;
-  border-radius: 25px;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0.6rem 1.35rem;
+  background: var(--accent-color);
+  color: var(--secondary-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
+  box-shadow: 0 12px 22px -16px rgba(93, 64, 55, 0.9);
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
 .create-post-trigger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(93, 64, 55, 0.3);
+  background: var(--primary-color);
+  color: var(--accent-color);
 }
 
 .create-post-trigger:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
-/* Modal */
+/* ---------------------------------------------------------------
+   Modal: una hoja suelta del cuaderno
+   --------------------------------------------------------------- */
+
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(93, 64, 55, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 1rem;
+  padding: 1.25rem;
 }
 
 .modal-content {
-  background: white;
-  border-radius: 20px;
-  max-width: 600px;
-  width: 100%;
+  --ease-paste: cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  width: min(640px, 100%);
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-50px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  background: var(--secondary-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 3px;
+  box-shadow: 0 34px 60px -34px rgba(93, 64, 55, 0.85);
 }
 
 .modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  gap: 1rem;
+  padding: 1.1rem 1.5rem;
+  background: var(--primary-color);
+  border-bottom: 3px double var(--accent-color);
 }
 
 .modal-header h2 {
-  font-size: 1.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
   color: var(--accent-color);
   margin: 0;
 }
 
 .close-btn {
-  background: none;
-  border: none;
-  color: var(--accent-color);
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  display: flex;
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  color: var(--accent-color);
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
-.close-btn:hover {
+.close-btn:hover:not(:disabled) {
   background: rgba(93, 64, 55, 0.1);
+  border-color: var(--accent-color);
 }
 
 .close-btn:disabled {
@@ -96,8 +102,12 @@
   cursor: not-allowed;
 }
 
+/* ---------------------------------------------------------------
+   Formulario impreso
+   --------------------------------------------------------------- */
+
 .create-post-form {
-  padding: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 1.75rem) 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -110,217 +120,418 @@
 }
 
 .form-label {
-  font-weight: 600;
-  color: var(--accent-color);
-  font-size: 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
-/* Image upload */
+/* línea de puntos hasta el borde: casilla de formulario impreso */
+.form-label::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px dotted var(--rule-strong);
+  transform: translateY(-3px);
+}
+
+/* Imagen */
 .upload-area {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 2rem;
-  border: 2px dashed var(--primary-color);
-  border-radius: 12px;
-  background: #fef7f0;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  gap: 0.4rem;
+  min-height: 160px;
+  padding: 1.75rem 1rem;
+  background: var(--paper-aged-2);
+  border: 1px dashed var(--rule-strong);
+  border-radius: 2px;
   color: var(--accent-color);
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
 .upload-area:hover {
+  background: rgba(248, 187, 217, 0.35);
   border-color: var(--accent-color);
-  background: rgba(248, 187, 217, 0.1);
 }
 
 .upload-area p {
   margin: 0;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  color: var(--accent-color);
 }
 
 .upload-area small {
-  color: #999;
+  font-family: var(--font-data);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
 }
 
 .hidden-input {
   display: none;
 }
 
-.image-preview-container {
+/* Vista previa pegada con esquineros y cinta */
+.compose-mount {
   position: relative;
-  width: 100%;
+  padding: 12px;
+  background: var(--secondary-color);
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
 }
 
-.image-preview {
+.compose-photo {
+  display: block;
   width: 100%;
   max-height: 300px;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
-  border-radius: 12px;
+  background: var(--paper-aged);
+}
+
+.compose-tape {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 92px;
+  height: 24px;
+  margin-left: -46px;
+  background-color: var(--tape);
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.55) 0 3px,
+    rgba(255, 255, 255, 0) 3px 9px
+  );
+  border-top: 1px solid rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid rgba(93, 64, 55, 0.16);
+  box-shadow: 0 3px 7px -4px rgba(93, 64, 55, 0.7);
+  transform: rotate(-2deg);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.compose-corner {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background-color: var(--paper-aged);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.compose-corner--tl {
+  top: 0;
+  left: 0;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  background-image: linear-gradient(
+    to bottom right,
+    transparent 0 calc(50% - 1.5px),
+    rgba(93, 64, 55, 0.55) calc(50% - 1.5px) 50%,
+    transparent 50%
+  );
+}
+
+.compose-corner--br {
+  right: 0;
+  bottom: 0;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  background-image: linear-gradient(
+    to bottom right,
+    transparent 0 50%,
+    rgba(93, 64, 55, 0.55) 50% calc(50% + 1.5px),
+    transparent calc(50% + 1.5px)
+  );
+}
+
+.compose-corner--tr {
+  top: 0;
+  right: 0;
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+  background-image: linear-gradient(
+    to top right,
+    transparent 0 50%,
+    rgba(93, 64, 55, 0.55) 50% calc(50% + 1.5px),
+    transparent calc(50% + 1.5px)
+  );
+}
+
+.compose-corner--bl {
+  left: 0;
+  bottom: 0;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+  background-image: linear-gradient(
+    to top right,
+    transparent 0 calc(50% - 1.5px),
+    rgba(93, 64, 55, 0.55) calc(50% - 1.5px) 50%,
+    transparent 50%
+  );
 }
 
 .remove-image {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
+  top: -14px;
+  right: -14px;
+  z-index: 4;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  width: 36px;
+  height: 36px;
+  background: var(--secondary-color);
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.18s ease, transform 0.18s ease;
 }
 
 .remove-image:hover {
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--primary-color);
 }
 
-/* Form inputs */
+.remove-image:active {
+  transform: translateY(1px);
+}
+
+/* Campos */
 .form-input,
 .form-textarea {
-  padding: 0.75rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-family: inherit;
+  width: 100%;
+  background-color: var(--paper-aged-2);
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  padding: 0.7rem 0.8rem;
+  font-family: var(--font-body);
   font-size: 1rem;
+  line-height: 1.5;
   color: var(--text-color);
-  transition: all 0.3s ease;
+  caret-color: var(--accent-color);
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--ink-soft);
+  opacity: 1;
+}
+
+.form-input:hover,
+.form-textarea:hover {
+  border-color: var(--accent-color);
 }
 
 .form-input:focus,
 .form-textarea:focus {
-  outline: none;
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(248, 187, 217, 0.1);
+  background-color: var(--secondary-color);
 }
 
 .form-input:disabled,
 .form-textarea:disabled {
-  background: #f5f5f5;
+  background-color: var(--paper-aged);
   cursor: not-allowed;
 }
 
+/* Papel rayado del cuaderno para la entradilla */
 .form-textarea {
+  min-height: 166px;
   resize: vertical;
-  min-height: 100px;
+  line-height: 32px;
+  padding: 0.25rem 0.8rem;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 31px,
+    rgba(93, 64, 55, 0.16) 31px 32px
+  );
+  background-origin: content-box;
 }
 
 .char-count {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
   text-align: right;
-  color: #999;
-  font-size: 0.8rem;
 }
 
 .error-message {
-  padding: 0.75rem;
-  background: #ffebee;
-  color: #c62828;
-  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--paper-aged-2);
+  border: 1px solid var(--accent-color);
+  outline: 1px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+  color: var(--accent-color);
+  font-family: var(--font-body);
   font-size: 0.9rem;
-  border-left: 4px solid #c62828;
+  line-height: 1.55;
+}
+
+.error-message svg {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
 }
 
 .form-actions {
   display: flex;
-  gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
 }
 
 .btn-cancel,
 .btn-submit {
-  flex: 1;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
+  flex: 1 1 160px;
+  min-height: 44px;
+  padding: 0.65rem 1.25rem;
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
 .btn-cancel {
-  background: #f5f5f5;
-  color: var(--text-color);
+  background: transparent;
+  color: var(--accent-color);
+  border: 1px solid var(--rule-strong);
 }
 
 .btn-cancel:hover:not(:disabled) {
-  background: #e0e0e0;
+  background: rgba(248, 187, 217, 0.4);
+  border-color: var(--accent-color);
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
-  color: white;
+  background: var(--accent-color);
+  color: var(--secondary-color);
+  border: 1px solid var(--accent-color);
 }
 
 .btn-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(93, 64, 55, 0.3);
+  background: var(--primary-color);
+  color: var(--accent-color);
+}
+
+.btn-cancel:active,
+.btn-submit:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .btn-submit:disabled,
 .btn-cancel:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* ---------------------------------------------------------------
+   La hoja entra sola; el contenido se ve en su sitio por defecto
+   --------------------------------------------------------------- */
+
+@keyframes veil-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-28px) rotate(-0.8deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .modal-overlay {
+    animation: veil-in 0.22s ease-out both;
+  }
+
   .modal-content {
-    max-width: 95vw;
+    animation: sheet-drop 0.45s var(--ease-paste) both;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .create-post-form {
+    gap: 1.35rem;
+  }
+
+  .compose-photo {
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 1rem;
   }
 
   .modal-header {
-    padding: 1rem;
-  }
-
-  .modal-header h2 {
-    font-size: 1.3rem;
+    padding: 1rem 1.15rem;
   }
 
   .create-post-form {
-    padding: 1rem;
-    gap: 1rem;
+    padding: 1.25rem 1.15rem;
+    gap: 1.25rem;
   }
 
   .upload-area {
-    padding: 1.5rem;
+    min-height: 130px;
+    padding: 1.25rem 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .modal-overlay {
     padding: 0;
+    align-items: flex-end;
   }
 
   .modal-content {
-    max-width: 100vw;
+    width: 100%;
     max-height: 100vh;
     border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 
-  .create-post-trigger {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-  }
-
-  .modal-header h2 {
-    font-size: 1.1rem;
-  }
-
-  .upload-area {
-    padding: 1rem;
+  .create-post-form {
+    padding: 1.15rem 1rem 1.5rem;
+    gap: 1.15rem;
   }
 
   .form-actions {
     gap: 0.5rem;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    flex: 1 1 100%;
   }
 }

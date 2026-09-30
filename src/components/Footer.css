@@ -1,0 +1,114 @@
+.colophon {
+  background-color: var(--secondary-color);
+  border-top: 3px double var(--accent-color);
+  margin-top: auto;
+  padding: 3.5rem 1.5rem 2rem;
+}
+
+.colophon-inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, minmax(140px, 1fr));
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.colophon-nameplate {
+  font-family: var(--font-display);
+  font-size: 2.35rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin: 0 0 0.75rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.colophon-line {
+  font-family: var(--font-body);
+  color: var(--ink-soft);
+  margin: 0;
+  max-width: 34ch;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.colophon-col h2 {
+  font-family: var(--font-data);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.colophon-col p,
+.colophon-col button {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text-color);
+  margin: 0 0 0.5rem;
+  padding: 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  min-height: 32px;
+  line-height: 1.5;
+  transition: color 0.18s ease;
+}
+
+.colophon-col button {
+  text-decoration: underline;
+  text-decoration-color: var(--paper-aged);
+  text-underline-offset: 4px;
+}
+
+.colophon-col button:hover {
+  color: var(--accent-color);
+  text-decoration-color: var(--primary-color);
+}
+
+.colophon-note {
+  color: var(--ink-soft) !important;
+  font-size: 0.85rem !important;
+}
+
+.colophon-rule {
+  max-width: var(--page-max);
+  margin: 2.5rem auto 1rem;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.colophon-data {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  font-family: var(--font-data);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .colophon-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .colophon-inner {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .colophon-nameplate {
+    font-size: 1.85rem;
+  }
+}

@@ -9,6 +9,7 @@ import { Checkout } from './pages/Checkout'
 import { Admin } from './pages/Admin'
 import { Blog } from './pages/Blog'
 import { CartModal } from './components/CartModal'
+import { Footer } from './components/Footer'
 import './App.css'
 
 function AppContent() {
@@ -38,6 +39,8 @@ function AppContent() {
           <Route path="/blog" element={<Blog />} />
         </Routes>
       </main>
+
+      <Footer />
 
       <Toaster position="top-right" />
     </>

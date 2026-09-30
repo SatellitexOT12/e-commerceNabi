@@ -3,6 +3,7 @@ import './ProductCard.css'
 import { Product, Agregado } from '../contexts/CartContext'
 import { getAgregos } from '../services/agregos'
 import { formatPrice } from '../utils/formatPrice'
+import { ChevronDown, Minus, Plus, Search, X } from 'lucide-react'
 
 interface SelectedAgrego extends Agregado {
   cantidad: number
@@ -56,6 +57,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
     return () => { document.body.style.overflow = '' }
   }, [showLightbox])
 
+  // Escape closes the image viewer
+  useEffect(() => {
+    if (!showLightbox) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowLightbox(false)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [showLightbox])
+
   const updateCantidad = (aggId: string, delta: number) => {
     setSelectedAgregos(prev => {
       const current = prev[aggId] || 0
@@ -95,79 +106,101 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
 
   if (showAgregos) {
     return (
-      <div className="product-card agregos-modal">
+      <div
+        className="product-card agregos-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Agregos para ${product.nombre}`}
+      >
+        <span className="card-tape agregos-tape" aria-hidden="true" />
         <div className="agregos-header">
-          <h3>Selecciona agregos</h3>
-          <button className="close-btn" onClick={() => setShowAgregos(false)}>×</button>
+          <h3>Los agregos de la receta</h3>
+          <button
+            type="button"
+            className="close-btn"
+            onClick={() => setShowAgregos(false)}
+            aria-label="Cerrar la lista de agregos"
+          >
+            <X size={20} strokeWidth={1.75} aria-hidden="true" />
+          </button>
         </div>
         <p className="agregos-subtitle">para {product.nombre}</p>
-        
+
         {loading ? (
-          <div className="loading">Cargando agregos...</div>
+          <div className="agregos-state" role="status">Cargando la lista de ingredientes…</div>
         ) : agregos.length === 0 ? (
-          <div className="no-agregos">No hay agregos disponibles</div>
+          <div className="agregos-state">Esta receta no tiene agregos disponibles</div>
         ) : (
-          <div className="agregos-list">
+          <ul className="agregos-list">
             {agregos.map(agg => {
               const cantidad = selectedAgregos[agg.id] || 0
               return (
-                 <div key={agg.id} className="agregos-item">
-                   <div className="agg-info">
-                     <span className="agg-nombre">{agg.nombre}</span>
-                     <span className="agg-precio">+{formatPrice(agg.precio)} c/u</span>
-                   </div>
-                   <div className="agg-cantidad">
-                    <button 
+                <li key={agg.id} className="agregos-item">
+                  <div className="agg-info">
+                    <span className="agg-nombre">{agg.nombre}</span>
+                    <span className="agg-precio">+{formatPrice(agg.precio)} c/u</span>
+                  </div>
+                  <div className="agg-cantidad">
+                    <button
                       type="button"
                       className="qty-btn"
                       onClick={() => updateCantidad(agg.id, -1)}
                       disabled={cantidad === 0}
+                      aria-label={`Quitar ${agg.nombre}`}
                     >
-                      -
+                      <Minus size={16} strokeWidth={2} aria-hidden="true" />
                     </button>
-                    <span className="qty-value">{cantidad}</span>
-                    <button 
+                    <span className="qty-value" aria-label={`Cantidad de ${agg.nombre}`}>{cantidad}</span>
+                    <button
                       type="button"
                       className="qty-btn"
                       onClick={() => updateCantidad(agg.id, 1)}
+                      aria-label={`Agregar ${agg.nombre}`}
                     >
-                      +
+                      <Plus size={16} strokeWidth={2} aria-hidden="true" />
                     </button>
                   </div>
-                </div>
+                </li>
               )
             })}
-          </div>
+          </ul>
         )}
-        
-         <div className="agregos-footer">
-           <span className="total-price">Total: {formatPrice(totalPrice)}</span>
-           <button 
-             className="add-btn" 
-             onClick={handleConfirm}
-             disabled={!product.disponible}
-           >
-             Agregar
-           </button>
-         </div>
+
+        <div className="agregos-footer">
+          <span className="total-price" aria-live="polite">
+            <span className="total-label">Total</span>
+            <span className="total-amount">{formatPrice(totalPrice)}</span>
+          </span>
+          <button
+            type="button"
+            className="add-btn"
+            onClick={handleConfirm}
+            disabled={!product.disponible}
+          >
+            Anotar en el pedido
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
     <>
-      <div className="product-card">
-        <div className="product-image" onClick={() => setShowLightbox(true)}>
-          <img src={product.imagen_url} alt={product.nombre} />
-          <div className="image-zoom-hint">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              <line x1="11" y1="8" x2="11" y2="14"/>
-              <line x1="8" y1="11" x2="14" y2="11"/>
-            </svg>
-          </div>
-        </div>
+      <article className="product-card">
+        <span className="card-tape" aria-hidden="true" />
+
+        <button
+          type="button"
+          className="product-image"
+          onClick={() => setShowLightbox(true)}
+          aria-label={`Ver la foto de ${product.nombre} en grande`}
+        >
+          <img src={product.imagen_url} alt={product.nombre} loading="lazy" />
+          <span className="image-zoom-hint" aria-hidden="true">
+            <Search size={16} strokeWidth={1.75} />
+          </span>
+        </button>
+
         <div className="product-info">
           <h3>{product.nombre}</h3>
           <p className="category">{product.categoria}</p>
@@ -178,37 +211,63 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
                   {descExpanded ? product.descripcion : `${product.descripcion.substring(0, DESC_MAX_LENGTH)}...`}
                 </p>
                 <button
+                  type="button"
                   className="read-more-btn"
                   onClick={() => setDescExpanded(!descExpanded)}
+                  aria-expanded={descExpanded}
                 >
                   {descExpanded ? 'Leer menos' : 'Leer más'}
+                  <ChevronDown size={14} strokeWidth={2} aria-hidden="true" />
                 </button>
               </>
             ) : (
               <p className="description">{product.descripcion}</p>
             )}
           </div>
+
           <div className="product-footer">
-            <span className="price">{formatPrice(product.precio)}</span>
-            <button 
-              onClick={handleAdd} 
+            <div className="price-ticket">
+              <span className="ticket-label">Precio</span>
+              <span className="price">{formatPrice(product.precio)}</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleAdd}
               className="add-btn"
               disabled={!product.disponible}
             >
-              {product.disponible ? 'Agregar' : 'No disponible'}
+              {product.disponible ? (needsAgregos ? 'Elegir agregos' : 'Anotar') : 'No disponible'}
             </button>
           </div>
         </div>
-      </div>
+      </article>
 
       {/* Image Lightbox */}
       {showLightbox && (
-        <div className="lightbox-overlay" onClick={() => setShowLightbox(false)}>
-          <button className="lightbox-close" onClick={() => setShowLightbox(false)}>×</button>
-          <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+        <div
+          className="lightbox-overlay"
+          onClick={() => setShowLightbox(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Foto de ${product.nombre}`}
+        >
+          <button
+            type="button"
+            className="lightbox-close"
+            onClick={() => setShowLightbox(false)}
+            aria-label="Cerrar la foto"
+            autoFocus
+          >
+            <X size={22} strokeWidth={1.75} aria-hidden="true" />
+          </button>
+          <figure className="lightbox-content" onClick={e => e.stopPropagation()}>
+            <span className="card-tape lightbox-tape" aria-hidden="true" />
             <img src={product.imagen_url} alt={product.nombre} />
-            <p className="lightbox-caption">{product.nombre}</p>
-          </div>
+            <figcaption className="lightbox-caption">
+              <span className="lightbox-name">{product.nombre}</span>
+              <span className="price">{formatPrice(product.precio)}</span>
+            </figcaption>
+          </figure>
         </div>
       )}
     </>

@@ -7,9 +7,18 @@ import './PostCard.css'
 interface PostCardProps {
   post: BlogPost
   onLikeChange: () => void
+  /** Forma de la entrada en el cuaderno: apertura (destacada) o entrada de la lista */
+  variant?: 'featured' | 'entry'
+  /** Nº de entrada dentro del cuaderno (orden cronológico) */
+  entryNumber?: number
 }
 
-export const PostCard: React.FC<PostCardProps> = ({ post, onLikeChange }) => {
+export const PostCard: React.FC<PostCardProps> = ({
+  post,
+  onLikeChange,
+  variant = 'entry',
+  entryNumber,
+}) => {
   const [liked, setLiked] = useState(false)
   const [isLiking, setIsLiking] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes)
@@ -29,8 +38,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLikeChange }) => {
 
   const checkIfUserLiked = async () => {
     const sessionId = getSessionId()
-    
-    // ✅ Cambio 1: maybeSingle() en lugar de single()
+
+    // maybeSingle(): el registro puede no existir todavía
     const { data, error } = await supabase
       .from('blog_likes')
       .select('id')
@@ -62,8 +71,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLikeChange }) => {
 
         setLiked(false)
         setLikeCount(prev => prev - 1)
-        
-        // ❌ ELIMINADO: ya no actualizamos manualmente blog_posts
+
       } else {
         // Dar like
         const { error } = await supabase
@@ -78,10 +86,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLikeChange }) => {
 
         setLiked(true)
         setLikeCount(prev => prev + 1)
-        
-        // ❌ ELIMINADO: ya no actualizamos manualmente blog_posts
+
       }
-      
+
       onLikeChange()
     } catch (error) {
       console.error('Error al dar like:', error)
@@ -117,6 +124,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLikeChange }) => {
     day: 'numeric'
   })
 
+  const shortDate = new Date(post.created_at).toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: 'short',
+    year: '2-digit'
+  })
+
   const isNew = () => {
     const postDate = new Date(post.created_at)
     const now = new Date()
@@ -125,37 +138,83 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLikeChange }) => {
     return diffDays <= 7
   }
 
+  const entryLabel = typeof entryNumber === 'number'
+    ? `N.º ${String(entryNumber).padStart(2, '0')}`
+    : ''
+  const showNew = isNew()
+
+  const actions = (
+    <div className="post-actions">
+      <button
+        className={`action-btn like-btn ${liked ? 'liked' : ''}`}
+        onClick={handleLike}
+        disabled={isLiking}
+        aria-pressed={liked}
+        aria-label={liked ? 'Quitar me gusta de esta entrada' : 'Me gusta esta entrada'}
+      >
+        <Heart size={18} fill={liked ? 'currentColor' : 'none'} aria-hidden="true" />
+        <span className="action-count">{likeCount}</span>
+      </button>
+
+      <button
+        className="action-btn share-btn"
+        onClick={handleShare}
+        aria-label={`Compartir la entrada ${post.title}`}
+      >
+        <Share2 size={18} aria-hidden="true" />
+        <span>Compartir</span>
+      </button>
+    </div>
+  )
+
+  if (variant === 'featured') {
+    return (
+      <article className="post-card post-card--featured">
+        <figure className="post-figure">
+          <span className="photo-corner photo-corner--tl" aria-hidden="true" />
+          <span className="photo-corner photo-corner--tr" aria-hidden="true" />
+          <span className="photo-corner photo-corner--bl" aria-hidden="true" />
+          <span className="photo-corner photo-corner--br" aria-hidden="true" />
+          <span className="photo-tape" aria-hidden="true" />
+          <img src={post.image_url} alt={post.title} className="post-image" />
+          {showNew && <span className="new-badge">Nuevo</span>}
+        </figure>
+
+        <div className="post-content">
+          <div className="post-meta">
+            {entryLabel && <span className="post-index">{entryLabel}</span>}
+            <time className="post-date" dateTime={post.created_at}>{formattedDate}</time>
+          </div>
+
+          <h2 className="post-title">{post.title}</h2>
+
+          <p className="post-description">{post.description}</p>
+
+          {actions}
+        </div>
+      </article>
+    )
+  }
+
   return (
-    <div className="post-card">
-      <div className="post-image-container">
-        <img src={post.image_url} alt={post.title} className="post-image" />
-        {isNew() && <span className="new-badge">Nuevo</span>}
+    <article className="post-card post-card--entry">
+      <div className="entry-meta">
+        {entryLabel && <span className="post-index">{entryLabel}</span>}
+        <time className="post-date" dateTime={post.created_at}>{shortDate}</time>
       </div>
 
+      <figure className="entry-figure">
+        <img src={post.image_url} alt={post.title} className="entry-image" />
+        {showNew && <span className="new-badge new-badge--on-photo">Nuevo</span>}
+      </figure>
+
       <div className="post-content">
-        <div className="post-header">
-          <h3 className="post-title">{post.title}</h3>
-          <p className="post-date">{formattedDate}</p>
-        </div>
+        <h3 className="post-title">{post.title}</h3>
 
         <p className="post-description">{post.description}</p>
 
-        <div className="post-actions">
-          <button
-            className={`action-btn like-btn ${liked ? 'liked' : ''}`}
-            onClick={handleLike}
-            disabled={isLiking}
-          >
-            <Heart size={20} fill={liked ? 'currentColor' : 'none'} />
-            <span className="action-count">{likeCount}</span>
-          </button>
-
-          <button className="action-btn share-btn" onClick={handleShare}>
-            <Share2 size={20} />
-            <span>Compartir</span>
-          </button>
-        </div>
+        {actions}
       </div>
-    </div>
+    </article>
   )
 }

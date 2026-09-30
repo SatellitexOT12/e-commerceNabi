@@ -1,160 +1,457 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-29T12:00:00Z",
-  "title": "Design System: MiniNabi",
+  "generatedAt": "2026-09-30T22:45:41+00:00",
+  "title": "Design System: MiniNabi — El Cuaderno de la Casa",
   "extensions": {
     "colorMeta": {
       "rosa-pastel": {
         "role": "primary",
-        "displayName": "Rosa Pastel",
+        "displayName": "Rosa pastel del cuaderno",
         "canonical": "#f8bbd9",
-        "tonalRamp": ["#5c1a3a", "#8a2a55", "#b83a70", "#e84a8a", "#f8bbd9", "#fce4f0", "#fef2f8", "#fff9fc"]
+        "tonalRamp": [
+          "#470626",
+          "#7a0d42",
+          "#ab165f",
+          "#da227c",
+          "#e0569a",
+          "#e68ab7",
+          "#efbcd5",
+          "#faebf2"
+        ]
       },
       "crema": {
-        "role": "secondary",
-        "displayName": "Crema",
+        "role": "neutral",
+        "displayName": "Crema de papel",
         "canonical": "#fef7f0",
-        "tonalRamp": ["#5c4a3a", "#8a7565", "#b8a090", "#e8d5c5", "#fef7f0", "#fffaf5", "#fffdfa", "#fffefc"]
+        "tonalRamp": [
+          "#492603",
+          "#7e4308",
+          "#b16110",
+          "#e17e1b",
+          "#e59b50",
+          "#eab886",
+          "#f1d5ba",
+          "#faf2ea"
+        ]
+      },
+      "papel-viejo": {
+        "role": "neutral",
+        "displayName": "Papel viejo",
+        "canonical": "#e9d8c6",
+        "tonalRamp": [
+          "#382714",
+          "#614426",
+          "#896238",
+          "#b07f4c",
+          "#c19c75",
+          "#d1b99f",
+          "#e3d6c7",
+          "#f6f2ee"
+        ]
+      },
+      "papel-viejo-2": {
+        "role": "neutral",
+        "displayName": "Papel viejo claro",
+        "canonical": "#f3e7da",
+        "tonalRamp": [
+          "#3b2712",
+          "#664521",
+          "#8f6232",
+          "#b78044",
+          "#c69d6f",
+          "#d5b99b",
+          "#e5d6c5",
+          "#f7f2ee"
+        ]
       },
       "chocolate": {
-        "role": "neutral",
-        "displayName": "Chocolate",
+        "role": "primary",
+        "displayName": "Chocolate tinta",
         "canonical": "#5d4037",
-        "tonalRamp": ["#1a0f0d", "#2d1a17", "#402622", "#5d4037", "#7a5a52", "#97756d", "#b4908a", "#d1aba5"]
+        "tonalRamp": [
+          "#31211c",
+          "#553a32",
+          "#785449",
+          "#9b6e61",
+          "#b18f85",
+          "#c7b0a9",
+          "#ddd1cd",
+          "#f5f1f0"
+        ]
       },
-      "rojo-alerta": {
+      "tinta-suave": {
+        "role": "neutral",
+        "displayName": "Tinta suave",
+        "canonical": "#6d5347",
+        "tonalRamp": [
+          "#2f231e",
+          "#523e35",
+          "#74594d",
+          "#967566",
+          "#ad9489",
+          "#c4b4ac",
+          "#dcd3ce",
+          "#f4f2f0"
+        ]
+      },
+      "chocolate-profundo": {
+        "role": "primary",
+        "displayName": "Chocolate profundo",
+        "canonical": "#4a3229",
+        "tonalRamp": [
+          "#32211b",
+          "#573b30",
+          "#7b5546",
+          "#9e6f5d",
+          "#b39082",
+          "#c8b1a8",
+          "#ded1cc",
+          "#f5f1f0"
+        ]
+      },
+      "rojo-arcilla": {
         "role": "alert",
-        "displayName": "Rojo Alerta",
-        "canonical": "#e74c3c",
-        "tonalRamp": ["#5c1a14", "#8a2a22", "#b83a30", "#e74c3c", "#f07a6e", "#f5a89e", "#fad5d1", "#fdeae8"]
+        "displayName": "Rojo arcilla",
+        "canonical": "#a32d20",
+        "tonalRamp": [
+          "#41110b",
+          "#711f16",
+          "#9e2f23",
+          "#ca4132",
+          "#d46d62",
+          "#de9992",
+          "#eac4c0",
+          "#f8edec"
+        ]
       }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "Títulos hero y nombres de marca", "fontFamily": "Playfair Display, Georgia, serif" },
-      "headline": { "displayName": "Headline", "purpose": "Títulos de sección y encabezados de página", "fontFamily": "Playfair Display, Georgia, serif" },
-      "title": { "displayName": "Title", "purpose": "Subtítulos y nombres de producto", "fontFamily": "Playfair Display, Georgia, serif" },
-      "body": { "displayName": "Body", "purpose": "Texto general y descripciones", "fontFamily": "Inter, -apple-system, BlinkMacSystemFont, sans-serif" },
-      "label": { "displayName": "Label", "purpose": "Categorías, etiquetas y botones pequeños", "fontFamily": "Inter, -apple-system, BlinkMacSystemFont, sans-serif" }
+      "display": {
+        "displayName": "Display",
+        "purpose": "Nameplate de la portada."
+      },
+      "notebook-title": {
+        "displayName": "Notebook Title",
+        "purpose": "Cabecera de la página Blog."
+      },
+      "page-title": {
+        "displayName": "Page Title",
+        "purpose": "h1 de Tienda, Blog y Pedido."
+      },
+      "section-title": {
+        "displayName": "Section Title",
+        "purpose": "Títulos de sección de la portada."
+      },
+      "entry-title": {
+        "displayName": "Entry Title",
+        "purpose": "Entradas destacadas y encabezados del panel."
+      },
+      "card-title": {
+        "displayName": "Card Title",
+        "purpose": "Encabezados de capítulo y listados."
+      },
+      "post-title": {
+        "displayName": "Post Title",
+        "purpose": "Título de tarjeta de entrada."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de tarjeta y modal."
+      },
+      "subtitle": {
+        "displayName": "Subtitle",
+        "purpose": "Subtítulos y subtotales."
+      },
+      "panel-title": {
+        "displayName": "Panel Title",
+        "purpose": "Títulos de panel y hoja."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "Logotipo del encabezado y colofón."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Cifras de resumen."
+      },
+      "stamp": {
+        "displayName": "Stamp",
+        "purpose": "Sellos de estado."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Entradillas."
+      },
+      "input": {
+        "displayName": "Input",
+        "purpose": "Campos de formulario."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto corrido, medida 68ch."
+      },
+      "body-tight": {
+        "displayName": "Body Tight",
+        "purpose": "Texto en listas densas."
+      },
+      "body-sm": {
+        "displayName": "Body Sm",
+        "purpose": "Texto secundario compacto."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Botón primario en mayúsculas."
+      },
+      "button-md": {
+        "displayName": "Button Md",
+        "purpose": "Botón medio."
+      },
+      "button-sm": {
+        "displayName": "Button Sm",
+        "purpose": "Pestañas y botones pequeños."
+      },
+      "body-xs": {
+        "displayName": "Body Xs",
+        "purpose": "Texto de apoyo en tarjetas."
+      },
+      "nav": {
+        "displayName": "Nav",
+        "purpose": "Navegación principal."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Etiquetas y metadatos."
+      },
+      "label-form": {
+        "displayName": "Label Form",
+        "purpose": "Etiquetas de formulario."
+      },
+      "hint": {
+        "displayName": "Hint",
+        "purpose": "Ayudas de campo."
+      },
+      "label-sm": {
+        "displayName": "Label Sm",
+        "purpose": "Metadatos pequeños."
+      },
+      "folio": {
+        "displayName": "Folio",
+        "purpose": "Folios y líneas de datos."
+      },
+      "micro": {
+        "displayName": "Micro",
+        "purpose": "Sellos diminutos."
+      },
+      "ticket": {
+        "displayName": "Ticket",
+        "purpose": "Ticket de precio."
+      },
+      "marginalia": {
+        "displayName": "Marginalia",
+        "purpose": "Notas a mano, uso escaso."
+      },
+      "input-base": {
+        "displayName": "Input Base",
+        "purpose": "16px: evita el zoom en iOS."
+      }
     },
     "shadows": [
-      { "name": "subtle", "value": "0 2px 10px rgba(0,0,0,0.1)", "purpose": "Elementos en reposo: header, filtros" },
-      { "name": "standard", "value": "0 4px 15px rgba(0,0,0,0.1)", "purpose": "Tarjetas, formularios, contenedores" },
-      { "name": "elevated", "value": "0 8px 25px rgba(93,64,55,0.2)", "purpose": "Hover de tarjetas, elementos interactivos" },
-      { "name": "floating", "value": "0 10px 20px rgba(0,0,0,0.05)", "purpose": "Items de carrusel, elementos destacados" }
+      {
+        "name": "levante-cortes",
+        "value": "0 8px 16px -10px rgba(93,64,55,0.7)",
+        "purpose": "Pestañas y botones flotantes en reposo."
+      },
+      {
+        "name": "hoja-en-el-aire",
+        "value": "0 22px 36px -32px rgba(93,64,55,0.85)",
+        "purpose": "Modales y paneles superpuestos."
+      },
+      {
+        "name": "arrastre-de-hoja",
+        "value": "-26px 0 50px -36px rgba(58,39,31,0.95)",
+        "purpose": "Costura del panel lateral deslizado."
+      },
+      {
+        "name": "tinte-de-foto",
+        "value": "0 18px 36px rgba(93,64,55,0.16)",
+        "purpose": "Fotos pegadas con esquineros."
+      },
+      {
+        "name": "regla-perforada",
+        "value": "0 16px 24px -20px rgba(93,64,55,0.95)",
+        "purpose": "Ticket de precio y CTA de portada."
+      }
     ],
     "motion": [
-      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Transiciones estándar de estado" },
-      { "name": "ease-bounce", "value": "cubic-bezier(0.2, 0.9, 0.4, 1.1)", "purpose": "Carrusel y elementos con rebote sutil" },
-      { "name": "duration-fast", "value": "0.2s", "purpose": "Hover de botones, cambios de estado rápidos" },
-      { "name": "duration-normal", "value": "0.3s", "purpose": "Transiciones estándar" },
-      { "name": "duration-slow", "value": "0.5s", "purpose": "Animaciones de entrada, zoom de imágenes" }
+      {
+        "name": "ease-state",
+        "value": "0.18s ease",
+        "purpose": "Cambios de color y borde en hover/focus."
+      },
+      {
+        "name": "ease-lift",
+        "value": "0.2s ease",
+        "purpose": "Levante de botones (translateY -2px) y asiento de filas."
+      },
+      {
+        "name": "auto",
+        "value": "no-preference",
+        "purpose": "Contenido visible por defecto; sólo se anima bajo prefers-reduced-motion: no-preference."
+      }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "480px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" },
-      { "name": "xl", "value": "1200px" }
-    ]
+      {
+        "name": "folio",
+        "value": "1120px"
+      },
+      {
+        "name": "grande",
+        "value": "1024px"
+      },
+      {
+        "name": "navegacion",
+        "value": "980px"
+      },
+      {
+        "name": "movil",
+        "value": "768px"
+      },
+      {
+        "name": "compacto",
+        "value": "560px"
+      },
+      {
+        "name": "pequeno",
+        "value": "480px"
+      }
+    ],
+    "surface": {
+      "papelRayado": "repeating-linear-gradient(to bottom, transparent 0 31px, rgba(93,64,55,0.1) 31px 32px)",
+      "paso": "32px",
+      "medida": "68ch",
+      "contenedor": "1180px"
+    }
   },
   "components": [
     {
-      "name": "Primary Button",
+      "name": "Ticket CTA (portada)",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Botón de acción principal: CTA, enviar pedido, confirmar",
-      "html": "<button class=\"ds-btn-primary\">Realizar Pedido</button>",
-      "css": ".ds-btn-primary { background-color: #5d4037; color: #ffffff; padding: 1rem 2.5rem; border: none; border-radius: 30px; font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; } .ds-btn-primary:hover { background-color: #f8bbd9; color: #5d4037; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(93, 64, 55, 0.3); }"
+      "description": "Botón principal cortado como ticket, con muñón perforado a la izquierda.",
+      "html": "<button class=\"ds-ticket-cta\"><span class=\"ds-ticket-cta__stub\" aria-hidden=\"true\"></span><span class=\"ds-ticket-cta__label\">Ver la tienda</span></button>",
+      "css": ".ds-ticket-cta{display:inline-flex;align-items:stretch;gap:0;background:var(--accent-color);color:var(--secondary-color);border:1px solid var(--accent-color);border-radius:2px;padding:0;font-family:var(--font-body);font-size:0.92rem;font-weight:700;letter-spacing:0.11em;text-transform:uppercase;cursor:pointer;box-shadow:0 16px 24px -20px rgba(93,64,55,0.95);transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}.ds-ticket-cta__label{padding:0.95rem 1.6rem}.ds-ticket-cta__stub{width:3rem;border-right:2px dashed rgba(254,247,240,0.7);background:rgba(254,247,240,0.12)}.ds-ticket-cta:hover{transform:translateY(-2px);background:#4a3229;box-shadow:0 12px 22px rgba(93,64,55,0.24)}.ds-ticket-cta:active{transform:translateY(0)}.ds-ticket-cta:focus-visible{outline:2px solid var(--accent-color);outline-offset:3px}"
     },
     {
-      "name": "Secondary Button",
+      "name": "Botón secundario",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Botón secundario: agregar al carrito, acciones menos prominentes",
-      "html": "<button class=\"ds-btn-secondary\">Agregar</button>",
-      "css": ".ds-btn-secondary { background-color: #f8bbd9; color: #5d4037; padding: 0.5rem 1rem; border: 2px solid #5d4037; border-radius: 25px; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; } .ds-btn-secondary:hover { background-color: #5d4037; color: #ffffff; transform: scale(1.05); }"
+      "description": "Acción de segundo orden sobre papel crema con borde fino.",
+      "html": "<button class=\"ds-btn-ghost\">Índice completo</button>",
+      "css": ".ds-btn-ghost{background:var(--secondary-color);color:var(--accent-color);border:1.5px solid var(--accent-color);border-radius:2px;padding:0.85rem 1.4rem;font-family:var(--font-body);font-size:0.875rem;font-weight:600;letter-spacing:0.03em;cursor:pointer;transition:background-color .18s ease,color .18s ease}.ds-btn-ghost:hover{background:var(--paper-aged)}.ds-btn-ghost:focus-visible{outline:2px solid var(--accent-color);outline-offset:3px}.ds-btn-ghost:disabled{background:var(--paper-aged);color:var(--ink-soft);border-color:var(--paper-aged);cursor:not-allowed}"
     },
     {
-      "name": "Search Input",
+      "name": "Campo de formulario",
       "kind": "input",
-      "refersTo": "input",
-      "description": "Campo de búsqueda con borde rosa y focus chocolate",
-      "html": "<input type=\"text\" class=\"ds-input-search\" placeholder=\"Buscar productos...\">",
-      "css": ".ds-input-search { width: 100%; padding: 0.75rem; border: 2px solid #f8bbd9; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 1rem; background: #ffffff; color: #5d4037; transition: all 0.3s ease; box-sizing: border-box; } .ds-input-search:focus { outline: none; border-color: #5d4037; box-shadow: 0 0 0 3px rgba(248, 187, 217, 0.3); }"
+      "refersTo": "input-field",
+      "description": "Casilla impresa: relleno de papel viejo, borde de tinte chocolate, foco con halo.",
+      "html": "<label class=\"ds-field\">Nombre completo<input class=\"ds-field__input\" placeholder=\"Cómo quieres que te llamemos\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:0.4rem;font-family:var(--font-body);font-size:0.76rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent-color)}.ds-field__input{background:var(--paper-aged-2);border:1px solid rgba(93,64,55,0.42);border-radius:2px;padding:0.7rem 0.8rem;font-family:var(--font-body);font-size:1rem;font-weight:400;letter-spacing:normal;text-transform:none;color:var(--text-color);caret-color:var(--accent-color);transition:border-color .18s ease,box-shadow .18s ease}.ds-field__input::placeholder{color:var(--ink-soft)}.ds-field__input:hover{border-color:var(--accent-color)}.ds-field__input:focus{outline:none;border-color:var(--accent-color);box-shadow:inset 0 0 0 3px var(--secondary-color)}"
     },
     {
-      "name": "Product Card",
+      "name": "Ficha de receta (tarjeta)",
       "kind": "card",
       "refersTo": "card",
-      "description": "Tarjeta de producto con imagen, info y botón de agregar",
-      "html": "<div class=\"ds-card-product\"><div class=\"ds-card-image\"><img src=\"product.jpg\" alt=\"Producto\"></div><div class=\"ds-card-info\"><h3>Crepe de Nutella</h3><p class=\"ds-card-category\">Crepes</p><p class=\"ds-card-price\">$350 CUP</p><button class=\"ds-btn-secondary\">Agregar</button></div></div>",
-      "css": ".ds-card-product { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; } .ds-card-product:hover { transform: translateY(-8px); box-shadow: 0 8px 25px rgba(93, 64, 55, 0.2); } .ds-card-image { width: 100%; height: 200px; overflow: hidden; } .ds-card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; } .ds-card-product:hover .ds-card-image img { transform: scale(1.08); } .ds-card-info { padding: 1rem; } .ds-card-info h3 { margin: 0 0 0.5rem 0; color: #5d4037; font-size: 1.1rem; } .ds-card-category { color: #999; font-size: 0.85rem; text-transform: uppercase; margin: 0 0 0.5rem 0; } .ds-card-price { color: #5d4037; font-size: 1.25rem; font-weight: bold; margin: 0 0 0.5rem 0; }"
+      "description": "Foto pegada con esquineros y cinta, categoría en versalitas, ticket de precio desprendible.",
+      "html": "<article class=\"ds-ficha\"><div class=\"ds-ficha__photo\"><span class=\"ds-ficha__tape\"></span></div><p class=\"ds-ficha__cat\">Crepes</p><h3 class=\"ds-ficha__title\">Hotcake con Miel</h3><div class=\"ds-ficha__ticket\"><span>Precio</span><b>$150</b></div></article>",
+      "css": ".ds-ficha{background:transparent;border-bottom:1px solid rgba(93,64,55,0.1);padding-bottom:1.25rem;font-family:var(--font-body)}.ds-ficha__photo{position:relative;height:150px;background:var(--paper-aged-2);border:1px solid var(--paper-aged)}.ds-ficha__tape{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:64px;height:18px;background:rgba(248,187,217,0.55)}.ds-ficha__cat{margin:0.85rem 0 0.3rem;font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-soft)}.ds-ficha__title{margin:0;font-family:var(--font-display);font-size:1.35rem;font-weight:500;line-height:1.28;color:var(--accent-color)}.ds-ficha__ticket{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-top:0.85rem;background:var(--paper-aged-2);border:1px solid var(--paper-aged);padding:0.5rem 0.7rem}.ds-ficha__ticket span{font-family:var(--font-data);font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft)}.ds-ficha__ticket b{font-family:var(--font-data);font-size:1.05rem;font-variant-numeric:tabular-nums;color:var(--accent-color)}"
     },
     {
-      "name": "Category Navigation",
-      "kind": "nav",
-      "refersTo": "navigation",
-      "description": "Header con gradiente, logo, links y carrito",
-      "html": "<header class=\"ds-header\"><div class=\"ds-header-container\"><div class=\"ds-logo\"><span>🍰</span><h1>MiniNabi</h1></div><nav class=\"ds-nav\"><a href=\"#\" class=\"ds-nav-link\">Inicio</a><a href=\"#\" class=\"ds-nav-link\">Tienda</a><a href=\"#\" class=\"ds-nav-link\">Blog</a></nav><button class=\"ds-cart-btn\">🛒<span class=\"ds-cart-count\">3</span></button></div></header>",
-      "css": ".ds-header { background: linear-gradient(135deg, #f8bbd9 0%, #fef7f0 100%); padding: 1rem 0; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 1000; } .ds-header-container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; } .ds-logo { display: flex; align-items: center; gap: 0.75rem; } .ds-logo h1 { margin: 0; color: #5d4037; font-size: 1.8rem; } .ds-nav { display: flex; align-items: center; gap: 1.5rem; } .ds-nav-link { color: #5d4037; font-size: 1rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease; } .ds-nav-link:hover { color: #ffffff; text-decoration: underline; } .ds-cart-btn { background-color: #5d4037; color: white; border: none; padding: 0.5rem; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: all 0.3s ease; } .ds-cart-btn:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3); } .ds-cart-count { position: absolute; top: -8px; right: -8px; background-color: #e74c3c; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; }"
-    },
-    {
-      "name": "Category Tag",
+      "name": "Índice de capítulos",
       "kind": "chip",
-      "refersTo": "tag",
-      "description": "Etiqueta de sección o categoría con estilo pill",
-      "html": "<span class=\"ds-tag\">Nuevo</span>",
-      "css": ".ds-tag { display: inline-block; background: #5d4037; color: #ffffff; padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }"
+      "refersTo": "chip-capitulo",
+      "description": "Fila de índice con numeral romano, guía de puntos y recuento; activa = franja rosa.",
+      "html": "<button class=\"ds-chapter is-active\"><span class=\"ds-chapter__num\">II</span><span class=\"ds-chapter__name\">Mini Donas</span><span class=\"ds-chapter__dots\"></span><span class=\"ds-chapter__count\">29</span></button>",
+      "css": ".ds-chapter{display:flex;align-items:baseline;gap:0.5rem;width:100%;padding:0.6rem 0.35rem;background:none;border:0;border-bottom:1px solid rgba(93,64,55,0.1);font-family:var(--font-body);font-size:0.95rem;color:var(--text-color);text-align:left;cursor:pointer;transition:background-color .18s ease}.ds-chapter:hover{background:var(--paper-aged-2)}.ds-chapter:focus-visible{outline:2px solid var(--accent-color);outline-offset:-2px}.ds-chapter.is-active{background:var(--rosa-pastel,var(--primary-color));color:var(--accent-color);font-weight:700}.ds-chapter__num{font-family:var(--font-data);font-size:0.7rem;letter-spacing:0.1em;min-width:1.6rem}.ds-chapter__name{font-weight:inherit}.ds-chapter__dots{flex:1;border-bottom:1px dotted rgba(93,64,55,0.42);transform:translateY(-3px)}.ds-chapter__count{font-family:var(--font-data);font-size:0.78rem;font-variant-numeric:tabular-nums}"
     },
     {
-      "name": "Category Button",
-      "kind": "button",
-      "refersTo": "button-primary",
-      "description": "Botón de checkout o acción crítica",
-      "html": "<button class=\"ds-btn-checkout\">Finalizar Pedido</button>",
-      "css": ".ds-btn-checkout { width: 100%; padding: 1rem; background-color: #5d4037; color: #ffffff; border: none; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; } .ds-btn-checkout:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3); } .ds-btn-checkout:disabled { opacity: 0.6; cursor: not-allowed; }"
+      "name": "Sello de estado",
+      "kind": "chip",
+      "refersTo": "chip-activo",
+      "description": "Estampa rectangular de estado: borde fino, tracking amplio, sin relleno saturado.",
+      "html": "<span class=\"ds-stamp\">Sin coste</span>",
+      "css": ".ds-stamp{display:inline-block;background:var(--paper-aged-2);color:var(--accent-color);border:1px solid var(--paper-aged);border-radius:2px;padding:0.25rem 0.5rem;font-family:var(--font-data);font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}.ds-stamp--pink{background:var(--primary-color);border-color:var(--primary-color)}"
     },
     {
-      "name": "Category Input",
-      "kind": "input",
-      "refersTo": "input",
-      "description": "Input de formulario con label y estado de error",
-      "html": "<div class=\"ds-form-group\"><label class=\"ds-label\">Nombre completo</label><input type=\"text\" class=\"ds-input-field\" placeholder=\"Tu nombre\"><span class=\"ds-error\">Este campo es requerido</span></div>",
-      "css": ".ds-form-group { margin-bottom: 1.25rem; } .ds-label { display: block; margin-bottom: 0.5rem; color: #5d4037; font-weight: 600; font-size: 0.95rem; font-family: 'Poppins', sans-serif; } .ds-input-field { width: 100%; padding: 0.875rem; border: 2px solid #f8bbd9; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 1rem; background: #ffffff; color: #5d4037; transition: all 0.3s ease; box-sizing: border-box; } .ds-input-field:focus { outline: none; border-color: #5d4037; box-shadow: 0 0 0 3px rgba(248, 187, 217, 0.3); } .ds-error { color: #e74c3c; font-size: 0.85rem; display: block; margin-top: 0.25rem; }"
+      "name": "Navegación del encabezado",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Barra crema con doble regla; enlaces en versalitas con subrayado de 1px.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-nav__mark\">Mini Nabi</span><ul class=\"ds-nav__list\"><li><a class=\"ds-nav__link is-active\" href=\"#\">Tienda</a></li><li><a class=\"ds-nav__link\" href=\"#\">Blog</a></li></ul></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;background:var(--secondary-color);border-bottom:3px double var(--accent-color);padding:0.9rem 1.5rem}.ds-nav__mark{font-family:var(--font-display);font-size:1.25rem;font-weight:600;letter-spacing:0.02em;color:var(--accent-color)}.ds-nav__list{display:flex;gap:0.25rem;list-style:none;margin:0;padding:0}.ds-nav__link{display:inline-block;padding:0.5rem 0.7rem;font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent-color);text-decoration:none;border-bottom:2px solid transparent;transition:background-color .18s ease,border-color .18s ease}.ds-nav__link:hover{background:var(--paper-aged-2)}.ds-nav__link.is-active{border-bottom-color:var(--accent-color)}.ds-nav__link:focus-visible{outline:2px solid var(--accent-color);outline-offset:2px}"
+    },
+    {
+      "name": "Franja de índice",
+      "kind": "custom",
+      "refersTo": "colors.rosa-pastel",
+      "description": "Banda rosa a ancho completo que abre la portada: casillas, capítulos y marginalia.",
+      "html": "<section class=\"ds-index\"><h2>Índice de capítulos</h2><p class=\"ds-index__row\"><span class=\"ds-index__box\"></span>Crepes<em>Los Crepes</em></p></section>",
+      "css": ".ds-index{background:var(--primary-color);color:var(--accent-color);border-top:1px solid rgba(93,64,55,0.24);border-bottom:1px solid rgba(93,64,55,0.24);padding:2rem 1.5rem}.ds-index h2{margin:0 0 1rem;font-family:var(--font-display);font-size:1.7rem;font-weight:500;color:var(--accent-color)}.ds-index__row{display:flex;align-items:baseline;gap:0.75rem;margin:0;padding:0.55rem 0;border-top:1px solid rgba(93,64,55,0.24);font-size:0.95rem}.ds-index__box{width:12px;height:12px;border:1px solid var(--accent-color);background:var(--secondary-color)}.ds-index__row em{margin-left:auto;font-family:var(--font-hand);font-size:1.5rem;font-style:normal;color:var(--accent-color)}"
     }
   ],
   "narrative": {
-    "northStar": "La Pastelería de la Esquina",
-    "overview": "El sistema visual de MiniNabi evoca la tienda de dulces del barrio: ese lugar conocido, cálido y confiable donde cada producto se siente hecho a mano con cuidado. El diseño combina la ternura del rosa pastel con la profundidad del chocolate, creando un ambiente que es simultáneamente inocente y con carácter.\n\nLa estética es deliberadamente suave: gradientes sutiles de rosa a crema, sombras ligeras que sugieren papel grueso en lugar de vidrio flotante, y tipografía redondeada que refuerza la sensación artesanal. Cada elemento visual comunica \"hecho con amor\" sin caer en lo empalagoso.",
+    "northStar": "El Cuaderno de la Casa",
+    "overview": "**Creative North Star: \"El Cuaderno de la Casa\"**\n\nMiniNabi se documenta como el cuaderno de recetas de una casa: un cuaderno rayado donde alguien fue pegando fotos con esquineros, anotando cantidades en máquina de escribir y marcando los capítulos que importan con un subrayado rosa. La personalidad es **editorial artesanal**: periódico de barrio hecho a mano, no catálogo. La página es papel; las reglas de 1px y el rayado continuo de 32px hacen de andamiaje; el rosa pastel aparece como **una sola franja inundada por sección** —nunca como acento esparcido— y la tinta es chocolate, jamás gris puro.\n\nEl sistema es luminoso y de bajo contraste decorativo: nada de tarjetas flotantes idénticas, ni degradados, ni vidrio esmerilado. La profundidad se resuelve con papel (capas de crema y papel viejo), cinta adhesiva rosa y sombras ambientales muy tenues en marrón. La jerarquía la sostiene Bodoni Moda en los titulares —didona de catálogo— contra Schibsted Grotesk en el cuerpo; Courier Prime guarda todo lo que es dato (precios, fechas, folios, cifras) con tabular-nums, y Caveat aparece sólo en marginalia de una o dos palabras.",
     "keyCharacteristics": [
-      "Paleta cálida y dulce: rosa pastel, crema y chocolate como trinidad cromática",
-      "Formas redondeadas y orgánicas en todos los componentes",
-      "Sombras suaves y sutiles que dan profundidad sin peso",
-      "Tipografía Poppins: geométrica, amigable, con personalidad",
-      "Gradientes sutiles de rosa a crema como recurso característico",
-      "Espaciado generoso que permite que el contenido respire"
+      "Papel rayado continuo en todo el sitio; el contenido se apoya en él, nunca lo tapa con un bloque blanco.",
+      "Una franja rosa por sección (portada, índice, cabeceras de página); el resto es crema y papel viejo.",
+      "Titulares didona (Bodoni Moda) contra cuerpo grotesco (Schibsted Grotesk); datos siempre en Courier Prime.",
+      "Reglas de 1px como estructura: sin cajas gruesas, sin bordes laterales, sin sombras duras.",
+      "Botones y tickets con radio de 2px; esquinas casi rectas en toda la interfaz.",
+      "Foto pegada con esquineros y cinta rosa; el ticket de precio con perforación y desgarro."
     ],
     "rules": [
-      { "name": "The Gradient Rule", "body": "Los gradientes siempre van de rosa pastel a crema, en dirección 135deg. Este es el recurso visual característico de la marca y debe usarse consistentemente en headers, hero sections y elementos destacados.", "section": "colors" },
-      { "name": "The One Voice Rule", "body": "Toda la tipografía es Poppins. No se introducen fuentes decorativas ni display alternativas. La jerarquía se logra con peso y tamaño, no con familias diferentes.", "section": "typography" },
-      { "name": "The Soft Shadow Rule", "body": "Las sombras son siempre suaves y de baja opacidad. Nunca se usan sombras duras o de alto contraste. La elevación máxima es sutil: el diseño debe sentirse como papel grueso, no como vidrio flotante.", "section": "elevation" }
+      {
+        "name": "The One Pink Rule",
+        "body": "El rosa es una superficie, no un detalle: se entrega como una franja que inunda una sección completa. Si un elemento \"necesita\" un toque rosa suelto, la respuesta es papel viejo con tinta chocolate.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Pure Gray Rule",
+        "body": "Todo gris se tinta de chocolate (#6d5347 en lugar de #999). Un gris neutro rompe la calidez del papel.",
+        "section": "colors"
+      },
+      {
+        "name": "The Data Rule",
+        "body": "Todo lo que un cliente leería como cifra —precio, fecha, cantidad, folio, teléfono— va en Courier Prime con cifras tabulares. Si no es dato, no va en máquina de escribir.",
+        "section": "typography"
+      },
+      {
+        "name": "The Marginalia Budget Rule",
+        "body": "Caveat se permite una o dos palabras por página (un pie de foto, una nota al margen). Nunca un botón, nunca un párrafo, nunca un precio.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Sheet Rule",
+        "body": "Las superficies en reposo no llevan sombra. Sólo se elevan cuando el usuario las abrió, las está arrastrando o las tiene enfocadas.",
+        "section": "elevation"
+      }
     ],
     "dos": [
-      "Do usar gradientes de rosa a crema en headers y secciones destacadas",
-      "Do mantener esquinas redondeadas en todos los componentes (mínimo 8px)",
-      "Do usar Poppins para toda la tipografía",
-      "Do aplicar sombras suaves y sutiles (nunca duras)",
-      "Do mantener el espaciado generoso entre elementos",
-      "Do usar rosa pastel para elementos interactivos y chocolate para acciones primarias",
-      "Do incluir animaciones suaves de hover (translateY, scale) en tarjetas y botones"
+      "apoyar todo sobre el papel rayado de 32px y dejar que las reglas de 1px (tinte chocolate al 10–42%) estructuren el contenido.",
+      "inundar **una** franja rosa `#f8bbd9` por sección y mantener el resto en crema y papel viejo.",
+      "componer los titulares en Bodoni Moda 500 y el cuerpo en Schibsted Grotesk 400 a 0.95rem con medida de 68ch.",
+      "poner en Courier Prime con `tabular-nums` todo precio, fecha, folio, teléfono y cifra de tabla.",
+      "usar radio de 2px en botones, casillas y tickets, y doble regla de 3px para cerrar encabezados.",
+      "escribir estados completos: reposo, hover, foco visible (outline chocolate 2px), activo, deshabilitado, vacío, carga y error."
     ],
     "donts": [
-      "Don't introducir colores fuera de la paleta (rosa, crema, chocolate, blanco, grises)",
-      "Don't usar esquinas rectas o radios menores a 8px",
-      "Don't aplicar sombras dramáticas o de alto contraste",
-      "Don't mezclar familias de tipografía",
-      "Don't usar el rojo de alerta fuera de errores y acciones destructivas",
-      "Don't saturar el diseño con muchos gradientes en una misma pantalla",
-      "Don't usar imágenes con bordes rectos sin radius"
+      "añadir un segundo acento rosa suelto: el rosa es franja, no detalle.",
+      "usar grises neutros (`#999`, `#ccc`, `#eee`): el sistema no los tiene, todo se tinta de chocolate.",
+      "redondear por encima de 3px ni usar píldoras; no hay radios de 12–20px en el sistema.",
+      "poner sombras duras (`4px 4px 0`), glassmorphism, degradados de color ni texto con degradado.",
+      "usar bordes laterales de más de 1px ni cajas con `border-left` grueso como recurso de jerarquía.",
+      "escribir emojis ni iconos Unicode: la iconografía es lucide-react con `strokeWidth` 1.75–2.",
+      "usar Caveat en botones, datos o párrafos, ni encabezados kicker/eyebrow sobre los titulares."
     ]
   }
 }

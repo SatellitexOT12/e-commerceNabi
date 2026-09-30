@@ -1,242 +1,690 @@
+/* ============================================================
+   LA HOJA DE PEDIDO — checkout del cuaderno de la casa
+   Formulario impreso con casillas, cifras monospace, total sellado
+   Nota de oficio: los selectores van scoping (.checkout-form / .order-summary)
+   para no pisar ni heredar de Admin.css, CreatePost.css y ProductCard.css,
+   que comparten nombres de clase globales.
+   ============================================================ */
+
 .checkout {
+  --ease-paste: cubic-bezier(0.16, 1, 0.3, 1);
+  --error-ink: #a32d20; /* tinta de alerta: legible sobre crema (≥4.5:1) */
   min-height: calc(100vh - 70px);
-  background: var(--background-color);
-  padding: 2rem 0;
+  padding-bottom: 4.5rem;
 }
 
-.checkout-container {
-  max-width: 1100px;
+/* Utilidad: texto reservado a lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Franja de cabecera: la única zona rosa de la sección ---------- */
+.checkout-band {
+  background: var(--primary-color);
+  border-bottom: 3px double var(--accent-color);
+  padding: 2.75rem 1.5rem 2.35rem;
+}
+
+.checkout-band-inner {
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.15rem 2rem;
 }
 
-.checkout-container h1 {
-  text-align: center;
+.checkout-title-block {
+  min-width: 0;
+}
+
+.checkout-band h1 {
+  margin: 0 0 0.65rem;
   color: var(--accent-color);
-  margin-bottom: 2.5rem;
   font-family: var(--font-display);
-  font-size: 2.5rem;
+  font-size: clamp(2.35rem, 5vw, 3.6rem);
   font-weight: 600;
-  letter-spacing: 0;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.checkout-standfirst {
+  margin: 0;
+  max-width: var(--measure);
+  color: var(--accent-color);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.checkout-back {
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--secondary-color);
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.checkout-back:hover {
+  background: var(--accent-color);
+  color: var(--secondary-color);
+  transform: translateY(-1px);
+}
+
+.checkout-back:active {
+  transform: translateY(0);
+}
+
+/* ---------- Contenedor y rejilla ---------- */
+.checkout-container {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 2.75rem 1.5rem 0;
 }
 
 .checkout-content {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 370px);
+  gap: 2.5rem;
   align-items: start;
 }
 
+/* ---------- La hoja: formulario impreso ---------- */
 .checkout-form {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  background: var(--secondary-color);
+  border: 1px solid var(--paper-aged);
+  border-radius: 0;
+  padding: 2.35rem 2.25rem 2.5rem;
+  box-shadow: 0 22px 36px -32px rgba(93, 64, 55, 0.85);
 }
 
-.form-group {
-  margin-bottom: 1.25rem;
+/* Cinta de papel que sujeta la hoja */
+.checkout-form::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 30px;
+  width: 104px;
+  height: 20px;
+  background: var(--tape);
+  transform: rotate(-2.5deg);
 }
 
-.form-group label {
+.sheet-heading {
+  margin: 0 0 1.75rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 3px double var(--accent-color);
+  color: var(--accent-color);
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Casillas ---------- */
+.checkout-form .form-group {
+  margin-bottom: 1.4rem;
+}
+
+.checkout-form .form-group label {
   display: block;
   margin-bottom: 0.5rem;
   color: var(--accent-color);
   font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.form-group input {
+.req-mark {
+  margin-left: 0.3rem;
+  color: var(--error-ink);
+}
+
+.req-mark.optional {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.checkout-form .form-group input,
+.checkout-form .form-group textarea {
+  display: block;
   width: 100%;
-  padding: 0.875rem;
-  border: 1.5px solid var(--primary-color);
-  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  background: #ffffff;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  color: var(--text-color);
   font-family: var(--font-body);
-  transition: all 0.2s ease;
   font-size: 1rem;
-  box-sizing: border-box;
+  line-height: 1.45;
+  caret-color: var(--accent-color);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.form-group input:focus {
-  outline: none;
+.checkout-form .form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.checkout-form .form-group input::placeholder,
+.checkout-form .form-group textarea::placeholder {
+  color: var(--ink-soft);
+  opacity: 1;
+}
+
+.checkout-form .form-group input:hover:not(:disabled),
+.checkout-form .form-group textarea:hover:not(:disabled) {
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(248, 187, 217, 0.25);
 }
 
+.checkout-form .form-group input:focus-visible,
+.checkout-form .form-group textarea:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-color: var(--accent-color);
+}
+
+.checkout-form .form-group input:disabled,
+.checkout-form .form-group textarea:disabled {
+  background: var(--paper-aged-2);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+.checkout-form .form-group input[type="date"] {
+  color-scheme: light;
+}
+
+/* Estado de error: borde doble sin desplazar el layout */
+.checkout-form .form-group.has-error input,
+.checkout-form .form-group.has-error textarea {
+  border-color: var(--error-ink);
+  box-shadow: inset 0 0 0 1px var(--error-ink);
+}
+
+.checkout-form .form-group.has-error input:focus-visible,
+.checkout-form .form-group.has-error textarea:focus-visible {
+  outline-color: var(--error-ink);
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  color: var(--error-ink);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.error svg {
+  flex-shrink: 0;
+  margin-top: 0.18em;
+}
+
+/* Teléfono: prefijo visible como casilla impresa */
 .phone-input {
   display: flex;
-  align-items: center;
+  align-items: stretch;
 }
 
 .phone-prefix {
-  background: var(--primary-color);
-  color: var(--accent-color);
-  padding: 0.875rem;
-  border-radius: 8px 0 0 8px;
-  font-weight: 600;
-  border: 2px solid var(--primary-color);
-  border-right: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.8rem;
+  background: var(--accent-color);
+  color: var(--secondary-color);
+  border: 1px solid var(--accent-color);
+  border-right: 0;
+  border-radius: 2px 0 0 2px;
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
 .phone-input input {
-  border-radius: 0 8px 8px 0;
-  flex: 1;
+  border-radius: 0 2px 2px 0;
 }
 
-.error {
-  color: #e74c3c;
-  font-size: 0.85rem;
-  display: block;
-  margin-top: 0.25rem;
-}
-
+/* ---------- Sello de envío ---------- */
 .submit-btn {
   width: 100%;
-  padding: 1.2rem;
-  background-color: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
+  margin-top: 1.9rem;
+  padding: 1.1rem 1.5rem;
+  background: var(--accent-color);
+  color: var(--secondary-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 2px;
   font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 1rem;
-  letter-spacing: 0.05em;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 4px var(--secondary-color),
+    0 0 0 5px var(--rule-strong),
+    0 16px 24px -20px rgba(93, 64, 55, 0.95);
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .submit-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.2);
   background: #4a3229;
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 4px var(--secondary-color),
+    0 0 0 5px var(--accent-color),
+    0 20px 28px -20px rgba(93, 64, 55, 0.95);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 8px;
 }
 
 .submit-btn:disabled {
-  opacity: 0.6;
+  background: var(--paper-aged);
+  color: var(--ink-soft);
+  border-color: var(--paper-aged);
   cursor: not-allowed;
+  transform: none;
+  box-shadow:
+    0 0 0 4px var(--secondary-color),
+    0 0 0 5px var(--rule);
 }
 
+.submit-note {
+  margin: 1.25rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px dotted var(--rule-strong);
+  color: var(--ink-soft);
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  line-height: 1.35;
+}
+
+/* ---------- Ticket desprendible ---------- */
 .order-summary {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  height: fit-content;
+  --ticket-pad: 1.4rem;
   position: sticky;
-  top: 90px;
+  top: 88px;
+  background: var(--paper-aged-2);
+  border: 1px solid var(--paper-aged);
+  border-radius: 0;
+  padding: 1.5rem var(--ticket-pad) 1.7rem;
+  box-shadow: 0 22px 36px -32px rgba(93, 64, 55, 0.85);
+  animation: ticket-detach 0.6s var(--ease-paste) both;
 }
 
-.order-summary h2 {
-  color: var(--accent-color);
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
+/* El momento: la hoja de resumen se desprende del cuaderno */
+@keyframes ticket-detach {
+  from {
+    transform: translateY(-10px) rotate(-0.6deg);
+  }
+  to {
+    transform: translateY(0) rotate(0deg);
+  }
 }
 
-.summary-item {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #eee;
-}
-
-.item-info {
+.order-summary .ticket-head {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  align-items: flex-start;
+  gap: 0.75rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 3px double var(--accent-color);
+}
+
+.order-summary .ticket-head h2 {
+  margin: 0;
+  color: var(--accent-color);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.order-summary .ticket-count {
+  color: var(--ink-soft);
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.order-summary .ticket-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem 0 0;
+}
+
+.order-summary .ticket-line {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.order-summary .ticket-line:last-child {
+  border-bottom: 0;
+}
+
+.line-main,
+.agrego-line {
+  display: flex;
+  align-items: baseline;
   gap: 0.5rem;
 }
 
-.item-agregos {
-  margin-top: 0.25rem;
-  padding-left: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.agrego-item {
-  display: block;
-  color: #888;
-  margin-bottom: 0.25rem;
-}
-
-.summary-total {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 0;
+.line-qty {
+  flex-shrink: 0;
   color: var(--accent-color);
-  font-size: 1.25rem;
-  border-top: 2px solid var(--primary-color);
-  margin-top: 1rem;
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
+.line-name {
+  min-width: 0;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.line-dots {
+  flex: 1;
+  min-width: 1.25rem;
+  align-self: flex-end;
+  margin-bottom: 0.28em;
+  border-bottom: 1px dotted var(--rule-strong);
+}
+
+.line-amount {
+  flex-shrink: 0;
+  color: var(--accent-color);
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.order-summary .line-agregos {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0 0 0 1.35rem;
+}
+
+.agrego-line {
+  gap: 0.4rem;
+}
+
+.agrego-name {
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.agrego-amount {
+  flex-shrink: 0;
+  color: var(--ink-soft);
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+}
+
+/* Línea de puntos con muescas: el ticket se arranca aquí */
+.order-summary .ticket-total {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.6rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed var(--rule-strong);
+}
+
+.order-summary .ticket-total::before,
+.order-summary .ticket-total::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--background-color);
+}
+
+.order-summary .ticket-total::before {
+  left: calc(-1 * var(--ticket-pad) - 9px);
+}
+
+.order-summary .ticket-total::after {
+  right: calc(-1 * var(--ticket-pad) - 9px);
+}
+
+.order-summary .total-label {
+  color: var(--accent-color);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.order-summary .total-amount {
+  padding: 0.25rem 0.6rem;
+  background: var(--secondary-color);
+  border: 3px double var(--accent-color);
+  color: var(--accent-color);
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+  font-weight: 700;
+  transform: rotate(-1.2deg);
+}
+
+/* ---------- Estado vacío del ticket ---------- */
+.order-summary .ticket-empty {
+  padding: 1.75rem 0 0.5rem;
+}
+
+.ticket-empty .empty-mark {
+  color: var(--ink-soft);
+}
+
+.ticket-empty .empty-title {
+  margin: 0.75rem 0 0.4rem;
+  color: var(--accent-color);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ticket-empty .empty-body {
+  margin: 0 0 1.2rem;
+  max-width: 36ch;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.ticket-empty .ghost-btn {
+  gap: 0.5rem;
+  padding: 0.6rem 1.05rem;
+  background: transparent;
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ticket-empty .ghost-btn:hover {
+  background: var(--accent-color);
+  color: var(--secondary-color);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .checkout-content {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 330px);
+    gap: 1.75rem;
+  }
+
+  .checkout-form {
+    padding: 2rem 1.75rem 2.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .checkout-band {
+    padding: 2rem 1.15rem 1.75rem;
+  }
+
+  .checkout-container {
+    padding: 1.75rem 1.15rem 0;
+  }
+
   .checkout-content {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.75rem;
   }
 
   .order-summary {
     position: static;
     order: -1;
   }
-}
 
-@media (max-width: 768px) {
-  .checkout-container h1 {
-    font-size: 1.5rem;
+  .checkout-form {
+    padding: 1.9rem 1.35rem 2rem;
   }
 
-  .checkout-form,
-  .order-summary {
-    padding: 1.5rem;
+  .checkout-form::before {
+    left: 20px;
+    width: 88px;
   }
 
-  .form-group input {
-    padding: 0.75rem;
-    font-size: 16px; /* Prevents zoom on iOS */
+  .checkout-form .form-group input,
+  .checkout-form .form-group textarea {
+    font-size: 16px; /* evita el zoom automático en iOS */
+    padding: 0.7rem 0.75rem;
   }
 
   .phone-prefix {
-    padding: 0.75rem;
+    padding: 0 0.7rem;
     font-size: 16px;
   }
 }
 
 @media (max-width: 480px) {
   .checkout {
-    padding: 1rem 0;
+    padding-bottom: 3rem;
+  }
+
+  .checkout-band {
+    padding: 1.6rem 0.9rem 1.4rem;
+  }
+
+  .checkout-band h1 {
+    font-size: 2.05rem;
+  }
+
+  .checkout-standfirst {
+    font-size: 0.95rem;
+  }
+
+  .checkout-back {
+    width: 100%;
+    justify-content: center;
   }
 
   .checkout-container {
-    padding: 0 0.75rem;
+    padding: 1.35rem 0.9rem 0;
   }
 
-  .checkout-form,
+  .checkout-form {
+    padding: 1.55rem 1rem 1.65rem;
+  }
+
   .order-summary {
-    padding: 1rem;
-    border-radius: 8px;
+    --ticket-pad: 1rem;
+    padding: 1.25rem var(--ticket-pad) 1.4rem;
   }
 
-  .form-group label {
-    font-size: 0.9rem;
+  .sheet-heading {
+    margin-bottom: 1.4rem;
   }
 
-  .summary-item {
-    padding: 0.5rem 0;
-    font-size: 0.9rem;
+  .line-main {
+    flex-wrap: wrap;
   }
 
-  .item-info {
-    flex-direction: column;
-    gap: 0.25rem;
+  .line-dots {
+    min-width: 0.75rem;
   }
 
-  .item-agregos {
+  .order-summary .line-agregos {
     padding-left: 0;
+  }
+
+  .submit-btn {
+    padding: 1rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .order-summary {
+    animation: none;
+  }
+
+  .checkout-band *,
+  .checkout-form,
+  .checkout-form *,
+  .order-summary,
+  .order-summary * {
+    transition: none !important;
   }
 }
