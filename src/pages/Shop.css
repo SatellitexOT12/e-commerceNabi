@@ -554,7 +554,7 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     z-index: 500;
-    box-shadow: 0 20px 40px -25px rgba(26, 15, 13, 0.8);
+    box-shadow: 0 20px 40px -25px rgba(58, 39, 31, 0.8);
     border-top: 1px solid var(--paper-aged);
   }
 
